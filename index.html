@@ -347,19 +347,52 @@
   .acesso-card h2 { margin: 0 0 6px; font-size: 19px; color: var(--ink-strong); text-transform: uppercase; letter-spacing: .03em; }
   .acesso-card .btn { width: 100%; justify-content: center; margin-top: 6px; }
   .pill-usuario .rotulo-menu { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
+
+  /* ===== ICONES DE LINHA + MOLDURA QUE DESLIZA NO MENU (efeito do trilho da ficha) ===== */
+  .ico { width: 20px; height: 20px; flex: none; display: inline-block; vertical-align: middle; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; color: var(--accent); }
+  .sidebar .navbar-menu { position: relative; isolation: isolate; }
+  .sidebar .botao-menu, .botao-sub { position: relative; z-index: 1; }
+  .sidebar .botao-menu { gap: 10px; transition: color .18s, background .18s; }
+  .sidebar .botao-menu .ico { opacity: .8; transition: opacity .18s, filter .18s; }
+  .sidebar .botao-menu:hover .ico { opacity: 1; }
+  .sidebar .botao-menu.ativo, .sidebar .botao-menu.ativo:hover { background: transparent; color: #ffb27a; }
+  .sidebar .botao-menu.ativo .ico { opacity: 1; filter: drop-shadow(0 0 5px rgba(235,120,50,.55)); }
+  .botao-sub.ativo, .botao-sub.ativo:hover { background: transparent; box-shadow: none; color: #ffb27a; }
+  .botao-menu:focus-visible, .botao-sub:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .menu-sel { position: absolute; left: 0; top: 0; width: 0; height: 0; border-radius: 10px; pointer-events: none; z-index: 0; opacity: 0; transform: translateY(0); will-change: transform;
+    border: 1px solid rgba(235,120,50,.5);
+    background: radial-gradient(ellipse 85% 75% at 50% 50%, rgba(235,120,50,.34) 0%, rgba(235,120,50,.14) 50%, rgba(235,120,50,0) 100%);
+    box-shadow: inset 0 0 16px rgba(235,120,50,.2), 0 0 16px rgba(235,120,50,.12);
+    transition: transform .32s cubic-bezier(.4,0,.2,1), height .32s cubic-bezier(.4,0,.2,1), left .32s cubic-bezier(.4,0,.2,1), width .32s cubic-bezier(.4,0,.2,1), opacity .22s; }
+  .menu-sel.visivel { opacity: 1; }
+  .menu-sel.sem-anim { transition: none; }
+  .menu-sel::before, .menu-sel::after { content: ""; position: absolute; left: 16%; right: 16%; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,190,130,.85), transparent); }
+  .menu-sel::before { top: -1px; }
+  .menu-sel::after { bottom: -1px; }
+  @media (prefers-reduced-motion: reduce) {
+    .menu-sel { transition: transform .18s ease-out, height .18s ease-out, left .18s ease-out, width .18s ease-out, opacity .12s; }
+    .sidebar .botao-menu, .sidebar .botao-menu .ico { transition: none; }
+  }
+  .sidebar-rodape .icone-topo { display: flex; align-items: center; gap: 10px; }
+  .sidebar-rodape .icone-topo .ico { opacity: .85; }
+  .tab-chip .ico { width: 15px; height: 15px; margin-right: 2px; }
+  .titulo-pagina .ico { width: 18px; height: 18px; margin-right: 6px; vertical-align: -3px; }
+  .cartao .icone .ico { width: 22px; height: 22px; }
+  .placeholder-modulo .ic { opacity: .7; line-height: 0; }
+  .placeholder-modulo .ic .ico { width: 42px; height: 42px; }
 </style></head><body><div id="shell" class="app-shell">
   <aside class="sidebar" id="sidebar">
     <div class="navbar-marca"><div class="selo">R</div><strong>RODRIAÇO</strong></div>
     <nav class="navbar-menu" id="navbarMenu"></nav>
     <div class="sidebar-rodape">
-      <button type="button" class="icone-topo" id="btnAbrirOperador" title="Área do Operador" style="cursor:pointer; opacity:1;">📱 <span class="rotulo-menu">Área do Operador</span></button>
-      <div class="pill-usuario" id="pillUsuario"><span class="avatar" id="usuarioInicial">?</span><span class="rotulo-menu" id="usuarioEmail">—</span></div><button type="button" class="icone-topo" id="btnSairErp" title="Sair" style="cursor:pointer; opacity:1;">&#128682; <span class="rotulo-menu">Sair</span></button>
+      <button type="button" class="icone-topo" id="btnAbrirOperador" title="Área do Operador" style="cursor:pointer; opacity:1;"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg> <span class="rotulo-menu">Área do Operador</span></button>
+      <div class="pill-usuario" id="pillUsuario"><span class="avatar" id="usuarioInicial">?</span><span class="rotulo-menu" id="usuarioEmail">—</span></div><button type="button" class="icone-topo" id="btnSairErp" title="Sair" style="cursor:pointer; opacity:1;"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3"/><path d="M16 8l4 4-4 4M20 12H9"/></svg> <span class="rotulo-menu">Sair</span></button>
     </div>
   </aside>
 
   <div class="area-principal">
     <div class="subcabecalho">
-      <div class="titulo-pagina" id="tituloPagina">🏠 Início</div>
+      <div class="titulo-pagina" id="tituloPagina"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11.5L12 4l9 7.5"/><path d="M5.5 10v10h13V10"/><path d="M10 20v-5.5h4V20"/></svg> Início</div>
       <span class="status-pill" id="statusPill">Pronto</span>
     </div>
 
@@ -390,19 +423,23 @@ var ESTADO_PADRAO = {"familias":[{"id":"fam_mesas","nome":"Mesas","descricao":"M
 var estado = null;
 
 var MODULOS = [
-  { chave: 'cadastros', nome: 'Cadastros', icone: '&#128193;', disponivel: true, descricao: 'Famílias, componentes e itens — BOM com fórmula ligada às medidas.' },
-  { chave: 'comercial', nome: 'Comercial', icone: '&#129309;', disponivel: true, descricao: 'CRM — clientes, contatos, funil de oportunidades e histórico de interações.' },
-  { chave: 'compras', nome: 'Compras', icone: '&#128722;', disponivel: false, descricao: 'Cotação e pedido de compra de matéria-prima e insumos.' },
-  { chave: 'pcp', nome: 'PCP', icone: '&#128197;', disponivel: true, descricao: 'Ordens de produção — assistente de configuração, sufixo automático e checagem de encaixe.' },
-  { chave: 'producao', nome: 'Produção', icone: '&#127981;', disponivel: false, descricao: 'Controle de produção, apontamento de etapas, manufatura.' },
-  { chave: 'estoque', nome: 'Estoque', icone: '&#128230;', disponivel: false, descricao: 'Saldos, reservas, baixas e endereçamento de materiais.' },
-  { chave: 'logistica', nome: 'Logística', icone: '&#128666;', disponivel: true, descricao: 'Análise do mapa de produção (CSV do Cosmos): embarques, locais de entrega e etapas da fábrica.' },
-  { chave: 'qualidade', nome: 'Qualidade', icone: '&#129514;', disponivel: false, descricao: 'Inspeção e controle de não conformidades na fabricação.' },
-  { chave: 'financeiro', nome: 'Financeiro', icone: '&#128176;', disponivel: false, descricao: 'Contas a pagar/receber, faturamento, fluxo de caixa.' },
-  { chave: 'manutencao', nome: 'Manutenção', icone: '&#128295;', disponivel: false, descricao: 'Máquinas e equipamentos da fábrica.' }
+  { chave: 'cadastros', nome: 'Cadastros', disponivel: true, descricao: 'Famílias, componentes e itens — BOM com fórmula ligada às medidas.' },
+  { chave: 'comercial', nome: 'Comercial', disponivel: true, descricao: 'CRM — clientes, contatos, funil de oportunidades e histórico de interações.' },
+  { chave: 'compras', nome: 'Compras', disponivel: false, descricao: 'Cotação e pedido de compra de matéria-prima e insumos.' },
+  { chave: 'pcp', nome: 'PCP', disponivel: true, descricao: 'Ordens de produção — assistente de configuração, sufixo automático e checagem de encaixe.' },
+  { chave: 'producao', nome: 'Produção', disponivel: false, descricao: 'Controle de produção, apontamento de etapas, manufatura.' },
+  { chave: 'estoque', nome: 'Estoque', disponivel: false, descricao: 'Saldos, reservas, baixas e endereçamento de materiais.' },
+  { chave: 'logistica', nome: 'Logística', disponivel: true, descricao: 'Análise do mapa de produção (CSV do Cosmos): embarques, locais de entrega e etapas da fábrica.' },
+  { chave: 'qualidade', nome: 'Qualidade', disponivel: false, descricao: 'Inspeção e controle de não conformidades na fabricação.' },
+  { chave: 'financeiro', nome: 'Financeiro', disponivel: false, descricao: 'Contas a pagar/receber, faturamento, fluxo de caixa.' },
+  { chave: 'manutencao', nome: 'Manutenção', disponivel: false, descricao: 'Máquinas e equipamentos da fábrica.' }
 ];
 
-var abas = [{ id: 'inicio', titulo: 'Início', icone: '&#127968;', fechavel: false }];
+var ICONES_SVG = {"inicio": "<path d=\"M3 11.5L12 4l9 7.5\"/><path d=\"M5.5 10v10h13V10\"/><path d=\"M10 20v-5.5h4V20\"/>", "cadastros": "<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>", "comercial": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7\"/><path d=\"M3 13h18M11 13v2h2v-2\"/>", "compras": "<circle cx=\"9\" cy=\"20\" r=\"1.4\"/><circle cx=\"18\" cy=\"20\" r=\"1.4\"/><path d=\"M2.5 3.5H5l2.4 11a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L20.5 7.5H6\"/>", "pcp": "<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M8 3v4M16 3v4M4 10h16\"/><path d=\"M8.5 14h2M13.5 14h2M8.5 17.5h2\"/>", "producao": "<path d=\"M3 21V11l6 3.5V11l6 3.5V5h4v16z\"/><path d=\"M3 21h18M8 18h1M13 18h1\"/>", "estoque": "<path d=\"M12 3l8 4.5v9L12 21l-8-4.5v-9z\"/><path d=\"M4 7.5l8 4.5 8-4.5M12 12v9\"/>", "logistica": "<rect x=\"2\" y=\"6.5\" width=\"12\" height=\"9.5\" rx=\"1\"/><path d=\"M14 9.5h4.2L22 13v3h-8\"/><circle cx=\"7\" cy=\"18\" r=\"1.8\"/><circle cx=\"17.5\" cy=\"18\" r=\"1.8\"/>", "qualidade": "<path d=\"M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z\"/><path d=\"M8.8 12l2.2 2.2 4.2-4.4\"/>", "financeiro": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M14.6 9.3c-.5-.8-1.4-1.3-2.6-1.3-1.4 0-2.5.8-2.5 1.9 0 2.7 5.1 1.4 5.1 4.1 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.5-2.6-1.3M12 6.3V8M12 16v1.7\"/>", "manutencao": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z\"/>", "operador": "<rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2.5\"/><path d=\"M10.5 18.5h3\"/>", "sair": "<path d=\"M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>"};
+function icoSvg(chave) { return '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">' + (ICONES_SVG[chave] || '') + '</svg>'; }
+MODULOS.forEach(function (m) { m.icone = icoSvg(m.chave); });
+
+var abas = [{ id: 'inicio', titulo: 'Início', icone: icoSvg('inicio'), fechavel: false }];
 var abaAtivaId = 'inicio';
 
 /* ===== utilitarios ===== */
@@ -567,7 +604,7 @@ var SUB_ATUAL = {
   logistica: function () { return abaLogAtual; }
 };
 function montarNavbar() {
-  var html = '';
+  var html = '<span class="menu-sel" id="menuSel" aria-hidden="true"></span>';
   for (var i = 0; i < MODULOS.length; i++) {
     var m = MODULOS[i];
     var subs = SUBMENUS[m.chave];
@@ -590,11 +627,40 @@ function montarNavbar() {
   document.querySelectorAll('.botao-sub').forEach(function (b) {
     b.addEventListener('click', function () { abrirSub(b.getAttribute('data-modulo'), b.getAttribute('data-sub')); });
   });
+  if (!window.__menuSelLigado) {
+    window.__menuSelLigado = true;
+    window.addEventListener('resize', posicionarSelMenu);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(posicionarSelMenu);
+  }
 }
 function alternarGrupoMenu(chave, forcar) {
   var g = document.querySelector('.grupo-menu[data-grupo-chave="' + chave + '"]');
   if (!g) return;
   g.classList.toggle('aberto', forcar === undefined ? !g.classList.contains('aberto') : forcar);
+  posicionarSelMenu();
+}
+/* a moldura fica atras do item ativo e desliza de um para o outro; a primeira vez nasce no lugar */
+function posicionarSelMenu() {
+  var sel = document.getElementById('menuSel');
+  if (!sel) return;
+  var alvo = document.querySelector('.botao-sub.ativo');
+  if (!alvo || !alvo.offsetParent) alvo = document.querySelector('.botao-menu.ativo');
+  if (!alvo || !alvo.offsetParent) { sel.classList.remove('visivel'); return; }
+  function aplicar() {
+    sel.style.transform = 'translateY(' + alvo.offsetTop + 'px)';
+    sel.style.height = alvo.offsetHeight + 'px';
+    sel.style.left = alvo.offsetLeft + 'px';
+    sel.style.width = alvo.offsetWidth + 'px';
+  }
+  if (!sel.classList.contains('visivel')) {
+    sel.classList.add('sem-anim');
+    aplicar();
+    void sel.offsetWidth;
+    sel.classList.remove('sem-anim');
+    sel.classList.add('visivel');
+  } else {
+    aplicar();
+  }
 }
 function abrirSub(modulo, sub) {
   abrirAba(modulo);
@@ -605,6 +671,7 @@ function atualizarSubmenuAtivo() {
     var m = b.getAttribute('data-modulo');
     b.classList.toggle('ativo', abaAtivaId === m && SUB_ATUAL[m]() === b.getAttribute('data-sub'));
   });
+  posicionarSelMenu();
 }
 
 
