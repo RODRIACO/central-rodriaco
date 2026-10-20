@@ -621,7 +621,7 @@ function montarNavbar() {
   document.querySelectorAll('.botao-menu').forEach(function (btn) {
     btn.addEventListener('click', function () {
       var chave = btn.getAttribute('data-chave');
-      if (SUBMENUS[chave]) alternarGrupoMenu(chave); else abrirAba(chave);
+      if (SUBMENUS[chave] && abaAtivaId === chave) alternarGrupoMenu(chave); else abrirAba(chave);
     });
   });
   document.querySelectorAll('.botao-sub').forEach(function (b) {
