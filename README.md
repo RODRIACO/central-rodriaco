@@ -13,15 +13,19 @@ Dashboard do mapa de produção do Cosmos. O caminho dos dados:
 Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase ──> Central Rodriaço
 ```
 
-- O robô grava `DADOS COSMOS.csv` (OPs abertas + `LocalEntrega` e `PedidoDataEntrega`
-  vindos do FBX Data Entrega) no bucket `dados-cosmos`.
+- O robô grava `DADOS COSMOS.csv` (OPs abertas, 31 colunas: local e data de entrega,
+  endereço, cidade e UF reais, vendedor, NF e data de faturamento) no bucket
+  `dados-cosmos`. A página lê as colunas pelo nome e ainda abre o arquivo antigo
+  de 21 colunas.
 - A página entra no Supabase com **e-mail e senha** (as mesmas contas do Estoque
   Livre), baixa o arquivo e monta o painel. A cada 5 minutos confere se o robô
   enviou um arquivo novo e recarrega sozinha.
-- Filtros: período (por embarque, entrega ou abertura), UF, local de entrega,
-  cliente, tipo de produto, etapa atual, busca livre e atalhos (vencidos, sem
-  local, sem data). Clicar em qualquer barra, indicador ou coluna do gráfico
-  filtra o painel inteiro.
+- Filtros: período (por embarque, entrega, abertura ou faturamento), UF, cidade
+  (acompanha a UF), local de entrega, cliente, vendedor, tipo de produto, etapa
+  atual, busca livre e atalhos (vencidos, sem local, sem data, com NF). Clicar em
+  qualquer barra, indicador ou coluna do gráfico filtra o painel inteiro.
+- Gráficos: etapa, tipo, UF, cidades, vendedores, local de entrega e clientes.
+  A tabela traz endereço, cidade, UF, vendedor, NF e data de faturamento.
 - Tabela com paginação e **Exportar CSV** do que está filtrado.
 - **Filtro por coluna estilo planilha:** o botão ▼ de cada cabeçalho abre ordenar
   (A→Z, mais antigo/recente, menor/maior), pesquisa, lista de valores com contagem,
@@ -41,11 +45,12 @@ O ERP inteiro fica atrás do login do Supabase, não só a Análise CSV:
 - Contas se criam e se liberam no Estoque Livre; o ERP só faz o login.
 - A Área do Operador (inclusive pelo QR da OP) também passa pelo login.
 
-**Limite dos dados:** `LocalEntrega` é texto livre (quase sempre o nome da
-unidade/cliente). A UF só aparece em cerca de 4 de cada 10 linhas; as demais
-ficam como "Não informada". Datas `01/01/1753`, `01/01/1900` e `01/01/2000`
-significam "sem data". "Embarque vencido" é OP ainda aberta no Cosmos com
-embarque antes de hoje — pode já ter embarcado e estar só esperando a baixa.
+**Leitura dos dados:** o local de entrega (`PedidoEndTipo`) é texto livre, quase
+sempre o nome da unidade/cliente; cidade e UF vêm do cadastro (`CidadeNome`,
+`EstadoUF`). Datas `01/01/1753`, `01/01/1900` e `01/01/2000` significam "sem
+data". "Embarque vencido" é OP ainda aberta no Cosmos com embarque antes de hoje:
+se já tem NF emitida provavelmente já saiu e só espera a baixa; as **sem NF** são
+os atrasos de verdade (o painel mostra os dois números).
 
 ## Colocar no ar (GitHub Pages)
 
