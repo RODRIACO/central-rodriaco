@@ -22,7 +22,12 @@ Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase 
   cliente, tipo de produto, etapa atual, busca livre e atalhos (vencidos, sem
   local, sem data). Clicar em qualquer barra, indicador ou coluna do gráfico
   filtra o painel inteiro.
-- Tabela com ordenação, paginação e **Exportar CSV** do que está filtrado.
+- Tabela com paginação e **Exportar CSV** do que está filtrado.
+- **Filtro por coluna estilo planilha:** o botão ▼ de cada cabeçalho abre ordenar
+  (A→Z, mais antigo/recente, menor/maior), pesquisa, lista de valores com contagem,
+  Selecionar tudo / Limpar e OK. Os filtros de coluna se somam aos do painel e
+  indicadores e gráficos acompanham. O mesmo ▼ existe em todas as listas do ERP
+  (Famílias, Componentes, Itens, Clientes, Pedidos, Ordens, Interações).
 
 ## Acesso (login do ERP)
 
