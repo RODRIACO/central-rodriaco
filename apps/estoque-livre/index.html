@@ -1,0 +1,2193 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B0A09">
+<meta name="description" content="Controle do estoque livre da Rodriaco: cadastro com foto, etiqueta QR, busca por medida e reserva com prazo.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icone-192.png">
+<link rel="apple-touch-icon" href="icone-192.png">
+<meta name="apple-mobile-web-app-title" content="Estoque Livre">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<title>Estoque Livre Rodriaço</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap">
+<style>
+:root{
+  /* Identidade Rodriaco: preto e laranja. Tema unico, deliberado. */
+  --bg:#0B0A09; --surface:#151412; --surface-2:#1C1B18; --surface-3:#26241F;
+  --line:#2C2A26; --line-2:#3E3B35;
+  --ink:#F4F1EC; --ink-2:#ADA79E; --ink-3:#7C766D;
+  --accent:#F26A21; --accent-ink:#140700; --accent-soft:#2B1408; --accent-line:#5E2E10;
+  --ok:#46B87C; --ok-soft:#0F2418; --ok-line:#245C3D;
+  --warn:#F2C14E; --warn-soft:#2A2210; --warn-line:#5C4A1C;
+  --crit:#FF5247; --crit-soft:#2C1310; --crit-line:#63241E;
+  --shadow:0 1px 2px rgba(0,0,0,.55), 0 6px 18px -8px rgba(0,0,0,.85);
+  --shadow-lg:0 2px 8px rgba(0,0,0,.6), 0 24px 52px -14px rgba(0,0,0,.95);
+  --r:10px;
+  --sans:"Archivo","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono","Consolas",monospace;
+  color-scheme:dark;
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01ms !important;transition-duration:.01ms !important}}
+
+/* ---------- shell ---------- */
+.app{max-width:1180px;margin:0 auto;padding:0 14px 96px}
+.topbar{position:sticky;top:0;z-index:40;background:var(--bg);padding:10px 0 8px;border-bottom:1px solid var(--line)}
+.topbar-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;white-space:nowrap}
+.wm{display:flex;flex-direction:column;gap:3px;line-height:1}
+.wm-name{font-weight:700;font-size:18px;letter-spacing:.005em;color:var(--accent)}
+.wm-tag{font:500 7.5px/1 var(--sans);letter-spacing:.185em;color:var(--ink-3)}
+.brand-div{width:1px;height:24px;background:var(--line-2);flex:none}
+.brand-app{font:600 10.5px/1 var(--sans);letter-spacing:.15em;text-transform:uppercase;color:var(--ink-2)}
+.searchwrap{flex:1 1 260px;position:relative;min-width:180px}
+.searchwrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--ink-3);pointer-events:none}
+.search{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--line-2);border-radius:var(--r);background:var(--surface)}
+.search::placeholder{color:var(--ink-3)}
+.whoami{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2)}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);display:grid;place-items:center;font-weight:700;font-size:11px;flex:none}
+.nav{display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;scrollbar-width:none}
+.nav[hidden],.searchwrap[hidden]{display:none}
+.nav::-webkit-scrollbar{display:none}
+.nav button{white-space:nowrap;border:1px solid transparent;background:transparent;color:var(--ink-2);padding:6px 12px;border-radius:99px;cursor:pointer;font-weight:500;font-size:13px}
+.nav button:hover{background:var(--surface-3);color:var(--ink)}
+.nav button[aria-current="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.nav .pip{display:inline-block;min-width:17px;padding:0 4px;margin-left:6px;border-radius:99px;background:var(--crit);color:#fff;font:600 10px/17px var(--mono);text-align:center}
+.nav button[aria-current="true"] .pip{background:var(--accent-ink);color:var(--accent)}
+
+/* ---------- generic ---------- */
+h1{font-size:21px;font-weight:700;margin:22px 0 2px;letter-spacing:-.015em;text-wrap:balance}
+h2{font-size:15px;font-weight:600;margin:0;letter-spacing:-.005em}
+.sec{margin-top:22px}
+.sec-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;flex-wrap:wrap}
+.sec-head .count{font:600 11px/1 var(--mono);color:var(--ink-3);background:var(--surface-3);padding:4px 7px;border-radius:5px}
+.lead{color:var(--ink-2);font-size:13.5px;margin:0 0 2px;max-width:62ch}
+.eyebrow{font:600 10px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.spacer{flex:1}
+.hidden{display:none !important}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font-weight:500;font-size:13.5px;cursor:pointer;text-decoration:none}
+.btn:hover{background:var(--surface-2);border-color:var(--ink-3)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.dang{color:var(--crit);border-color:var(--crit-line)}
+.btn.dang:hover{background:var(--crit-soft)}
+.btn.sm{padding:6px 10px;font-size:12.5px;border-radius:8px}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--surface-3);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:99px;font:600 11px/1.5 var(--sans);border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.chip.ok{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok)}
+.chip.warn{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn)}
+.chip.crit{background:var(--crit-soft);border-color:var(--crit-line);color:var(--crit)}
+.chip.acc{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+.chip.ex{background:transparent;border-style:dashed;color:var(--ink-3)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.pad{padding:14px}
+
+label.f{display:block;margin-bottom:11px}
+label.f > span{display:block;font:600 10.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.inp{width:100%;padding:9px 11px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface)}
+textarea.inp{min-height:66px;resize:vertical;font-family:var(--sans)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 10px}
+.hint{font-size:11.5px;color:var(--ink-3);margin-top:4px}
+
+/* ---------- item cards ---------- */
+.items{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:11px}
+.item{display:flex;gap:0;text-align:left;width:100%;background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:var(--r);overflow:hidden;cursor:pointer;box-shadow:var(--shadow);padding:0}
+.item:hover{border-color:var(--ink-3);border-left-color:var(--accent)}
+.item.s-res{border-left-color:var(--warn)}
+.item.s-crit{border-left-color:var(--crit)}
+.item.s-disp{border-left-color:var(--ok)}
+.item.s-out{border-left-color:var(--ink-3);opacity:.72}
+.thumb{width:82px;flex:none;background:var(--surface-3);display:grid;place-items:center;color:var(--ink-3);overflow:hidden}
+.thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.ibody{flex:1;min-width:0;padding:10px 11px;display:flex;flex-direction:column;gap:5px}
+.iline1{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.icode{font:600 11.5px/1 var(--mono);color:var(--accent);letter-spacing:.02em}
+.iname{font-weight:600;font-size:14px;line-height:1.25;overflow-wrap:anywhere}
+.ifam{font-size:11.5px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.imed{font:400 12.5px/1 var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.iclocks{display:flex;gap:12px;flex-wrap:wrap;margin-top:auto;padding-top:3px;font-size:11.5px;color:var(--ink-3)}
+.iclocks b{font-family:var(--mono);font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.iclocks .cw{color:var(--warn)} .iclocks .cc{color:var(--crit)} .iclocks .co{color:var(--ok)}
+
+.empty{border:1px dashed var(--line-2);border-radius:var(--r);padding:26px 18px;text-align:center;color:var(--ink-2);background:var(--surface-2)}
+.empty h3{margin:0 0 6px;font-size:15px;color:var(--ink)}
+.empty p{margin:0 0 14px;font-size:13px;max-width:44ch;margin-inline:auto}
+
+/* ---------- alert banner ---------- */
+.alert{border:1px solid var(--crit-line);background:var(--crit-soft);border-radius:var(--r);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.alert .t{font-weight:700;color:var(--crit);font-size:14px}
+.alert .d{font-size:12.5px;color:var(--ink-2);max-width:56ch}
+.alert.info{border-color:var(--accent-line);background:var(--accent-soft)}
+.alert.info .t{color:var(--accent)}
+
+/* ---------- detail drawer ---------- */
+.scrim{position:fixed;inset:0;background:rgba(10,16,20,.55);z-index:60;display:flex;justify-content:flex-end}
+.drawer{background:var(--bg);width:min(560px,100%);height:100%;overflow-y:auto;box-shadow:var(--shadow-lg);border-left:1px solid var(--line)}
+.dhead{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:12px 16px;display:flex;align-items:center;gap:10px;z-index:2}
+.dbody{padding:16px}
+.gal{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.gal img{height:180px;width:auto;border-radius:8px;border:1px solid var(--line);background:var(--surface-3);flex:none;object-fit:cover}
+.gal .ph{height:180px;width:230px;border-radius:8px;border:1px dashed var(--line-2);display:grid;place-items:center;color:var(--ink-3);font-size:12.5px;flex:none;background:var(--surface-2);text-align:center;padding:10px}
+.kv{display:grid;grid-template-columns:112px 1fr;gap:7px 12px;font-size:13.5px;align-items:baseline}
+.kv dt{font:600 10.5px/1.6 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.kv dd{margin:0;overflow-wrap:anywhere}
+.hist{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:0}
+.hist li{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.hist li:last-child{border-bottom:0}
+.hist .when{font-family:var(--mono);color:var(--ink-3);flex:none;font-size:11.5px;padding-top:1px}
+.qrbox{display:flex;gap:14px;align-items:center;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px}
+.qrbox canvas{border-radius:6px;background:#fff;padding:5px;flex:none}
+
+/* ---------- panel / stats ---------- */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:11px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px}
+.stat .l{font:600 10px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.stat .v{font:600 25px/1.15 var(--mono);margin-top:7px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat .s{font-size:11.5px;color:var(--ink-3);margin-top:3px}
+.bars{display:flex;flex-direction:column;gap:9px}
+.bar{display:grid;grid-template-columns:118px 1fr 52px;gap:10px;align-items:center;font-size:12.5px}
+.bar .tr{height:9px;background:var(--surface-3);border-radius:99px;overflow:hidden}
+.bar .fl{height:100%;background:var(--accent);border-radius:99px}
+.bar .n{text-align:right;font-family:var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.bar .lb{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink-2)}
+
+/* ---------- tables ---------- */
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+th{text-align:left;font:600 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tr:last-child td{border-bottom:0}
+
+/* ---------- sugestao enquanto digita ---------- */
+.autocomp{position:relative}
+.sugbox{position:absolute;left:0;right:0;top:calc(100% + 5px);z-index:30;
+  background:var(--surface-2);border:1px solid var(--line-2);border-radius:10px;
+  box-shadow:var(--shadow-lg);max-height:232px;overflow-y:auto;padding:4px}
+.sugbox button{display:flex;width:100%;align-items:baseline;gap:9px;text-align:left;
+  background:transparent;border:0;color:var(--ink);padding:10px;border-radius:7px;
+  cursor:pointer;font-size:13.5px;line-height:1.3}
+.sugbox button:hover{background:var(--surface-3)}
+.sugbox button b{font-weight:600;color:var(--accent)}
+.sugbox .qt{margin-left:auto;flex:none;font:600 11px/1 var(--mono);color:var(--ink-3)}
+
+/* ---------- filters ---------- */
+.filters{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+.fchip{border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);padding:5px 11px;border-radius:99px;font-size:12.5px;cursor:pointer;font-weight:500}
+.fchip[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:600}
+.selwrap{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end}
+
+/* ---------- login ---------- */
+.gate{max-width:430px;margin:8vh auto 0}
+.gate .card{padding:22px}
+.gate .logo{display:flex;flex-direction:column;gap:6px;line-height:1;margin-bottom:20px}
+.gate .logo .g-name{font-weight:700;font-size:31px;letter-spacing:.005em;color:var(--accent)}
+.gate .logo .g-tag{font:500 10px/1 var(--sans);letter-spacing:.245em;color:var(--ink-3)}
+.gate .logo .g-app{font:600 10.5px/1 var(--sans);letter-spacing:.15em;text-transform:uppercase;color:var(--ink-2);margin-top:7px;padding-top:11px;border-top:1px solid var(--line)}
+
+/* ---------- convite de instalacao ---------- */
+.install{text-align:center}
+.install .ic{width:84px;height:84px;margin:0 auto 14px;display:block}
+.install h3{font-size:18px;margin:0 0 6px;letter-spacing:-.01em}
+.install .steps{text-align:left;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:14px 0;font-size:13px;color:var(--ink-2)}
+.install .steps b{color:var(--ink);font-weight:600}
+.install .steps ol{margin:7px 0 0;padding-left:19px;display:flex;flex-direction:column;gap:5px}
+.install .os{display:flex;gap:6px;justify-content:center;margin-bottom:2px}
+.gate p.lead{margin-bottom:18px}
+
+/* ---------- foto ampliada ---------- */
+.lbox{position:fixed;inset:0;z-index:80;background:#06090b;display:flex;align-items:center;justify-content:center;overflow:auto;-webkit-overflow-scrolling:touch}
+.lbox img{max-width:100%;max-height:100vh;object-fit:contain;display:block;margin:auto;cursor:zoom-in}
+.lbox.zoom{align-items:flex-start;justify-content:flex-start}
+.lbox.zoom img{max-width:none;max-height:none;width:240%;margin:0;cursor:zoom-out}
+.lb-x{position:fixed;top:12px;right:12px;z-index:2;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.25);background:rgba(8,12,16,.78);color:#fff;font-size:18px;line-height:1;cursor:pointer;padding:0}
+.lb-nav{position:fixed;top:50%;transform:translateY(-50%);z-index:2;width:44px;height:62px;border-radius:9px;border:1px solid rgba(255,255,255,.2);background:rgba(8,12,16,.62);color:#fff;font-size:26px;line-height:1;cursor:pointer;padding:0}
+.lb-prev{left:10px} .lb-next{right:10px}
+.lb-cont{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:2;background:rgba(8,12,16,.78);border:1px solid rgba(255,255,255,.2);color:#fff;padding:6px 12px;border-radius:99px;font:600 12px/1 var(--mono)}
+
+/* ---------- abertura (so quando aberto pelo icone) ---------- */
+#splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:none;
+  flex-direction:column;align-items:center;justify-content:center;gap:15px;
+  transition:opacity .3s ease}
+@media (display-mode: standalone){ #splash{display:flex} }
+:root.standalone #splash{display:flex}
+#splash.sai{opacity:0;pointer-events:none}
+#splash img{width:min(78vw,78vh);max-width:520px;display:block;border-radius:18px}
+.sp-tag{font:600 10px/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---------- aviso de versao nova ---------- */
+.novaver{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:85;display:flex;align-items:center;gap:12px;
+  background:var(--accent);color:var(--accent-ink);padding:9px 10px 9px 16px;border-radius:99px;
+  box-shadow:var(--shadow-lg);font-size:13px;font-weight:600;max-width:92vw}
+.novaver button{flex:none;border:0;background:var(--accent-ink);color:var(--accent);font:700 12.5px/1 var(--sans);
+  padding:9px 14px;border-radius:99px;cursor:pointer}
+.btn-atualizar{padding:6px 9px}
+.btn-atualizar svg{display:block}
+
+/* ---------- toast ---------- */
+.toasts{position:fixed;left:50%;transform:translateX(-50%);bottom:20px;z-index:90;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;width:min(420px,92vw)}
+.toast{background:var(--surface-3);color:var(--ink);border:1px solid var(--line-2);padding:10px 15px;border-radius:99px;font-size:13px;font-weight:500;box-shadow:var(--shadow-lg);animation:pop .18s ease-out}
+.toast.bad{background:var(--crit);border-color:var(--crit);color:#fff}
+@keyframes pop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+/* ---------- modal ---------- */
+.mscrim{position:fixed;inset:0;background:rgba(10,16,20,.55);z-index:70;display:grid;place-items:center;padding:16px}
+.modal{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);width:min(440px,100%);max-height:88vh;overflow-y:auto;padding:18px}
+.modal h3{margin:0 0 4px;font-size:16.5px}
+.modal .lead{margin-bottom:14px}
+
+.photorow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.photorow .pv{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.photorow .pv img{width:100%;height:100%;object-fit:cover;display:block}
+.photorow .pv button{position:absolute;top:2px;right:2px;width:19px;height:19px;border-radius:50%;border:0;background:rgba(10,16,20,.72);color:#fff;font-size:12px;line-height:1;cursor:pointer;padding:0}
+.addph{width:72px;height:72px;border:1px dashed var(--line-2);border-radius:8px;background:var(--surface-2);color:var(--ink-3);cursor:pointer;display:grid;place-items:center;font-size:11px;text-align:center;padding:4px}
+
+/* ---------- vitrine ---------- */
+.vit{display:grid;grid-template-columns:repeat(auto-fill,minmax(214px,1fr));gap:12px}
+.vcard{display:flex;flex-direction:column;width:100%;text-align:left;padding:0;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:var(--surface);box-shadow:var(--shadow);cursor:pointer}
+.vcard:hover{border-color:var(--accent)}
+.vphoto{aspect-ratio:4/3;background:#1c2329;display:grid;place-items:center;color:#6f7d87;overflow:hidden}
+.vphoto img{width:100%;height:100%;object-fit:cover;display:block}
+.vdados{flex:1;display:flex;flex-direction:column;gap:4px;padding:10px 11px 9px}
+.vlinha1{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.vcod{font:600 11.5px/1 var(--mono);color:var(--accent);letter-spacing:.02em}
+.vnome{font-weight:600;font-size:13.5px;line-height:1.25;overflow-wrap:anywhere}
+.vmed{font:400 12.5px/1.3 var(--mono);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.vfoot{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:auto;padding-top:7px;font-size:11.5px;color:var(--ink-3)}
+.vfoot .loc{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vfoot b{font-family:var(--mono);font-weight:600;font-variant-numeric:tabular-nums;flex:none}
+
+@media (max-width:560px){
+  .brand-div,.brand-app{display:none}
+}
+@media (max-width:640px){
+  .grid2,.grid3{grid-template-columns:1fr}
+  .vit{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:9px}
+  .items{grid-template-columns:1fr}
+  .kv{grid-template-columns:96px 1fr}
+  h1{font-size:19px}
+  .bar{grid-template-columns:92px 1fr 44px}
+}
+</style>
+</head>
+<body>
+
+<script>if(navigator.standalone)document.documentElement.classList.add("standalone");</script>
+
+<div id="splash" aria-hidden="true">
+  <img src="icone-512.png" alt="Rodriaço">
+  <div class="sp-tag">Estoque Livre</div>
+</div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="brand">
+        <span class="wm">
+          <span class="wm-name">RODRIAÇO</span>
+          <span class="wm-tag">Cozinhas Profissionais</span>
+        </span>
+        <span class="brand-div"></span>
+        <span class="brand-app">Estoque Livre</span>
+      </div>
+      <div class="searchwrap" id="searchwrap" hidden>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.6-3.6"></path></svg>
+        <input class="search" id="q" type="search" placeholder="Buscar código, item, família, local…" autocomplete="off">
+      </div>
+      <div class="whoami" id="whoami"></div>
+    </div>
+    <nav class="nav" id="nav" hidden></nav>
+  </header>
+  <main id="main"><div class="gate"><div class="card pad"><p class="lead">Carregando…</p></div></div></main>
+</div>
+<div class="toasts" id="toasts"></div>
+<div id="overlay"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+"use strict";
+/* ============================================================
+   Estoque Livre Rodriaco - controle de estoque livre
+   ============================================================ */
+
+const DAY = 86400000;
+const LS_KEY = "mrinox.sobras.sessao";
+
+const DEFAULT_CFG = {
+  dominios: [],
+  excecoes: [],
+  familias: ["Chapa", "Tubo", "Perfil", "Cuba", "Porta", "Bancada", "Prateleira", "Acessório"],
+  ligas: ["304", "316", "430", "201", "Outro"],
+  reservaDias: 15,
+  alertaDias: 5,
+  maxRenov: 2,
+  renovDias: 7,
+  semGiroDias: 90,
+  etqLargura: 100,
+  etqAltura: 58
+};
+
+const S = {
+  db: null, assets: null, downloads: null,
+  ready: false, dbFail: false,
+  user: null,            // {email, nome, telefone, papel, status}
+  cfg: Object.assign({}, DEFAULT_CFG),
+  items: [], users: [],
+  sessao: null,
+  fotoUrl: new Map(),    // caminho no storage -> url assinada
+  histCache: {},         // code -> histórico carregado sob demanda
+  modoEntrada: "entrar",
+  tentouPerfil: false,
+  emailLembrado: null,
+  carregando: false,
+  view: "home",
+  q: "",
+  filtro: { familia: "", item: "", liga: "", condicao: "", status: "", comp: "", larg: "", alt: "", local: "" },
+  aberto: null,          // item code
+  editando: null,        // item code | "novo"
+  rascunhoFotos: [],
+  hashAlvo: null,
+  foto: null
+};
+
+/* ---------------- marca Rodriaço ---------------- */
+const R_BOWL = "M0 0H74A26 26 0 0 1 74 52H0Z M26 19H68a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H26Z";
+const R_LEG = "M45 52H66L100 80H45Z";
+const LARANJA = "#F26A21";
+const PRETO = "#0B0A09";
+
+function logoSVG(tam) {
+  return `<svg viewBox="0 0 120 120" width="${tam}" height="${tam}" role="img" aria-label="Rodriaço">
+    <rect width="120" height="120" rx="9" fill="${PRETO}"></rect>
+    <rect x="4.5" y="4.5" width="111" height="111" rx="5.5" fill="none" stroke="${LARANJA}" stroke-width="3.4"></rect>
+    <g transform="translate(24,31.2) scale(0.72)" fill="${LARANJA}">
+      <path fill-rule="evenodd" d="${R_BOWL}"></path><path d="${R_LEG}"></path>
+    </g></svg>`;
+}
+
+const marcaGate = `<div class="logo">
+  <span class="g-name">RODRIAÇO</span>
+  <span class="g-tag">Cozinhas Profissionais</span>
+  <span class="g-app">Estoque Livre</span>
+</div>`;
+
+let promptInstall = null;
+window.addEventListener("beforeinstallprompt", (e) => { e.preventDefault(); promptInstall = e; });
+
+const ehIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+const jaInstalado = () => (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
+
+function convidarInstalacao(forcado) {
+  if (EMBUTIDO) return;
+  if (!forcado) {
+    if (jaInstalado()) return;
+    try { if (localStorage.getItem("rodriaco.instalar.v1")) return; } catch (e) {}
+  }
+  try { localStorage.setItem("rodriaco.instalar.v1", "1"); } catch (e) {}
+
+  const ios = ehIOS();
+  const passos = ios
+    ? `<b>No iPhone, pelo Safari</b><ol><li>Toque em <b>Compartilhar</b> (o quadrado com a seta para cima).</li><li>Role e toque em <b>Adicionar à Tela de Início</b>.</li><li>Confirme em <b>Adicionar</b>.</li></ol>`
+    : `<b>No Android, pelo Chrome</b><ol><li>Toque no menu <b>⋮</b> no canto superior direito.</li><li>Toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>.</li><li>Confirme em <b>Instalar</b>.</li></ol>`;
+
+  el("overlay").insertAdjacentHTML("beforeend", `<div class="mscrim"><div class="modal install">
+    <div class="ic"><img src="icone-192.png" alt="" style="width:84px;height:84px;border-radius:16px;display:block;margin:0 auto"></div>
+    <p class="eyebrow" style="margin-bottom:9px">Este será o ícone no seu celular</p>
+    <h3>Instalar o Estoque Livre</h3>
+    <p class="lead" style="margin-bottom:0">Coloque o ícone na tela do celular e abra o estoque direto, em tela cheia, sem procurar link.</p>
+    <div class="steps">${passos}</div>
+    <div class="btnrow" style="justify-content:center">
+      ${promptInstall ? `<button class="btn pri" data-act="instalar-agora">Instalar agora</button>` : ""}
+      <button class="btn" data-act="fechar-modal">${promptInstall ? "Agora não" : "Entendi"}</button>
+    </div>
+  </div></div>`);
+}
+
+/* ---------------- utilidades ---------------- */
+const $ = (s, r) => (r || document).querySelector(s);
+const el = (id) => document.getElementById(id);
+const esc = (v) => String(v == null ? "" : v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const num = (v) => { const n = parseFloat(String(v).replace(",", ".")); return isFinite(n) ? n : null; };
+const dias = (from, to) => Math.floor(((to || Date.now()) - from) / DAY);
+const fmtData = (ts) => ts ? new Date(ts).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "—";
+const fmtDataHora = (ts) => ts ? new Date(ts).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—";
+const fmtR$ = (v) => (v == null || v === "") ? "—" : Number(v).toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const iniciais = (n) => String(n || "?").trim().split(/\s+/).slice(0, 2).map(w => w[0]).join("").toUpperCase();
+const normEmail = (e) => String(e || "").trim().toLowerCase();
+
+function baixar(nome, dados, mime) {
+  const blob = dados instanceof Blob ? dados : new Blob([dados], { type: mime || "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = nome; a.style.display = "none";
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 5000);
+}
+
+function toast(msg, bad) {
+  const t = document.createElement("div");
+  t.className = "toast" + (bad ? " bad" : "");
+  t.textContent = msg;
+  el("toasts").appendChild(t);
+  setTimeout(() => t.remove(), bad ? 5200 : 3200);
+}
+
+function medidas(it) {
+  const p = [it.comp, it.larg, it.alt].filter(v => v != null && v !== "");
+  return p.length ? p.join(" × ") + " mm" : "—";
+}
+
+/* status derivado — a expiração é calculada pela data, não por robô */
+function estado(it) {
+  if (it.status === "baixa") return "out";
+  if (it.reserva && it.reserva.expira > Date.now()) {
+    return dias(Date.now(), it.reserva.expira) <= (S.cfg.alertaDias || 5) ? "vencendo" : "reservado";
+  }
+  return "disp";
+}
+function diasParaVencer(it) {
+  if (!it.reserva) return null;
+  return Math.ceil((it.reserva.expira - Date.now()) / DAY);
+}
+
+/* ---------------- acesso ---------------- */
+function dominioOk(email) {
+  const e = normEmail(email);
+  const c = S.cfg || DEFAULT_CFG;
+  const lista = (c.dominios || []).filter(Boolean);
+  if (!lista.length) return true;                 /* sem lista = qualquer e-mail */
+  if ((c.excecoes || []).map(normEmail).includes(e)) return true;
+  const dom = e.split("@")[1] || "";
+  return lista.some(d => dom === String(d).trim().toLowerCase().replace(/^@/, ""));
+}
+const podeEditar = () => S.user && (S.user.papel === "admin" || S.user.papel === "estoque");
+
+/* Ha algo sendo preenchido agora? Redesenhar a tela apaga formulario e foto
+   ainda nao salvos - foi isso que fazia perder o cadastro no meio. */
+function preenchendoAlgo() {
+  if (S.view === "cadastro") return true;
+  if (S.rascunhoFotos && S.rascunhoFotos.length) return true;
+  const ov = el("overlay");
+  if (ov && ov.querySelector(".mscrim")) return true;
+  const a = document.activeElement;
+  return !!(a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
+}
+const ehAdmin = () => S.user && S.user.papel === "admin";
+
+/* ---------------- banco (Supabase) ---------------- */
+const VERSAO = "20261020-075512";   /* carimbado por versao.py a cada publicacao */
+/* Nome da funcao que troca senha, no Supabase. ATENCAO: o painel publicou
+   com o nome automatico "clever-worker" e o endereco nao pode ser renomeado.
+   No painel ela aparece como "admin-senha"; e a mesma coisa. Se um dia for
+   recriada com o nome certo, basta trocar esta linha. */
+const FUNCAO_SENHA = "clever-worker";
+
+const SUPABASE_URL  = "https://vgcwzfeucfkaawwwhvjo.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnY3d6ZmV1Y2ZrYWF3d3dodmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMDMyNzEsImV4cCI6MjEwNDY3OTI3MX0.ej6C2X0If1wLBRa4DoX_P2Z8-32IwZoN-AlcWKpM6RY";
+
+let sb = null;
+
+/* Dentro da Central (iframe da mesma origem, ?embutido=1) a sessao vem da
+   Central: sem tela de login e sem renovar token por conta propria. */
+const EMBUTIDO = (function () {
+  try { return window.parent !== window && /[?&]embutido=1/.test(location.search); } catch (e) { return false; }
+})();
+async function aoReceberCentral(e) {
+  if (e.origin !== location.origin || e.source !== window.parent) return;
+  const d = e.data || {};
+  if (d.tipo !== "central-sessao" || !d.access_token || !sb) return;
+  try {
+    const { data, error } = await sb.auth.setSession({ access_token: d.access_token, refresh_token: d.refresh_token });
+    if (error) throw error;
+    const nova = data ? data.session : null;
+    if (S.aguardandoCentral) { const f = S.aguardandoCentral; S.aguardandoCentral = null; f(nova); }
+    else if (S.sessao) S.sessao = nova || S.sessao;
+    else if (nova) await aoMudarSessao(nova);
+  } catch (er) {
+    console.warn("sessao da Central", er);
+    if (S.aguardandoCentral) { const f = S.aguardandoCentral; S.aguardandoCentral = null; f(null); }
+  }
+}
+function esperarSessaoCentral(ms) {
+  return new Promise(resolve => {
+    S.aguardandoCentral = resolve;
+    try { window.parent.postMessage({ tipo: "app-pronto" }, location.origin); } catch (e) {}
+    setTimeout(() => { if (S.aguardandoCentral === resolve) { S.aguardandoCentral = null; resolve(null); } }, ms);
+  });
+}
+
+/* espera a biblioteca aparecer: CDN lenta nao pode derrubar o app */
+function esperarLib(nome, ms) {
+  return new Promise(resolve => {
+    const t0 = Date.now();
+    (function olha() {
+      if (window[nome]) return resolve(true);
+      if (Date.now() - t0 > ms) return resolve(false);
+      setTimeout(olha, 100);
+    })();
+  });
+}
+
+function lerHash() {
+  const m = String(location.hash || "").match(/#i=([A-Za-z0-9\-]+)/i);
+  return m ? m[1].toUpperCase() : null;
+}
+
+async function boot() {
+  /* antes de tudo: o QR aponta para #i=CODIGO e a leitura tem de sobreviver
+     ao login e a qualquer coisa que mexa na URL depois */
+  S.hashAlvo = lerHash();
+  window.addEventListener("hashchange", () => {
+    const c = lerHash();
+    if (c) { S.hashAlvo = c; render(); }
+  });
+
+  render();
+  const temLib = await esperarLib("supabase", 10000);
+  if (!temLib || typeof window.supabase.createClient !== "function") {
+    S.dbFail = true; render(); return;
+  }
+  sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+    auth: { persistSession: !EMBUTIDO, autoRefreshToken: !EMBUTIDO, detectSessionInUrl: !EMBUTIDO }
+  });
+
+  sb.auth.onAuthStateChange((evento, sessao) => {
+    if (evento === "INITIAL_SESSION" || EMBUTIDO) return;
+    aoMudarSessao(sessao);
+  });
+
+  let sessaoInicial = null;
+  try {
+    if (EMBUTIDO) {
+      window.addEventListener("message", aoReceberCentral);
+      sessaoInicial = await esperarSessaoCentral(6000);
+    } else {
+      const { data } = await sb.auth.getSession();
+      sessaoInicial = data ? data.session : null;
+    }
+  } catch (e) {
+    console.error("getSession", e);
+    S.dbFail = true; render(); return;
+  }
+  await aoMudarSessao(sessaoInicial);
+
+  /* recarrega ao voltar para a aba, para ver o que os outros fizeram */
+  verificarVersao();
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) return;
+    verificarVersao();
+    /* voltar da camera nao pode custar o cadastro que estava sendo digitado */
+    if (S.sessao && !preenchendoAlgo()) carregarTudo();
+  });
+  setInterval(() => {
+    if (!document.hidden && S.sessao && !preenchendoAlgo()) carregarTudo();
+  }, 90000);
+  setInterval(() => { if (!document.hidden) verificarVersao(); }, 300000);
+
+  setTimeout(() => convidarInstalacao(false), 1100);
+}
+
+async function aoMudarSessao(sessao) {
+  S.sessao = sessao || null;
+  if (!S.sessao) { S.user = null; S.items = []; S.users = []; S.ready = true; render(); return; }
+  await carregarTudo();
+}
+
+async function carregarTudo() {
+  if (S.carregando) return;
+  S.carregando = true;
+  try {
+    /* devolve ao estoque o que venceu antes de ler */
+    try { await sb.rpc("expirar_reservas"); } catch (e) {}
+
+    const [cfgR, perfR, itensR, fotosR] = await Promise.all([
+      sb.from("config").select("dados").eq("id", 1).maybeSingle(),
+      sb.from("perfis").select("*").order("nome"),
+      sb.from("itens").select("*").order("criado_em", { ascending: false }),
+      sb.from("fotos").select("*").order("ordem")
+    ]);
+
+    const erro = cfgR.error || perfR.error || itensR.error || fotosR.error;
+    if (erro) throw erro;
+
+    S.cfg = Object.assign({}, DEFAULT_CFG, (cfgR.data && cfgR.data.dados) || {});
+    S.users = (perfR.data || []).map(mapPerfil);
+    S.user = S.users.find(u => u.id === S.sessao.user.id) || null;
+
+    /* conta criada por outro app da casa: o login e o mesmo, mas o perfil
+       daqui ainda nao existe. Cria uma vez e releia. */
+    if (!S.user && !S.tentouPerfil) {
+      S.tentouPerfil = true;
+      try {
+        await sb.rpc("garantir_perfil", { p_nome: "" });
+        const novo = await sb.from("perfis").select("*").order("nome");
+        if (!novo.error) {
+          S.users = (novo.data || []).map(mapPerfil);
+          S.user = S.users.find(u => u.id === S.sessao.user.id) || null;
+        }
+      } catch (e) { console.warn("garantir_perfil", e); }
+    }
+
+    const porItem = {};
+    (fotosR.data || []).forEach(f => { (porItem[f.code] = porItem[f.code] || []).push(f); });
+    S.items = (itensR.data || []).map(r => mapItem(r, porItem[r.code] || []));
+
+    await assinarFotos((fotosR.data || []).map(f => f.caminho));
+    S.ready = true;
+  } catch (e) {
+    console.warn("carga", e);
+    S.ready = true;
+    toast(erroMsg(e), true);
+  } finally {
+    S.carregando = false;
+    /* os dados ja estao atualizados; so nao repinto por cima de um
+       formulario em uso - a proxima acao da pessoa repinta */
+    if (!preenchendoAlgo()) render();
+  }
+}
+
+const ts = (v) => v ? new Date(v).getTime() : null;
+
+function mapPerfil(p) {
+  return { id: p.id, email: p.email, nome: p.nome || p.email.split("@")[0],
+           telefone: p.telefone || "", papel: p.papel, status: p.status || "ativo" };
+}
+
+function mapItem(r, fotos) {
+  return {
+    id: r.code, code: r.code,
+    familia: r.familia, item: r.item, liga: r.liga,
+    comp: r.comp, larg: r.larg, alt: r.alt,
+    condicao: r.condicao, custo: r.custo, local: r.local, obs: r.obs,
+    status: r.status, archived: r.arquivado, exemplo: r.exemplo,
+    createdAt: ts(r.criado_em) || Date.now(),
+    createdBy: r.criado_por, createdByName: r.criado_por_nome,
+    photos: fotos.map(f => ({ t: "s", id: f.caminho })),
+    reserva: r.reserva_expira ? {
+      email: r.reserva_email, nome: r.reserva_nome,
+      at: ts(r.reserva_em), expira: ts(r.reserva_expira),
+      renov: r.reserva_renov || 0,
+      cliente: r.reserva_cliente || "", pedido: r.reserva_pedido || ""
+    } : null,
+    saida: r.saida_em ? { at: ts(r.saida_em), by: r.saida_por, dest: r.saida_destino || "" } : null,
+    hist: S.histCache[r.code] || []
+  };
+}
+
+/* --- avisa quando eu publico uma correcao, sem depender de gesto nenhum --- */
+async function verificarVersao() {
+  try {
+    const r = await fetch("versao.txt", { cache: "no-store" });
+    if (!r.ok) return;
+    const v = (await r.text()).trim();
+    /* se o arquivo nao existir, o servidor devolve a propria pagina:
+       so aceita o que tiver cara de versao */
+    if (!/^\d{8}-\d{6}$/.test(v)) return;
+    if (v !== VERSAO) avisarVersaoNova();
+  } catch (e) { /* sem rede: tenta de novo depois */ }
+}
+
+function avisarVersaoNova() {
+  if (document.querySelector(".novaver")) return;
+  document.body.insertAdjacentHTML("beforeend", `<div class="novaver">
+    <span>Nova versão disponível</span>
+    <button type="button" data-act="atualizar">Atualizar</button>
+  </div>`);
+}
+
+function erroMsg(e) {
+  const m = String((e && (e.message || e.error_description)) || "");
+  if (/dominios liberados/i.test(m)) return "E-mail fora dos domínios liberados. Fale com o administrador.";
+  if (/ja reservada/i.test(m)) return m.replace("ja reservada", "já reservada");
+  if (/Limite de renovacoes/i.test(m)) return "Limite de renovações atingido — só o administrador pode estender.";
+  if (/Reserva de outra pessoa/i.test(m)) return "Essa reserva é de outra pessoa.";
+  if (/Sem permissao|permission denied|row-level security/i.test(m)) return "Você não tem permissão para isso.";
+  if (/Peca indisponivel/i.test(m)) return "Peça indisponível.";
+  if (/Peca nao encontrada/i.test(m)) return "Peça não encontrada.";
+  if (/Perfil nao encontrado/i.test(m)) return "Seu acesso foi removido. Entre novamente.";
+  if (/somente administrador/i.test(m)) return "Só administrador pode definir senha de outra pessoa.";
+  if (/sessao invalida|sem autenticacao/i.test(m)) return "Sua sessão expirou. Saia e entre de novo.";
+  if (/not found|Failed to send a request|404/i.test(m)) return "A função de senha ainda não foi publicada no Supabase.";
+  if (/invalid login credentials/i.test(m)) return "E-mail ou senha incorretos. Se é seu primeiro acesso, toque em “Primeiro acesso”.";
+  if (/already registered|already exists/i.test(m)) return "Esse e-mail já tem acesso. Toque em “Entrar” e use a mesma senha dos outros apps da Rodriaço.";
+  if (/password should be at least|weak password/i.test(m)) return "Senha muito curta. Use pelo menos 8 caracteres.";
+  if (/database error saving new user/i.test(m)) return "E-mail fora dos domínios liberados.";
+  if (/email not confirmed/i.test(m)) return "A confirmação de e-mail ainda está ligada no Supabase. Desligue em Authentication → Sign In / Providers → Email.";
+  if (/signups not allowed|signup is disabled/i.test(m)) return "Criação de acesso está desligada no Supabase. Ligue “Allow new users to sign up”.";
+  if (/rate limit|too many|security purposes/i.test(m)) return "Muitos pedidos seguidos. Espere um minuto e tente de novo.";
+  if (/Failed to fetch|NetworkError/i.test(m)) return "Sem conexão com o servidor. Verifique a internet.";
+  return m || "Não foi possível concluir. Tente de novo.";
+}
+
+async function registrar(code, tipo, detalhe) {
+  try {
+    await sb.from("historico").insert({ code, tipo, detalhe: detalhe || "", por: S.user.nome });
+    delete S.histCache[code];
+  } catch (e) { /* histórico não bloqueia a operação */ }
+}
+
+async function carregarHistorico(code) {
+  if (S.histCache[code]) return;
+  const { data } = await sb.from("historico").select("*").eq("code", code).order("em", { ascending: true });
+  S.histCache[code] = (data || []).map(h => ({ t: h.tipo, at: ts(h.em), by: h.por, d: h.detalhe }));
+  const it = S.items.find(i => i.id === code);
+  if (it) it.hist = S.histCache[code];
+  renderOverlay();
+}
+
+/* ---------------- fotos (Supabase Storage) ---------------- */
+function comprimir(file, maxDim, q) {
+  return new Promise((resolve, reject) => {
+    const fr = new FileReader();
+    fr.onerror = () => reject(new Error("leitura"));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("imagem"));
+      img.onload = () => {
+        let { width: w, height: h } = img;
+        const r = Math.min(1, maxDim / Math.max(w, h));
+        w = Math.round(w * r); h = Math.round(h * r);
+        const c = document.createElement("canvas");
+        c.width = w; c.height = h;
+        c.getContext("2d").drawImage(img, 0, 0, w, h);
+        c.toBlob(b => b ? resolve(b) : reject(new Error("blob")), "image/jpeg", q);
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+
+async function assinarFotos(caminhos) {
+  const faltando = caminhos.filter(c => c && !S.fotoUrl.has(c));
+  if (!faltando.length) return;
+  try {
+    const { data } = await sb.storage.from("fotos").createSignedUrls(faltando, 3600);
+    (data || []).forEach(u => { if (u && u.signedUrl) S.fotoUrl.set(u.path, u.signedUrl); });
+  } catch (e) { console.warn("assinar fotos", e); }
+}
+
+async function guardarFoto(file) {
+  const blob = await comprimir(file, 1400, 0.72);
+  const caminho = Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 9) + ".jpg";
+  const { error } = await sb.storage.from("fotos").upload(caminho, blob, { contentType: "image/jpeg" });
+  if (error) throw error;
+  await assinarFotos([caminho]);
+  return { t: "s", id: caminho };
+}
+
+function urlFoto(p) {
+  if (!p || !p.id) return null;
+  return S.fotoUrl.get(p.id) || null;
+}
+
+/* grava a lista de fotos de uma peça e apaga do disco as que saíram */
+async function sincronizarFotos(code, lista) {
+  const { data: atuais } = await sb.from("fotos").select("*").eq("code", code);
+  const antigos = (atuais || []).map(f => f.caminho);
+  const novos = lista.map(p => p.id);
+
+  await sb.from("fotos").delete().eq("code", code);
+  if (novos.length) {
+    await sb.from("fotos").insert(novos.map((caminho, i) => ({ code, caminho, ordem: i })));
+  }
+  const removidos = antigos.filter(c => novos.indexOf(c) < 0);
+  if (removidos.length) {
+    try { await sb.storage.from("fotos").remove(removidos); } catch (e) {}
+    removidos.forEach(c => S.fotoUrl.delete(c));
+  }
+}
+
+/* ---------------- render ---------------- */
+function render() {
+  const main = el("main");
+  const nav = el("nav");
+  const sw = el("searchwrap");
+
+  if (S.dbFail) {
+    sw.hidden = true; nav.hidden = true; el("whoami").innerHTML = "";
+    main.innerHTML = `<div class="gate"><div class="card pad">
+      ${marcaGate}
+      <p class="lead">Não consegui falar com o servidor. Verifique a conexão e recarregue a página. Se continuar, me avise.</p>
+    </div></div>`;
+    return;
+  }
+  if (!S.ready) { sw.hidden = true; nav.hidden = true; return; }
+
+  if (!S.sessao) { sw.hidden = true; nav.hidden = true; el("whoami").innerHTML = ""; main.innerHTML = telaEntrada(); renderOverlay(); return; }
+  if (!S.user) { sw.hidden = true; nav.hidden = true; el("whoami").innerHTML = botaoSair(); main.innerHTML = telaSemPerfil(); renderOverlay(); return; }
+  if (S.user.status === "pendente") { sw.hidden = true; nav.hidden = true; el("whoami").innerHTML = botaoSair(); main.innerHTML = telaPendente(); renderOverlay(); return; }
+
+  sw.hidden = false; nav.hidden = false;
+  el("whoami").innerHTML = botaoAtualizar() + `<button class="avatar" data-act="perfil" title="Meu perfil — ${esc(S.user.email)}" style="cursor:pointer;padding:0;font:inherit;font-weight:700;font-size:11px">${esc(iniciais(S.user.nome))}</button>` + botaoSair();
+
+  const pend = S.users.filter(u => u.status === "pendente").length;
+  const abas = [
+    ["home", "Início"], ["busca", "Estoque"], ["vitrine", "Vitrine"],
+    ...(podeEditar() ? [["cadastro", "Cadastrar"]] : []),
+    ["painel", "Painel"],
+    ...(ehAdmin() ? [["admin", "Ajustes" + (pend ? `<span class="pip">${pend}</span>` : "")]] : [])
+  ];
+  nav.innerHTML = abas.map(([k, r]) => `<button data-nav="${k}" aria-current="${S.view === k}">${r}</button>`).join("");
+
+  if (S.view === "home") main.innerHTML = telaHome();
+  else if (S.view === "busca") main.innerHTML = telaBusca();
+  else if (S.view === "vitrine") main.innerHTML = telaVitrine();
+  else if (S.view === "cadastro") main.innerHTML = telaCadastro();
+  else if (S.view === "painel") main.innerHTML = telaPainel();
+  else if (S.view === "admin") main.innerHTML = telaAdmin();
+
+  if (S.hashAlvo && S.items.length) {
+    const alvo = S.items.find(i => i.id === S.hashAlvo);
+    const procurado = S.hashAlvo;
+    S.hashAlvo = null;
+    if (alvo) S.aberto = alvo.id;
+    else setTimeout(() => toast("Peça " + procurado + " não encontrada no estoque.", true), 60);
+  }
+  renderOverlay();
+}
+
+const botaoSair = () => EMBUTIDO ? "" : `<button class="btn ghost sm" data-act="sair">Sair</button>`;
+
+const botaoAtualizar = () => `<button class="btn ghost sm btn-atualizar" data-act="atualizar" title="Atualizar" aria-label="Atualizar">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
+    <path d="M20 11a8 8 0 1 0-2.3 5.7"></path><path d="M20 4v7h-7"></path></svg></button>`;
+
+/* ---------- entrada ---------- */
+function telaEntrada() {
+  const criar = S.modoEntrada === "criar";
+  const doms = (S.cfg.dominios || []).filter(Boolean).map(d => "@" + d).join(", ");
+  return `<div class="gate"><form class="card pad" data-form="entrar">
+    ${marcaGate}
+
+    <div class="filters" style="margin-bottom:16px">
+      <button type="button" class="fchip" data-modo="entrar" aria-pressed="${!criar}">Entrar</button>
+      <button type="button" class="fchip" data-modo="criar" aria-pressed="${criar}">Primeiro acesso</button>
+    </div>
+
+    <p class="lead">${criar
+      ? "Escolha sua senha uma vez. Depois é só e-mail e senha, em qualquer aparelho. <b>Se você já usa outro app da Rodriaço, use Entrar com a senha de lá.</b>"
+      : "Entre com o e-mail da empresa e sua senha. É a mesma dos outros apps da Rodriaço."}</p>
+
+    <label class="f"><span>E-mail da empresa</span>
+      <input class="inp" name="email" type="email" required placeholder="nome@mrinox.com.br"
+             autocomplete="email" autocapitalize="off" spellcheck="false"
+             value="${esc(S.emailLembrado || "")}"></label>
+
+    ${criar ? `<label class="f"><span>Nome</span>
+      <input class="inp" name="nome" required placeholder="Como aparece nas reservas" autocomplete="name"></label>` : ""}
+
+    <label class="f"><span>Senha</span>
+      <input class="inp" name="senha" type="password" required minlength="8" data-senha
+             placeholder="${criar ? "mínimo 8 caracteres" : ""}"
+             autocomplete="${criar ? "new-password" : "current-password"}"></label>
+
+    ${criar ? `<label class="f"><span>Repita a senha</span>
+      <input class="inp" name="senha2" type="password" required minlength="8" data-senha
+             autocomplete="new-password"></label>` : ""}
+
+    <label style="display:flex;gap:8px;align-items:center;font-size:12.5px;color:var(--ink-2);margin:-4px 0 15px;cursor:pointer">
+      <input type="checkbox" data-ver-senha style="width:15px;height:15px;accent-color:var(--accent)"> Mostrar senha</label>
+
+    <button class="btn pri" style="width:100%" type="submit">${criar ? "Criar acesso e entrar" : "Entrar"}</button>
+
+    <p class="hint" style="margin-top:13px">${criar
+      ? `${doms ? "E-mail " + esc(doms) + " entra direto; outro domínio aguarda liberação do administrador. " : ""}Quem entra já pode buscar e reservar; <b>cadastrar peças depende de liberação do administrador</b>.`
+      : `Esqueceu a senha? Fale com o administrador do estoque — ele libera um acesso novo para você.`}</p>
+  </form></div>`;
+}
+
+function telaPendente() {
+  return `<div class="gate"><div class="card pad">
+    ${marcaGate}
+    <p class="lead">Cadastro recebido, <b>${esc(S.user.nome)}</b>. Seu e-mail não é de um domínio que entra direto, então falta um administrador liberar seu acesso.</p>
+    <div class="alert info"><div>
+      <div class="t">Aguardando liberação</div>
+      <div class="d">${esc(S.user.email)} — assim que liberarem, toque em Já fui liberado.</div>
+    </div></div>
+    <div class="btnrow" style="margin-top:14px">
+      <button class="btn pri" data-act="conferir-liberacao">Já fui liberado</button>
+      <button class="btn" data-act="sair">Sair</button>
+    </div>
+  </div></div>`;
+}
+
+function telaSemPerfil() {
+  return `<div class="gate"><div class="card pad">
+    ${marcaGate}
+    <div class="alert"><div>
+      <div class="t">Acesso não liberado</div>
+      <div class="d">Você entrou como <b>${esc(S.sessao.user.email)}</b>, mas não há cadastro ativo para esse e-mail. Fale com o administrador do estoque.</div>
+    </div></div>
+    <div class="btnrow" style="margin-top:14px"><button class="btn" data-act="sair">Sair</button></div>
+  </div></div>`;
+}
+
+/* ---------- início ---------- */
+function telaHome() {
+  const meus = S.items.filter(i => i.reserva && i.reserva.email === S.user.email && estado(i) !== "out");
+  const vencendo = S.items.filter(i => estado(i) === "vencendo").sort((a, b) => a.reserva.expira - b.reserva.expira);
+  const reservados = S.items.filter(i => estado(i) === "reservado" || estado(i) === "vencendo");
+  const disp = S.items.filter(i => estado(i) === "disp" && !i.archived);
+  const pend = S.users.filter(u => u.status === "pendente");
+
+  let html = `<h1>Olá, ${esc(S.user.nome.split(" ")[0])}</h1>
+  <p class="lead">${disp.length} ${disp.length === 1 ? "peça disponível" : "peças disponíveis"} no estoque livre · ${reservados.length} reservada${reservados.length === 1 ? "" : "s"}.</p>`;
+
+  if (ehAdmin() && pend.length) {
+    html += `<div class="sec"><div class="alert info"><div style="flex:1">
+      <div class="t">${pend.length} pessoa${pend.length > 1 ? "s" : ""} aguardando liberação</div>
+      <div class="d">${esc(pend.slice(0, 3).map(u => u.nome + " (" + u.email + ")").join(", "))}${pend.length > 3 ? "…" : ""}</div>
+    </div><button class="btn sm" data-nav="admin">Liberar acesso</button></div></div>`;
+  }
+
+  if (vencendo.length) {
+    html += `<div class="sec"><div class="alert"><div style="flex:1">
+      <div class="t">${vencendo.length} reserva${vencendo.length > 1 ? "s" : ""} vencendo em até ${S.cfg.alertaDias} dias</div>
+      <div class="d">Depois do prazo a peça volta sozinha para o estoque. Renove ou dê baixa antes disso.</div>
+    </div><div class="btnrow"><button class="btn sm" data-act="copiar-vencendo">Copiar lista</button></div></div></div>`;
+    html += bloco("Vencendo", vencendo, "");
+  }
+
+  if (S.items.length === 0) {
+    html += `<div class="sec"><div class="empty">
+      <h3>Estoque ainda vazio</h3>
+      <p>Cadastre a primeira peça com foto, medidas e local. Cada uma ganha um código e uma etiqueta com QR para colar.</p>
+      <div class="btnrow" style="justify-content:center">
+        ${podeEditar() ? `<button class="btn pri" data-nav="cadastro">Cadastrar primeira peça</button>` : ""}
+        ${ehAdmin() ? `<button class="btn" data-act="exemplos">Carregar 5 itens de exemplo</button>` : ""}
+      </div>
+    </div></div>`;
+    return html;
+  }
+
+  if (meus.length) html += bloco("Minhas reservas", meus, "");
+  if (podeEditar() && reservados.length) {
+    const outros = reservados.filter(i => i.reserva.email !== S.user.email && estado(i) !== "vencendo");
+    if (outros.length) html += bloco("Reservado por outros", outros, "");
+  }
+  html += bloco("Disponíveis", disp.slice(0, 12), disp.length > 12 ? `<button class="btn sm" data-nav="busca">Ver todas as ${disp.length}</button>` : "");
+  return html;
+}
+
+function bloco(titulo, lista, extra) {
+  if (!lista.length) return "";
+  return `<section class="sec"><div class="sec-head"><h2>${esc(titulo)}</h2><span class="count">${lista.length}</span><span class="spacer"></span>${extra || ""}</div>
+    <div class="items">${lista.map(cardItem).join("")}</div></section>`;
+}
+
+function cardItem(it) {
+  const st = estado(it);
+  const cls = st === "out" ? "s-out" : st === "vencendo" ? "s-crit" : st === "reservado" ? "s-res" : "s-disp";
+  const dv = diasParaVencer(it);
+  const foto = (it.photos && it.photos[0]) ? urlFoto(it.photos[0]) : null;
+  const idade = dias(it.createdAt);
+  const velho = idade > (S.cfg.semGiroDias || 90);
+  return `<button class="item ${cls}" data-open="${esc(it.id)}">
+    <div class="thumb">${foto ? `<img src="${esc(foto)}" alt="" loading="lazy">` : `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10.5" r="1.6"></circle><path d="M21 16l-5-5-6 6"></path></svg>`}</div>
+    <div class="ibody">
+      <div class="iline1"><span class="icode">${esc(it.code)}</span>${it.exemplo ? `<span class="chip ex">exemplo</span>` : ""}${st === "out" ? `<span class="chip">baixado</span>` : ""}</div>
+      <div class="iname">${esc(it.item || "(sem descrição)")}</div>
+      <div class="ifam">${esc(it.familia || "—")}${it.liga ? " · " + esc(it.liga) : ""}${it.condicao ? " · " + esc(it.condicao) : ""}</div>
+      <div class="imed">${esc(medidas(it))}</div>
+      <div class="iclocks">
+        <span>Em estoque <b class="${velho ? "cw" : ""}">${idade}d</b></span>
+        ${it.reserva ? `<span>Vence em <b class="${dv <= 2 ? "cc" : dv <= (S.cfg.alertaDias || 5) ? "cw" : "co"}">${dv}d</b></span>` : ""}
+        ${it.local ? `<span>📍 ${esc(it.local)}</span>` : ""}
+      </div>
+    </div>
+  </button>`;
+}
+
+/* ---------- estoque / busca ---------- */
+function filtrados() {
+  const f = S.filtro, q = S.q.trim().toLowerCase();
+  return S.items.filter(it => {
+    if (it.archived) return false;
+    if (f.status === "disp" && estado(it) !== "disp") return false;
+    if (f.status === "res" && !(estado(it) === "reservado" || estado(it) === "vencendo")) return false;
+    if (f.status === "out" && estado(it) !== "out") return false;
+    if (!f.status && estado(it) === "out") return false;
+    if (f.familia && it.familia !== f.familia) return false;
+    if (f.liga && it.liga !== f.liga) return false;
+    if (f.condicao && it.condicao !== f.condicao) return false;
+    if (f.item && it.item !== f.item) return false;
+    if (f.local && !String(it.local || "").toLowerCase().includes(f.local.toLowerCase())) return false;
+    for (const k of ["comp", "larg", "alt"]) {
+      const min = num(f[k]);
+      if (min != null && !(num(it[k]) != null && num(it[k]) >= min)) return false;
+    }
+    if (q) {
+      const alvo = [it.code, it.item, it.familia, it.liga, it.condicao, it.local, it.obs,
+        it.reserva && it.reserva.nome, it.reserva && it.reserva.pedido].filter(Boolean).join(" ").toLowerCase();
+      if (!alvo.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+}
+
+const semAcento = (t) => String(t || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+function fecharSugestoes() {
+  const box = el("sugItem");
+  if (box) { box.hidden = true; box.innerHTML = ""; }
+}
+
+function sugerirItem(texto) {
+  const box = el("sugItem");
+  if (!box) return;
+
+  const q = semAcento(texto).trim();
+  if (q.length < 2) return fecharSugestoes();
+
+  /* conta quantas pecas usam cada nome, para mostrar os mais comuns primeiro */
+  const quantos = {};
+  S.items.forEach(i => {
+    if (i.item && !i.archived) quantos[i.item] = (quantos[i.item] || 0) + 1;
+  });
+
+  const achados = Object.keys(quantos)
+    .filter(nome => semAcento(nome).indexOf(q) >= 0)
+    .sort((a, b) => quantos[b] - quantos[a] || a.localeCompare(b, "pt-BR"))
+    .slice(0, 8);
+
+  if (!achados.length || (achados.length === 1 && semAcento(achados[0]) === q)) {
+    return fecharSugestoes();
+  }
+
+  box.innerHTML = achados.map(nome => {
+    /* destaca o trecho digitado, respeitando acento no texto mostrado */
+    const i = semAcento(nome).indexOf(q);
+    const marcado = i < 0 ? esc(nome)
+      : esc(nome.slice(0, i)) + "<b>" + esc(nome.slice(i, i + q.length)) + "</b>" + esc(nome.slice(i + q.length));
+    return `<button type="button" data-usar-item="${esc(nome)}">${marcado}<span class="qt">${quantos[nome]}</span></button>`;
+  }).join("");
+  box.hidden = false;
+}
+
+function itensDistintos() {
+  return [...new Set(S.items.filter(i => !i.archived && i.item).map(i => i.item))].sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+function telaBusca() {
+  const r = filtrados();
+  const f = S.filtro;
+  const sel = (nome, valor, opcoes, rotulo, w) => `<label class="f" style="margin:0"><span>${rotulo}</span>
+    <select class="inp" data-filtro="${nome}" style="min-width:${w || 118}px;max-width:230px">
+      <option value="">Todos</option>
+      ${opcoes.map(o => `<option value="${esc(o)}" ${valor === o ? "selected" : ""}>${esc(o)}</option>`).join("")}
+    </select></label>`;
+
+  return `<h1>Estoque</h1>
+  <p class="lead">Filtre por medida mínima para achar a peça que serve: o resultado traz só peças iguais ou maiores.</p>
+  <div class="sec card pad">
+    <div class="filters" style="margin-bottom:12px">
+      ${["", "disp", "res", "out"].map(v => `<button class="fchip" data-status="${v}" aria-pressed="${f.status === v}">${v === "" ? "Ativos" : v === "disp" ? "Disponíveis" : v === "res" ? "Reservados" : "Baixados"}</button>`).join("")}
+    </div>
+    <div class="selwrap">
+      ${sel("familia", f.familia, S.cfg.familias || [], "Família")}
+      ${sel("item", f.item, itensDistintos(), "Item", 200)}
+      ${sel("liga", f.liga, S.cfg.ligas || [], "Inox")}
+      ${sel("condicao", f.condicao, ["Novo", "Usado"], "Estado")}
+      <label class="f" style="margin:0"><span>Comp. mín.</span><input class="inp mono" style="width:96px" inputmode="decimal" data-filtro="comp" value="${esc(f.comp)}" placeholder="mm"></label>
+      <label class="f" style="margin:0"><span>Larg. mín.</span><input class="inp mono" style="width:96px" inputmode="decimal" data-filtro="larg" value="${esc(f.larg)}" placeholder="mm"></label>
+      <label class="f" style="margin:0"><span>Alt. mín.</span><input class="inp mono" style="width:96px" inputmode="decimal" data-filtro="alt" value="${esc(f.alt)}" placeholder="mm"></label>
+      <label class="f" style="margin:0"><span>Local</span><input class="inp" style="width:130px" data-filtro="local" value="${esc(f.local)}" placeholder="onde está"></label>
+      <button class="btn sm" data-act="limpar-filtros">Limpar</button>
+    </div>
+  </div>
+  <section class="sec"><div class="sec-head"><h2>Resultado</h2><span class="count">${r.length}</span><span class="spacer"></span>
+    ${r.length && podeEditar() ? `<button class="btn sm" data-act="etiquetas-zebra">Etiquetas Zebra</button><button class="btn sm" data-act="etiquetas-a4">Folha A4</button>` : ""}
+    ${r.length ? `<button class="btn sm" data-act="exportar">Exportar CSV</button>` : ""}
+  </div>
+  ${r.length ? `<div class="items">${r.map(cardItem).join("")}</div>`
+      : `<div class="empty"><h3>Nada encontrado</h3><p>Nenhuma peça bate com esses filtros. Tente reduzir a medida mínima ou limpar os filtros.</p><button class="btn" data-act="limpar-filtros">Limpar filtros</button></div>`}
+  </section>`;
+}
+
+/* ---------- vitrine: miniaturas dos disponíveis ---------- */
+function telaVitrine() {
+  const lista = filtrados().filter(i => estado(i) === "disp");
+  const fams = (S.cfg.familias || []).filter(f => S.items.some(i => i.familia === f && !i.archived && estado(i) === "disp"));
+  const f = S.filtro;
+
+  return `<h1>Vitrine</h1>
+  <p class="lead">Só o que está disponível agora, em foto. Boa para mostrar ao cliente direto do celular — toque na peça para reservar.</p>
+  <div class="sec filters">
+    <button class="fchip" data-fam="" aria-pressed="${!f.familia}">Todas</button>
+    ${fams.map(x => `<button class="fchip" data-fam="${esc(x)}" aria-pressed="${f.familia === x}">${esc(x)}</button>`).join("")}
+    ${(f.item || f.liga || f.condicao || f.comp || f.larg || f.alt || f.local) ? `<button class="btn sm" data-act="limpar-filtros">Limpar filtros do estoque</button>` : ""}
+  </div>
+  <section class="sec"><div class="sec-head"><h2>Disponíveis</h2><span class="count">${lista.length}</span></div>
+  ${lista.length ? `<div class="vit">${lista.map(cardVitrine).join("")}</div>`
+      : `<div class="empty"><h3>Nada disponível com esse filtro</h3><p>Todas as peças que batem com o filtro estão reservadas ou baixadas.</p><button class="btn" data-act="limpar-filtros">Limpar filtros</button></div>`}
+  </section>`;
+}
+
+function cardVitrine(it) {
+  const foto = (it.photos && it.photos[0]) ? urlFoto(it.photos[0]) : null;
+  const idade = dias(it.createdAt);
+  const velho = idade > (S.cfg.semGiroDias || 90);
+  const n = (it.photos || []).length;
+  return `<button class="vcard" data-open="${esc(it.id)}">
+    <div class="vphoto">
+      ${foto ? `<img src="${esc(foto)}" alt="Foto de ${esc(it.code)}" loading="lazy">`
+      : `<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="14" rx="2"></rect><circle cx="8.5" cy="10.5" r="1.6"></circle><path d="M21 16l-5-5-6 6"></path></svg>`}
+    </div>
+    <div class="vdados">
+      <div class="vlinha1">
+        <span class="vcod">${esc(it.code)}</span>
+        ${it.condicao ? `<span class="chip">${esc(it.condicao)}</span>` : ""}
+        ${it.liga ? `<span class="chip acc">inox ${esc(it.liga)}</span>` : ""}
+        ${n > 1 ? `<span class="chip">${n} fotos</span>` : ""}
+      </div>
+      <div class="vnome">${esc(it.item || "(sem descrição)")}</div>
+      <div class="vmed">${esc(medidas(it))}</div>
+      <div class="vfoot">
+        <span class="loc">${it.local ? "📍 " + esc(it.local) : esc(it.familia || "—")}</span>
+        <b style="color:${velho ? "var(--warn)" : "var(--ink-3)"}">${idade}d</b>
+      </div>
+    </div>
+  </button>`;
+}
+
+/* ---------- cadastro / edição ---------- */
+function telaCadastro() {
+  const ed = S.editando && S.editando !== "novo" ? S.items.find(i => i.id === S.editando) : null;
+  const v = ed || {};
+  const fams = S.cfg.familias || [], ligas = S.cfg.ligas || [];
+  const locais = [...new Set(S.items.map(i => i.local).filter(Boolean))];
+  return `<h1>${ed ? "Editar " + esc(ed.code) : "Cadastrar peça"}</h1>
+  <p class="lead">${ed ? "Alterações ficam registradas no histórico da peça." : "Tire a foto na frente da peça — o código e a etiqueta são gerados sozinhos."}</p>
+  <form class="sec card pad" data-form="item" style="max-width:640px">
+    <label class="f"><span>Fotos</span>
+      <div class="photorow" id="photorow">
+        ${S.rascunhoFotos.map((p, i) => { const u = urlFoto(p); return `<div class="pv">${u ? `<img src="${esc(u)}" alt="">` : ""}<button type="button" data-rmfoto="${i}" aria-label="Remover foto">×</button></div>`; }).join("")}
+        <label class="addph">+ foto<input type="file" accept="image/*" capture="environment" multiple hidden data-fotos></label>
+      </div>
+      <div class="hint">Até 4 fotos por peça. São comprimidas no aparelho antes de subir — a localização do GPS é descartada.</div>
+    </label>
+    <div class="grid2">
+      <label class="f"><span>Família</span><select class="inp" name="familia" required>
+        <option value="">Selecione…</option>
+        ${fams.map(x => `<option ${v.familia === x ? "selected" : ""}>${esc(x)}</option>`).join("")}
+      </select></label>
+      <label class="f"><span>Inox</span><select class="inp" name="liga">
+        <option value="">—</option>
+        ${ligas.map(x => `<option ${v.liga === x ? "selected" : ""}>${esc(x)}</option>`).join("")}
+      </select></label>
+    </div>
+    <label class="f"><span>Item</span>
+      <div class="autocomp">
+        <input class="inp" name="item" required value="${esc(v.item || "")}" placeholder="Ex.: chapa escovada"
+               autocomplete="off" autocorrect="off" spellcheck="false" data-sug-item>
+        <div class="sugbox" id="sugItem" hidden></div>
+      </div>
+      <div class="hint">Digite 2 letras e o app mostra o que já existe com esse nome — usar o mesmo nome mantém o filtro funcionando.</div>
+    </label>
+    <div class="grid3">
+      <label class="f"><span>Comprimento (mm)</span><input class="inp mono" name="comp" inputmode="decimal" value="${esc(v.comp ?? "")}"></label>
+      <label class="f"><span>Largura (mm)</span><input class="inp mono" name="larg" inputmode="decimal" value="${esc(v.larg ?? "")}"></label>
+      <label class="f"><span>Altura / esp. (mm)</span><input class="inp mono" name="alt" inputmode="decimal" value="${esc(v.alt ?? "")}"></label>
+    </div>
+    <div class="grid2">
+      <label class="f"><span>Estado</span><select class="inp" name="condicao" required>
+        <option value="Novo" ${v.condicao === "Novo" ? "selected" : ""}>Novo</option>
+        <option value="Usado" ${v.condicao === "Usado" ? "selected" : ""}>Usado</option>
+      </select></label>
+      <label class="f"><span>Custo estimado (R$)</span><input class="inp mono" name="custo" inputmode="decimal" value="${esc(v.custo ?? "")}" placeholder="opcional"></label>
+    </div>
+    <label class="f"><span>Local de armazenagem</span>
+      <input class="inp" name="local" list="locais" value="${esc(v.local || "")}" placeholder="Ex.: galpão 2, prateleira B4">
+      <datalist id="locais">${locais.map(l => `<option value="${esc(l)}">`).join("")}</datalist>
+      <div class="hint">Os locais já usados aparecem como sugestão — mantenha a mesma grafia para conseguir filtrar depois.</div>
+    </label>
+    <label class="f"><span>Observações</span><textarea class="inp" name="obs" placeholder="Avarias, restrições de uso, origem da sobra…">${esc(v.obs || "")}</textarea></label>
+    <div class="btnrow" style="margin-top:6px">
+      <button class="btn pri" type="submit">${ed ? "Salvar alterações" : "Cadastrar peça"}</button>
+      ${ed ? `<button class="btn" type="button" data-act="cancelar-edicao">Cancelar</button>` : ""}
+    </div>
+  </form>`;
+}
+
+/* ---------- painel ---------- */
+function telaPainel() {
+  const ativos = S.items.filter(i => !i.archived && i.status !== "baixa");
+  const baixados = S.items.filter(i => i.status === "baixa");
+  const parado = ativos.reduce((s, i) => s + (num(i.custo) || 0), 0);
+  const semGiro = ativos.filter(i => dias(i.createdAt) > (S.cfg.semGiroDias || 90));
+  const total = S.items.length;
+  const taxa = total ? Math.round((baixados.length / total) * 100) : 0;
+  const idadeMedia = ativos.length ? Math.round(ativos.reduce((s, i) => s + dias(i.createdAt), 0) / ativos.length) : 0;
+
+  const porFam = {};
+  ativos.forEach(i => { porFam[i.familia || "—"] = (porFam[i.familia || "—"] || 0) + 1; });
+  const fams = Object.entries(porFam).sort((a, b) => b[1] - a[1]);
+  const maxFam = fams.length ? fams[0][1] : 1;
+
+  return `<h1>Painel</h1>
+  <p class="lead">Quanto material está parado, o que não gira e quanto do que entrou já foi reaproveitado.</p>
+  <div class="sec stats">
+    <div class="stat"><div class="l">Peças em estoque</div><div class="v">${ativos.length}</div><div class="s">idade média de ${idadeMedia} dias</div></div>
+    <div class="stat"><div class="l">Valor parado</div><div class="v">${parado ? fmtR$(parado) : "—"}</div><div class="s">${parado ? "soma dos custos informados" : "informe o custo no cadastro"}</div></div>
+    <div class="stat"><div class="l">Sem giro (+${S.cfg.semGiroDias}d)</div><div class="v" style="color:${semGiro.length ? "var(--warn)" : "inherit"}">${semGiro.length}</div><div class="s">${semGiro.length ? fmtR$(semGiro.reduce((s, i) => s + (num(i.custo) || 0), 0)) + " paradas" : "nenhuma peça encalhada"}</div></div>
+    <div class="stat"><div class="l">Reaproveitamento</div><div class="v">${taxa}%</div><div class="s">${baixados.length} de ${total} cadastradas saíram</div></div>
+  </div>
+
+  ${fams.length ? `<section class="sec"><div class="sec-head"><h2>Por família</h2></div>
+    <div class="card pad bars">
+      ${fams.map(([f, n]) => `<div class="bar"><span class="lb">${esc(f)}</span><span class="tr"><span class="fl" style="width:${Math.max(4, (n / maxFam) * 100)}%"></span></span><span class="n">${n}</span></div>`).join("")}
+    </div></section>` : ""}
+
+  ${semGiro.length ? `<section class="sec"><div class="sec-head"><h2>Paradas há mais de ${S.cfg.semGiroDias} dias</h2><span class="count">${semGiro.length}</span></div>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Código</th><th>Item</th><th>Medidas</th><th>Local</th><th style="text-align:right">Dias</th><th style="text-align:right">Custo</th></tr></thead>
+      <tbody>${semGiro.sort((a, b) => a.createdAt - b.createdAt).slice(0, 40).map(i => `<tr data-open="${esc(i.id)}" style="cursor:pointer">
+        <td class="mono" style="color:var(--accent);font-weight:600">${esc(i.code)}</td>
+        <td>${esc(i.item || "—")}</td><td class="mono">${esc(medidas(i))}</td><td>${esc(i.local || "—")}</td>
+        <td class="mono" style="text-align:right;color:var(--warn);font-weight:600">${dias(i.createdAt)}</td>
+        <td class="mono" style="text-align:right">${i.custo ? fmtR$(i.custo) : "—"}</td></tr>`).join("")}</tbody>
+    </table></div></section>` : ""}`;
+}
+
+/* ---------- ajustes / admin ---------- */
+function telaAdmin() {
+  const c = S.cfg;
+  const pend = S.users.filter(u => u.status === "pendente");
+  const ativos = S.users.filter(u => u.status !== "pendente");
+  const linhaUser = (u, pendente) => `<tr>
+    <td><div style="font-weight:600">${esc(u.nome)}</div><div class="mono" style="font-size:11.5px;color:var(--ink-3)">${esc(u.email)}</div></td>
+    <td>${esc(u.telefone || "—")}</td>
+    <td>${pendente ? `<span class="chip warn">pendente</span>` : `<select class="inp" data-papel="${esc(u.id)}" style="padding:5px 8px;font-size:12.5px">
+        ${["admin", "estoque", "comercial"].map(p => `<option value="${p}" ${u.papel === p ? "selected" : ""}>${p === "admin" ? "Administrador (tudo)" : p === "estoque" ? "Pode cadastrar" : "Só reservar"}</option>`).join("")}
+      </select>`}</td>
+    <td style="text-align:right"><div class="btnrow" style="justify-content:flex-end">
+      ${pendente ? `<button class="btn sm pri" data-aprovar="${esc(u.id)}">Liberar</button>` : ""}
+      ${pendente ? "" : `<button class="btn sm" data-senha-de="${esc(u.id)}">Senha</button>`}
+      ${u.id !== S.user.id ? `<button class="btn sm dang" data-remover="${esc(u.id)}">Remover</button>` : ""}
+    </div></td></tr>`;
+
+  return `<h1>Ajustes</h1>
+  <p class="lead">Quem entra, o que aparece nas listas e por quanto tempo uma reserva segura a peça.</p>
+
+  ${pend.length ? `<section class="sec"><div class="sec-head"><h2>Aguardando liberação</h2><span class="count">${pend.length}</span></div>
+    <div class="tablewrap"><table><thead><tr><th>Pessoa</th><th>Telefone</th><th>Situação</th><th></th></tr></thead>
+    <tbody>${pend.map(u => linhaUser(u, true)).join("")}</tbody></table></div></section>` : ""}
+
+  <section class="sec"><div class="sec-head"><h2>Pessoas com acesso</h2><span class="count">${ativos.length}</span></div>
+    <div class="tablewrap"><table><thead><tr><th>Pessoa</th><th>Telefone</th><th>Papel</th><th></th></tr></thead>
+    <tbody>${ativos.map(u => linhaUser(u, false)).join("")}</tbody></table></div>
+    <p class="hint" style="margin-bottom:4px"><b>Senha</b> define uma senha provisória para a pessoa — use quando alguém esquecer a dela.</p>
+    <p class="hint">Todo mundo do domínio entra sozinho e já pode buscar e reservar — entra como <b>Só reservar</b>. Para alguém <b>cadastrar, editar e dar baixa</b>, mude aqui para <b>Pode cadastrar</b>. <b>Administrador</b> faz isso e mais os ajustes.</p>
+  </section>
+
+  <section class="sec"><div class="sec-head"><h2>Acesso</h2></div>
+    <form class="card pad" data-form="cfg-acesso">
+      <label class="f"><span>Domínios que entram direto</span>
+        <input class="inp mono" name="dominios" value="${esc((c.dominios || []).join(", "))}" placeholder="mrinox.com.br, outraempresa.com.br">
+        <div class="hint">Quem tem e-mail destes domínios entra sozinho. <b>Qualquer outro e-mail se cadastra normalmente, mas fica aguardando sua liberação</b> na tabela acima. Separe por vírgula.</div></label>
+      <label class="f"><span>E-mails de fora que entram direto</span>
+        <input class="inp mono" name="excecoes" value="${esc((c.excecoes || []).join(", "))}" placeholder="fulano@gmail.com">
+        <div class="hint">Para quem usa e-mail pessoal.</div></label>
+      <p class="hint" style="margin:-4px 0 14px">Quem entra já pode buscar e reservar. Quem está aguardando liberação <b>não enxerga nada do estoque</b> — o bloqueio é do próprio banco de dados, não da tela.</p>
+      <button class="btn pri" type="submit">Salvar acesso</button>
+    </form>
+  </section>
+
+  <section class="sec"><div class="sec-head"><h2>Listas e prazos</h2></div>
+    <form class="card pad" data-form="cfg-listas">
+      <label class="f"><span>Famílias</span><input class="inp" name="familias" value="${esc((c.familias || []).join(", "))}">
+        <div class="hint">Aparecem no cadastro e no filtro. Separe por vírgula.</div></label>
+      <label class="f"><span>Tipos de inox</span><input class="inp mono" name="ligas" value="${esc((c.ligas || []).join(", "))}"></label>
+      <div class="grid2">
+        <label class="f"><span>Reserva dura (dias)</span><input class="inp mono" name="reservaDias" type="number" min="1" max="180" value="${esc(c.reservaDias)}"></label>
+        <label class="f"><span>Avisar faltando (dias)</span><input class="inp mono" name="alertaDias" type="number" min="1" max="60" value="${esc(c.alertaDias)}"></label>
+      </div>
+      <div class="grid3">
+        <label class="f"><span>Renovação (dias)</span><input class="inp mono" name="renovDias" type="number" min="1" max="90" value="${esc(c.renovDias)}"></label>
+        <label class="f"><span>Máx. renovações</span><input class="inp mono" name="maxRenov" type="number" min="0" max="10" value="${esc(c.maxRenov)}"></label>
+        <label class="f"><span>Sem giro após (dias)</span><input class="inp mono" name="semGiroDias" type="number" min="7" max="720" value="${esc(c.semGiroDias)}"></label>
+      </div>
+      <div class="grid2">
+        <label class="f"><span>Etiqueta Zebra — largura (mm)</span><input class="inp mono" name="etqLargura" type="number" min="20" max="300" step="0.5" value="${esc(c.etqLargura)}"></label>
+        <label class="f"><span>Etiqueta Zebra — altura (mm)</span><input class="inp mono" name="etqAltura" type="number" min="15" max="300" step="0.5" value="${esc(c.etqAltura)}"></label>
+      </div>
+      <p class="hint" style="margin:-6px 0 14px">Uma etiqueta por página, no tamanho exato da mídia — é assim que a Zebra espera. Se o rolo é medido em pontos, divida por 8 no caso de 203 dpi (580 pontos ≈ 72,5 mm) ou por 12 no caso de 300 dpi (580 ≈ 48,3 mm).</p>
+      <button class="btn pri" type="submit">Salvar listas e prazos</button>
+    </form>
+  </section>
+
+  <section class="sec"><div class="sec-head"><h2>Dados</h2></div>
+    <div class="card pad btnrow">
+      <button class="btn" data-act="exportar">Exportar tudo em CSV</button>
+      ${S.items.some(i => i.exemplo) ? `<button class="btn dang" data-act="rm-exemplos">Remover itens de exemplo</button>` : `<button class="btn" data-act="exemplos">Carregar 5 itens de exemplo</button>`}
+    </div>
+    <p class="hint">O CSV serve para levar os dados ao ERP ou guardar cópia. Itens de exemplo aparecem marcados e não contam como estoque real.</p>
+  </section>
+
+  <section class="sec"><div class="sec-head"><h2>Aplicativo</h2></div>
+    <div class="card pad btnrow"><button class="btn" data-act="instalar">Como instalar no celular</button></div>
+    <p class="hint">Abre as instruções para colocar o ícone do Estoque Livre na tela de início. O convite aparece sozinho no primeiro acesso de cada aparelho.</p>
+  </section>`;
+}
+
+/* ---------- painel lateral do item ---------- */
+function renderOverlay() {
+  const ov = el("overlay");
+  const it = S.aberto ? S.items.find(i => i.id === S.aberto) : null;
+  if (!it) { ov.innerHTML = ""; return; }
+
+  const st = estado(it);
+  const dv = diasParaVencer(it);
+  const idade = dias(it.createdAt);
+  const r = it.reserva;
+  const meu = r && r.email === S.user.email;
+  const fotos = it.photos || [];
+  const podeReservar = st === "disp" && !it.archived;
+  const podeMexerReserva = r && (meu || podeEditar());
+
+  const acoes = [];
+  if (podeReservar) acoes.push(`<button class="btn pri" data-act="reservar" data-id="${esc(it.id)}">Reservar</button>`);
+  if (podeMexerReserva) {
+    if ((r.renov || 0) < (S.cfg.maxRenov || 0) || ehAdmin())
+      acoes.push(`<button class="btn" data-act="renovar" data-id="${esc(it.id)}">Renovar +${S.cfg.renovDias}d</button>`);
+    acoes.push(`<button class="btn" data-act="lembrete" data-id="${esc(it.id)}">Lembrar no celular</button>`);
+    acoes.push(`<button class="btn" data-act="cancelar-reserva" data-id="${esc(it.id)}">Cancelar reserva</button>`);
+  }
+  if (podeEditar() && st !== "out") acoes.push(`<button class="btn" data-act="baixa" data-id="${esc(it.id)}">Dar baixa</button>`);
+  if (podeEditar() && st === "out") acoes.push(`<button class="btn" data-act="devolver" data-id="${esc(it.id)}">Devolver ao estoque</button>`);
+  if (podeEditar()) acoes.push(`<button class="btn" data-act="editar" data-id="${esc(it.id)}">Editar</button>`);
+  if (ehAdmin()) acoes.push(`<button class="btn dang" data-act="arquivar" data-id="${esc(it.id)}">Arquivar</button>`);
+
+  const chipEstado = st === "out" ? `<span class="chip">Baixado</span>`
+    : st === "disp" ? `<span class="chip ok">Disponível</span>`
+      : st === "vencendo" ? `<span class="chip crit">Vence em ${dv}d</span>`
+        : `<span class="chip warn">Reservado · ${dv}d</span>`;
+
+  ov.innerHTML = `<div class="scrim" data-close-scrim><aside class="drawer" role="dialog" aria-label="Detalhe da peça">
+    <div class="dhead">
+      <span class="mono" style="font-weight:600;color:var(--accent)">${esc(it.code)}</span>
+      ${chipEstado}${it.exemplo ? `<span class="chip ex">exemplo</span>` : ""}
+      <span class="spacer"></span>
+      <button class="btn ghost sm" data-act="fechar">Fechar</button>
+    </div>
+    <div class="dbody">
+      <div class="gal">
+        ${fotos.length ? fotos.map((p, i) => { const u = urlFoto(p); return u ? `<img src="${esc(u)}" alt="Foto de ${esc(it.code)}" data-foto="${esc(it.id)}" data-idx="${i}" style="cursor:zoom-in">` : `<div class="ph">carregando foto…</div>`; }).join("")
+      : `<div class="ph">Sem foto${podeEditar() ? " — edite a peça para adicionar" : ""}</div>`}
+      </div>
+      ${fotos.length ? `<p class="hint" style="margin-top:6px">Toque na foto para ampliar. Na foto ampliada, toque de novo para dar zoom.</p>` : ""}
+
+      <h2 style="margin:14px 0 3px;font-size:18px">${esc(it.item || "(sem descrição)")}</h2>
+      <div class="ifam" style="margin-bottom:14px">${esc(it.familia || "—")}${it.liga ? " · Inox " + esc(it.liga) : ""}${it.condicao ? " · " + esc(it.condicao) : ""}</div>
+
+      <dl class="kv">
+        <dt>Medidas</dt><dd class="mono">${esc(medidas(it))}</dd>
+        <dt>Local</dt><dd>${esc(it.local || "—")}</dd>
+        <dt>Em estoque</dt><dd class="mono">${idade} dias <span style="color:var(--ink-3)">· desde ${fmtData(it.createdAt)}</span></dd>
+        ${it.custo ? `<dt>Custo est.</dt><dd class="mono">${fmtR$(it.custo)}</dd>` : ""}
+        ${it.obs ? `<dt>Observações</dt><dd>${esc(it.obs)}</dd>` : ""}
+        <dt>Cadastrado por</dt><dd>${esc(it.createdByName || "—")}</dd>
+      </dl>
+
+      ${r ? `<div class="card pad" style="margin-top:14px;border-color:${st === "vencendo" ? "var(--crit-line)" : "var(--warn-line)"};background:${st === "vencendo" ? "var(--crit-soft)" : "var(--warn-soft)"}">
+        <span class="eyebrow">Reserva</span>
+        <div style="font-weight:600;margin-top:5px">${esc(r.nome)}${meu ? " (você)" : ""}</div>
+        <div style="font-size:13px;color:var(--ink-2)">Vence ${fmtData(r.expira)} · faltam <b class="mono">${dv} dia${dv === 1 ? "" : "s"}</b>${(r.renov || 0) ? ` · renovada ${r.renov}×` : ""}</div>
+        ${r.pedido || r.cliente ? `<div style="font-size:13px;color:var(--ink-2);margin-top:4px">${r.cliente ? "Cliente: " + esc(r.cliente) : ""}${r.cliente && r.pedido ? " · " : ""}${r.pedido ? "Pedido: " + esc(r.pedido) : ""}</div>` : ""}
+      </div>` : ""}
+
+      ${it.saida ? `<div class="card pad" style="margin-top:14px">
+        <span class="eyebrow">Baixa</span>
+        <div style="font-size:13px;color:var(--ink-2);margin-top:5px">${fmtData(it.saida.at)} por ${esc(it.saida.by)}${it.saida.dest ? " · " + esc(it.saida.dest) : ""}</div>
+      </div>` : ""}
+
+      <div class="btnrow" style="margin-top:16px">${acoes.join("")}</div>
+
+      ${podeEditar() ? `<div class="sec"><div class="sec-head"><h2>Etiqueta</h2></div>
+        <div class="qrbox">
+          <canvas id="qrc" width="104" height="104"></canvas>
+          <div style="font-size:12.5px;color:var(--ink-2)">
+            Cole na peça. Quem apontar a câmera cai direto nesta ficha.
+            <div class="btnrow" style="margin-top:8px"><button class="btn sm pri" data-act="etiqueta-uma" data-id="${esc(it.id)}">Etiqueta Zebra ${esc(S.cfg.etqLargura)}×${esc(S.cfg.etqAltura)} mm</button></div>
+          </div>
+        </div>
+      </div>` : ""}
+
+      <div class="sec"><div class="sec-head"><h2>Histórico</h2></div>
+        <div class="card pad"><ul class="hist">
+          ${(it.hist || []).slice().reverse().map(h => `<li><span class="when">${fmtDataHora(h.at)}</span><span><b style="font-weight:600">${esc(rotuloHist(h.t))}</b>${h.d ? " — " + esc(h.d) : ""}<span style="color:var(--ink-3)"> · ${esc(h.by)}</span></span></li>`).join("") || `<li><span style="color:var(--ink-3)">Sem movimentações.</span></li>`}
+        </ul></div>
+      </div>
+    </div>
+  </aside></div>`;
+
+  if (!S.histCache[it.id]) carregarHistorico(it.id);
+
+  const cv = el("qrc");
+  if (cv && typeof QRious !== "undefined") {
+    try { new QRious({ element: cv, value: urlItem(it.code), size: 104, level: "M", background: "#ffffff", foreground: "#131a1e" }); } catch (e) {}
+  }
+}
+function abrirFoto(code, idx) {
+  const it = S.items.find(i => i.id === code);
+  if (!it || !(it.photos || []).length) return;
+  S.foto = { code, idx: Math.max(0, Math.min(idx || 0, it.photos.length - 1)) };
+  pintarFoto();
+}
+
+function navegarFoto(passo) {
+  if (!S.foto) return;
+  const it = S.items.find(i => i.id === S.foto.code);
+  if (!it) return;
+  const n = it.photos.length;
+  S.foto.idx = (S.foto.idx + passo + n) % n;
+  pintarFoto();
+}
+
+function pintarFoto() {
+  const antigo = el("overlay").querySelector(".lbox");
+  if (antigo) antigo.remove();
+  if (!S.foto) return;
+
+  const it = S.items.find(i => i.id === S.foto.code);
+  if (!it || !(it.photos || []).length) { S.foto = null; return; }
+
+  const total = it.photos.length;
+  const u = urlFoto(it.photos[S.foto.idx]);
+  el("overlay").insertAdjacentHTML("beforeend", `<div class="lbox" data-lbox>
+    ${u ? `<img src="${esc(u)}" alt="Foto de ${esc(it.code)}" data-zoom-foto>`
+      : `<div style="color:#8b979f;font-size:13px">Carregando foto…</div>`}
+    <button class="lb-x" data-act="fechar-foto" aria-label="Fechar">&#10005;</button>
+    ${total > 1 ? `<button class="lb-nav lb-prev" data-foto-nav="-1" aria-label="Foto anterior">&#8249;</button>
+      <button class="lb-nav lb-next" data-foto-nav="1" aria-label="Próxima foto">&#8250;</button>
+      <div class="lb-cont">${S.foto.idx + 1} / ${total}</div>` : ""}
+  </div>`);
+}
+
+function rotuloHist(t) {
+  return { criado: "Cadastrada", reservado: "Reservada", renovado: "Renovada", cancelado: "Reserva cancelada", expirou: "Reserva venceu", baixa: "Baixa", devolvido: "Devolvida ao estoque", editado: "Editada", arquivado: "Arquivada" }[t] || t;
+}
+const urlItem = (code) => location.origin + location.pathname + "#i=" + code;
+
+/* ---------------- ações ---------------- */
+document.addEventListener("click", async (ev) => {
+  if (!ev.target.closest(".autocomp")) fecharSugestoes();
+
+  const t = ev.target.closest("[data-nav],[data-act],[data-open],[data-status],[data-fam],[data-modo],[data-aprovar],[data-senha-de],[data-usar-item],[data-foto],[data-foto-nav],[data-zoom-foto],[data-lbox],[data-remover],[data-rmfoto],[data-close-scrim]");
+  if (!t) return;
+
+  if (t.hasAttribute("data-close-scrim") && ev.target === t) { S.aberto = null; renderOverlay(); return; }
+  if (t.dataset.nav) { S.view = t.dataset.nav; if (t.dataset.nav !== "cadastro") { S.editando = null; S.rascunhoFotos = []; } render(); window.scrollTo(0, 0); return; }
+  if (t.dataset.open) { S.aberto = t.dataset.open; renderOverlay(); return; }
+  if (t.hasAttribute("data-status")) { S.filtro.status = t.dataset.status; render(); return; }
+  if (t.hasAttribute("data-fam")) { S.filtro.familia = t.dataset.fam; render(); return; }
+  if (t.hasAttribute("data-zoom-foto")) { const lb = t.closest(".lbox"); if (lb) lb.classList.toggle("zoom"); return; }
+  if (t.hasAttribute("data-foto-nav")) { navegarFoto(parseInt(t.dataset.fotoNav, 10)); return; }
+  if (t.hasAttribute("data-foto")) { abrirFoto(t.dataset.foto, parseInt(t.dataset.idx, 10)); return; }
+  if (t.hasAttribute("data-lbox")) { if (ev.target === t) { S.foto = null; pintarFoto(); } return; }
+  if (t.dataset.aprovar) { await aprovar(t.dataset.aprovar); return; }
+  if (t.dataset.senhaDe) { abrirModalSenha(t.dataset.senhaDe); return; }
+  if (t.dataset.usarItem) {
+    const campo = document.querySelector("[data-sug-item]");
+    if (campo) { campo.value = t.dataset.usarItem; campo.focus(); }
+    fecharSugestoes();
+    return;
+  }
+  if (t.hasAttribute("data-modo")) {
+    S.modoEntrada = t.dataset.modo;
+    const campo = document.querySelector('[name="email"]');
+    if (campo) S.emailLembrado = campo.value;
+    render();
+    return;
+  }
+  if (t.dataset.remover) { await removerUsuario(t.dataset.remover); return; }
+  if (t.dataset.rmfoto !== undefined && t.hasAttribute("data-rmfoto")) { S.rascunhoFotos.splice(+t.dataset.rmfoto, 1); render(); return; }
+
+  const act = t.dataset.act, id = t.dataset.id;
+  const it = id ? S.items.find(i => i.id === id) : null;
+
+  switch (act) {
+    case "sair": sair(); break;
+    case "atualizar": location.reload(); break;
+    case "perfil": abrirModalPerfil(); break;
+    case "conferir-liberacao": await carregarTudo(); if (S.user && S.user.status === "pendente") toast("Ainda não liberado."); break;
+    case "compartilhar": await compartilharApp(); break;
+    case "instalar": renderOverlay(); convidarInstalacao(true); break;
+    case "instalar-agora":
+      if (promptInstall) { const pi = promptInstall; promptInstall = null; renderOverlay(); pi.prompt(); }
+      else toast("Use o menu do navegador para adicionar à tela de início.");
+      break;
+    case "fechar": S.aberto = null; renderOverlay(); break;
+    case "fechar-foto": S.foto = null; pintarFoto(); break;
+    case "limpar-filtros": S.filtro = { familia: "", item: "", liga: "", condicao: "", status: "", comp: "", larg: "", alt: "", local: "" }; S.q = ""; el("q").value = ""; render(); break;
+    case "reservar": abrirModalReserva(it); break;
+    case "renovar": await renovar(it); break;
+    case "cancelar-reserva": await cancelarReserva(it); break;
+    case "baixa": abrirModalBaixa(it); break;
+    case "devolver": await devolver(it); break;
+    case "editar": S.editando = it.id; S.rascunhoFotos = (it.photos || []).slice(); S.aberto = null; S.view = "cadastro"; render(); window.scrollTo(0, 0); break;
+    case "cancelar-edicao": S.editando = null; S.rascunhoFotos = []; S.view = "busca"; render(); break;
+    case "arquivar": await arquivar(it); break;
+    case "lembrete": lembrete(it); break;
+    case "copiar-vencendo": copiarVencendo(); break;
+    case "exportar": exportarCSV(); break;
+    case "etiquetas-zebra": await etiquetaZebra(S.view === "vitrine" ? filtrados().filter(i => estado(i) === "disp") : filtrados()); break;
+    case "etiquetas-a4": await etiquetasA4(filtrados()); break;
+    case "etiqueta-uma": await etiquetaZebra([it]); break;
+    case "exemplos": await carregarExemplos(); break;
+    case "rm-exemplos": await removerExemplos(); break;
+    case "fechar-modal": el("overlay").querySelector(".mscrim") && renderOverlay(); break;
+  }
+});
+
+document.addEventListener("keydown", (ev) => {
+  if (ev.key === "Escape") {
+    const box = el("sugItem");
+    if (box && !box.hidden) { fecharSugestoes(); return; }
+  }
+  if (S.foto) {
+    if (ev.key === "Escape") { S.foto = null; pintarFoto(); return; }
+    if (ev.key === "ArrowLeft") { navegarFoto(-1); return; }
+    if (ev.key === "ArrowRight") { navegarFoto(1); return; }
+    return;
+  }
+  if (ev.key !== "Escape") return;
+  const modal = el("overlay").querySelector(".mscrim");
+  if (modal) { modal.remove(); return; }
+  if (S.aberto) { S.aberto = null; renderOverlay(); }
+});
+
+document.addEventListener("input", (ev) => {
+  const t = ev.target;
+  if (t.hasAttribute && t.hasAttribute("data-sug-item")) { sugerirItem(t.value); return; }
+  if (t.id === "q") { S.q = t.value; if (S.view !== "busca") { S.view = "busca"; render(); el("q").focus(); } else render(); return; }
+  if (t.dataset.filtro) { S.filtro[t.dataset.filtro] = t.value; const p = t.selectionStart; render(); const n = document.querySelector(`[data-filtro="${t.dataset.filtro}"]`); if (n && n.setSelectionRange) { n.focus(); try { n.setSelectionRange(p, p); } catch (e) {} } else if (n) n.focus(); }
+});
+
+document.addEventListener("change", async (ev) => {
+  const t = ev.target;
+  if (t.hasAttribute("data-ver-senha")) {
+    document.querySelectorAll("[data-senha]").forEach(i => { i.type = t.checked ? "text" : "password"; });
+    return;
+  }
+  if (t.dataset.papel) { await mudarPapel(t.dataset.papel, t.value); return; }
+  if (t.hasAttribute("data-fotos")) {
+    const files = Array.from(t.files || []);
+    if (!files.length) return;
+    const limite = 4;
+    toast("Processando foto…");
+    for (const f of files) {
+      if (S.rascunhoFotos.length >= limite) { toast("Limite de " + limite + " foto" + (limite > 1 ? "s" : "") + " por peça.", true); break; }
+      try { S.rascunhoFotos.push(await guardarFoto(f)); }
+      catch (e) { toast("Não deu para usar essa foto. Tente outra, menor.", true); }
+    }
+    render();
+  }
+});
+
+document.addEventListener("submit", async (ev) => {
+  const f = ev.target;
+  if (!f.dataset.form) return;
+  ev.preventDefault();
+  const d = Object.fromEntries(new FormData(f).entries());
+
+  if (f.dataset.form === "entrar") return entrar(d);
+  if (f.dataset.form === "perfil") return salvarMeuPerfil(d);
+  if (f.dataset.form === "senha-admin") return definirSenha(d);
+  if (f.dataset.form === "item") return gravarItem(d);
+  if (f.dataset.form === "cfg-acesso") {
+    const patch = {
+      dominios: listaDe(d.dominios).map(x => x.replace(/^@/, "").toLowerCase()),
+      excecoes: listaDe(d.excecoes).map(normEmail)
+    };
+    return salvarConfig(patch, "Acesso atualizado.");
+  }
+  if (f.dataset.form === "cfg-listas") {
+    const patch = {
+      familias: listaDe(d.familias), ligas: listaDe(d.ligas),
+      reservaDias: +d.reservaDias || 15, alertaDias: +d.alertaDias || 5,
+      renovDias: +d.renovDias || 7, maxRenov: +d.maxRenov, semGiroDias: +d.semGiroDias || 90,
+      etqLargura: +d.etqLargura || 100, etqAltura: +d.etqAltura || 58
+    };
+    return salvarConfig(patch, "Listas e prazos salvos.");
+  }
+  if (f.dataset.form === "reserva") return confirmarReserva(d);
+  if (f.dataset.form === "baixa") return confirmarBaixa(d);
+});
+
+const listaDe = (s) => String(s || "").split(",").map(x => x.trim()).filter(Boolean);
+
+async function salvarConfig(patch, msg) {
+  try {
+    const dados = Object.assign({}, S.cfg, patch);
+    const { error } = await sb.from("config").update({ dados }).eq("id", 1);
+    if (error) throw error;
+    toast(msg);
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+/* ---------- sessão ---------- */
+async function entrar(d) {
+  const email = normEmail(d.email);
+  const senha = String(d.senha || "");
+  const criar = S.modoEntrada === "criar";
+
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return toast("E-mail inválido.", true);
+  if (!dominioOk(email)) return toast("E-mail fora dos domínios liberados. Peça ao administrador para liberar.", true);
+  if (senha.length < 8) return toast("A senha precisa ter pelo menos 8 caracteres.", true);
+
+  S.emailLembrado = email;
+
+  try {
+    if (criar) {
+      const nome = String(d.nome || "").trim();
+      if (!nome) return toast("Informe seu nome.", true);
+      if (senha !== String(d.senha2 || "")) return toast("As duas senhas não são iguais.", true);
+
+      toast("Criando seu acesso…");
+      const { data, error } = await sb.auth.signUp({ email, password: senha, options: { data: { nome } } });
+      if (error) throw error;
+
+      if (!data || !data.session) {
+        /* acontece se a confirmação de e-mail ainda estiver ligada no Supabase */
+        S.modoEntrada = "entrar"; render();
+        return toast("Acesso criado. Agora entre com e-mail e senha.");
+      }
+    } else {
+      toast("Entrando…");
+      const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+      if (error) throw error;
+    }
+    /* onAuthStateChange assume daqui: carrega e renderiza */
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+async function sair() {
+  if (EMBUTIDO) { try { window.parent.postMessage({ tipo: "app-sair" }, location.origin); } catch (e) {} return; }
+  try { await sb.auth.signOut(); } catch (e) {}
+  S.sessao = null; S.user = null; S.items = []; S.users = [];
+  S.view = "home"; S.aberto = null; S.histCache = {}; S.modoEntrada = "entrar";
+  S.tentouPerfil = false;
+  render();
+}
+
+async function salvarMeuPerfil(d) {
+  try {
+    const { error } = await sb.from("perfis")
+      .update({ nome: String(d.nome || "").trim(), telefone: String(d.telefone || "").trim() })
+      .eq("id", S.user.id);
+    if (error) throw error;
+    renderOverlay();
+    toast("Perfil atualizado.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+function senhaSugerida() {
+  const letras = "abcdefghijkmnpqrstuvwxyz23456789";
+  let r = "";
+  for (let i = 0; i < 10; i++) r += letras[Math.floor(Math.random() * letras.length)];
+  return r;
+}
+
+function abrirModalSenha(uid) {
+  const u = S.users.find(x => x.id === uid);
+  if (!u) return;
+  el("overlay").insertAdjacentHTML("beforeend", `<div class="mscrim"><form class="modal" data-form="senha-admin">
+    <h3>Definir senha</h3>
+    <p class="lead">Escolha uma senha provisória para <b>${esc(u.nome)}</b> e passe para a pessoa. A senha antiga deixa de valer na hora.</p>
+    <input type="hidden" name="uid" value="${esc(uid)}">
+    <dl class="kv" style="margin:0 0 12px"><dt>E-mail</dt><dd class="mono">${esc(u.email)}</dd></dl>
+    <label class="f"><span>Nova senha</span>
+      <input class="inp mono" name="senha" type="text" required minlength="8"
+             value="${esc(senhaSugerida())}" autocomplete="off" autocapitalize="off" spellcheck="false"
+             style="font-size:17px;letter-spacing:.05em"></label>
+    <p class="hint" style="margin:-6px 0 14px">Deixei uma sugestão pronta. Fica visível de propósito, para você conseguir copiar e passar.</p>
+    <div class="btnrow"><button class="btn pri" type="submit">Definir senha</button><button class="btn" type="button" data-act="fechar-modal">Cancelar</button></div>
+  </form></div>`);
+}
+
+async function definirSenha(d) {
+  const senha = String(d.senha || "");
+  if (senha.length < 8) return toast("A senha precisa ter pelo menos 8 caracteres.", true);
+
+  toast("Definindo…");
+  try {
+    const { data, error } = await sb.functions.invoke(FUNCAO_SENHA, {
+      body: { user_id: d.uid, senha }
+    });
+    if (error) {
+      /* a funcao devolve o motivo no corpo; sem isso vira "non-2xx status" */
+      let motivo = error.message;
+      try {
+        if (error.context && typeof error.context.json === "function") {
+          const j = await error.context.json();
+          if (j && j.erro) motivo = j.erro;
+        }
+      } catch (_) {}
+      throw new Error(motivo);
+    }
+    if (data && data.erro) throw new Error(data.erro);
+    renderOverlay();
+    toast("Senha definida. Passe para a pessoa.");
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+async function aprovar(uid) {
+  try {
+    const { error } = await sb.from("perfis").update({ status: "ativo" }).eq("id", uid);
+    if (error) throw error;
+    toast("Acesso liberado.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+async function mudarPapel(uid, papel) {
+  try {
+    const { error } = await sb.from("perfis").update({ papel }).eq("id", uid);
+    if (error) throw error;
+    toast("Papel atualizado.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+async function removerUsuario(uid) {
+  const u = S.users.find(x => x.id === uid);
+  if (!confirm("Remover o acesso de " + (u ? u.email : uid) + "? As reservas e o histórico dessa pessoa continuam registrados.")) return;
+  try {
+    const { error } = await sb.from("perfis").delete().eq("id", uid);
+    if (error) throw error;
+    toast("Acesso removido.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+/* ---------- itens ---------- */
+async function gravarItem(d) {
+  const base = {
+    familia: d.familia, item: String(d.item || "").trim(), liga: d.liga || "",
+    comp: num(d.comp), larg: num(d.larg), alt: num(d.alt),
+    condicao: d.condicao, custo: num(d.custo),
+    local: String(d.local || "").trim(), obs: String(d.obs || "").trim()
+  };
+
+  try {
+    if (S.editando && S.editando !== "novo") {
+      const code = S.editando;
+      const { error } = await sb.from("itens").update(base).eq("code", code);
+      if (error) throw error;
+      await sincronizarFotos(code, S.rascunhoFotos);
+      await registrar(code, "editado", "");
+      S.editando = null; S.rascunhoFotos = [];
+      toast(code + " atualizada.");
+      S.aberto = code; S.view = "busca";
+      await carregarTudo();
+      return;
+    }
+
+    const { data: code, error: eCod } = await sb.rpc("proximo_codigo");
+    if (eCod) throw eCod;
+
+    const { error } = await sb.from("itens").insert(Object.assign({}, base, {
+      code, criado_por: S.user.email, criado_por_nome: S.user.nome
+    }));
+    if (error) throw error;
+
+    await sincronizarFotos(code, S.rascunhoFotos);
+    await registrar(code, "criado", "");
+    S.rascunhoFotos = []; S.editando = null;
+    toast(code + " cadastrada.");
+    S.aberto = code; S.view = "home";
+    await carregarTudo();
+    window.scrollTo(0, 0);
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+async function compartilharApp() {
+  const url = location.origin + location.pathname;
+  const dom = ((S.cfg.dominios || []).filter(Boolean))[0];
+  const texto = `Estoque Livre — Rodriaço
+Peças disponíveis com foto, medidas e reserva.
+${dom ? "Entre com seu e-mail @" + dom + ":" : "Entre com seu e-mail da empresa:"}
+${url}`;
+
+  /* no celular abre o compartilhamento do proprio sistema (WhatsApp e o resto) */
+  if (navigator.share) {
+    try {
+      await navigator.share({ title: "Estoque Livre — Rodriaço", text: texto });
+      return;
+    } catch (e) {
+      if (e && e.name === "AbortError") return;   /* a pessoa desistiu */
+    }
+  }
+  copiar(texto, "Link copiado — cole onde quiser.");
+}
+
+function abrirModalPerfil() {
+  const rot = { admin: "Administrador (tudo)", estoque: "Pode cadastrar", comercial: "Só reservar" };
+  el("overlay").insertAdjacentHTML("beforeend", `<div class="mscrim"><form class="modal" data-form="perfil">
+    <h3>Meu perfil</h3>
+    <p class="lead">É este nome que aparece nas suas reservas e no histórico das peças.</p>
+    <label class="f"><span>Nome</span><input class="inp" name="nome" required value="${esc(S.user.nome)}"></label>
+    <label class="f"><span>Telefone</span><input class="inp" name="telefone" value="${esc(S.user.telefone || "")}" placeholder="(11) 90000-0000"></label>
+    <dl class="kv" style="margin:2px 0 14px">
+      <dt>E-mail</dt><dd class="mono">${esc(S.user.email)}</dd>
+      <dt>Acesso</dt><dd>${esc(rot[S.user.papel] || S.user.papel)}</dd>
+    </dl>
+
+    <div style="border-top:1px solid var(--line);padding-top:13px;margin-bottom:15px">
+      <span class="eyebrow">Convidar alguém</span>
+      <p class="hint" style="margin:6px 0 9px">Manda o link do app para quem tem e-mail da empresa. A pessoa faz o primeiro acesso sozinha e já pode buscar e reservar.</p>
+      <button class="btn" type="button" data-act="compartilhar" style="width:100%">Compartilhar link do app</button>
+    </div>
+
+    <div class="btnrow"><button class="btn pri" type="submit">Salvar</button><button class="btn" type="button" data-act="fechar-modal">Cancelar</button></div>
+  </form></div>`);
+}
+
+function abrirModalReserva(it) {
+  const dias_ = S.cfg.reservaDias;
+  el("overlay").insertAdjacentHTML("beforeend", `<div class="mscrim"><form class="modal" data-form="reserva">
+    <h3>Reservar ${esc(it.code)}</h3>
+    <p class="lead">${esc(it.item || "")} · ${esc(medidas(it))}</p>
+    <input type="hidden" name="id" value="${esc(it.id)}">
+    <label class="f"><span>Cliente</span><input class="inp" name="cliente" placeholder="Para quem é a peça"></label>
+    <label class="f"><span>Pedido / OP</span><input class="inp" name="pedido" placeholder="Número, se já tiver"></label>
+    <div class="alert info" style="margin-bottom:14px"><div><div class="t">Vence em ${dias_} dias</div><div class="d">Em ${fmtData(Date.now() + dias_ * DAY)} a peça volta sozinha para o estoque se não houver baixa ou renovação.</div></div></div>
+    <div class="btnrow"><button class="btn pri" type="submit">Confirmar reserva</button><button class="btn" type="button" data-act="fechar-modal">Cancelar</button></div>
+  </form></div>`);
+}
+
+async function confirmarReserva(d) {
+  try {
+    const { error } = await sb.rpc("reservar", {
+      p_code: d.id,
+      p_cliente: String(d.cliente || "").trim(),
+      p_pedido: String(d.pedido || "").trim()
+    });
+    if (error) throw error;
+    delete S.histCache[d.id];
+    renderOverlay();
+    toast(d.id + " reservada.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); renderOverlay(); await carregarTudo(); }
+}
+
+async function renovar(it) {
+  try {
+    const { error } = await sb.rpc("renovar", { p_code: it.id });
+    if (error) throw error;
+    delete S.histCache[it.id];
+    toast("Reserva estendida.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+async function cancelarReserva(it) {
+  if (!confirm("Cancelar a reserva de " + it.code + "? A peça volta para o estoque.")) return;
+  try {
+    const { error } = await sb.rpc("cancelar_reserva", { p_code: it.id });
+    if (error) throw error;
+    delete S.histCache[it.id];
+    toast(it.code + " liberada.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+function abrirModalBaixa(it) {
+  el("overlay").insertAdjacentHTML("beforeend", `<div class="mscrim"><form class="modal" data-form="baixa">
+    <h3>Dar baixa em ${esc(it.code)}</h3>
+    <p class="lead">A peça sai do estoque. Dá para devolver depois, mas o movimento fica registrado.</p>
+    <input type="hidden" name="id" value="${esc(it.id)}">
+    <label class="f"><span>Destino</span><input class="inp" name="dest" placeholder="Cliente, OP, sucata…" ${it.reserva ? `value="${esc([it.reserva.cliente, it.reserva.pedido].filter(Boolean).join(" · "))}"` : ""}></label>
+    <div class="btnrow"><button class="btn pri" type="submit">Confirmar baixa</button><button class="btn" type="button" data-act="fechar-modal">Cancelar</button></div>
+  </form></div>`);
+}
+
+async function confirmarBaixa(d) {
+  try {
+    const { error } = await sb.rpc("dar_baixa", { p_code: d.id, p_destino: String(d.dest || "").trim() });
+    if (error) throw error;
+    delete S.histCache[d.id];
+    renderOverlay();
+    toast(d.id + " baixada.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+async function devolver(it) {
+  try {
+    const { error } = await sb.rpc("devolver", { p_code: it.id });
+    if (error) throw error;
+    delete S.histCache[it.id];
+    toast(it.code + " de volta no estoque.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+async function arquivar(it) {
+  if (!confirm("Arquivar " + it.code + "? Ela some das listas mas o histórico é preservado.")) return;
+  try {
+    const { error } = await sb.from("itens").update({ arquivado: true }).eq("code", it.id);
+    if (error) throw error;
+    await registrar(it.id, "arquivado", "");
+    toast(it.code + " arquivada.");
+    S.aberto = null;
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+/* ---------- lembrete no calendário ---------- */
+function lembrete(it) {
+  const r = it.reserva; if (!r) return;
+  const quando = new Date(Math.max(Date.now() + 60000, r.expira - (S.cfg.alertaDias || 5) * DAY));
+  quando.setHours(8, 0, 0, 0);
+  const fim = new Date(quando.getTime() + 15 * 60000);
+  const z = (dt) => dt.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  const titulo = "Reserva " + it.code + " vence em " + (S.cfg.alertaDias || 5) + " dias";
+  const det = [it.item, medidas(it), it.local ? "Local: " + it.local : "", r.cliente ? "Cliente: " + r.cliente : "", r.pedido ? "Pedido: " + r.pedido : "", "Vence em " + fmtData(r.expira), urlItem(it.code)].filter(Boolean).join("\n");
+  const url = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+    + "&text=" + encodeURIComponent(titulo)
+    + "&dates=" + z(quando) + "/" + z(fim)
+    + "&details=" + encodeURIComponent(det);
+
+  const a = document.createElement("a");
+  a.href = url; a.target = "_blank"; a.rel = "noopener noreferrer";
+  document.body.appendChild(a); a.click(); a.remove();
+
+  el("overlay").insertAdjacentHTML("beforeend", `<div class="mscrim"><div class="modal">
+    <h3>Lembrete de ${esc(it.code)}</h3>
+    <p class="lead">Abrimos o Google Agenda em outra aba com o evento pronto para ${fmtData(quando)} às 08:00 — é só salvar, e o celular avisa no dia.</p>
+    <p class="lead">Se a aba não abriu, copie o link:</p>
+    <textarea class="inp mono" style="font-size:11px;min-height:76px" readonly onclick="this.select()">${esc(url)}</textarea>
+    <div class="btnrow" style="margin-top:12px"><button class="btn pri" type="button" data-act="fechar-modal">Pronto</button></div>
+  </div></div>`);
+}
+
+function copiarVencendo() {
+  const v = S.items.filter(i => estado(i) === "vencendo").sort((a, b) => a.reserva.expira - b.reserva.expira);
+  const txt = "Reservas vencendo — Estoque Livre Rodriaço\n\n" + v.map(i =>
+    `${i.code} · ${i.item || ""} ${medidas(i)}${i.local ? " · " + i.local : ""}\n   ${i.reserva.nome} — vence ${fmtData(i.reserva.expira)} (${diasParaVencer(i)} dias)${i.reserva.cliente ? " · " + i.reserva.cliente : ""}`
+  ).join("\n") + "\n\nDepois do prazo a peça volta para o estoque.";
+  copiar(txt, v.length + " reserva(s) copiada(s). Cole onde quiser.");
+}
+
+function copiar(txt, msg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(() => toast(msg)).catch(() => fallbackCopiar(txt, msg));
+  } else fallbackCopiar(txt, msg);
+}
+function fallbackCopiar(txt, msg) {
+  const ta = document.createElement("textarea");
+  ta.value = txt; ta.style.position = "fixed"; ta.style.opacity = "0";
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand("copy"); toast(msg); } catch (e) { toast("Não consegui copiar automaticamente.", true); }
+  ta.remove();
+}
+
+/* ---------- CSV ---------- */
+async function exportarCSV() {
+  const cols = ["Código", "Família", "Item", "Comp (mm)", "Larg (mm)", "Alt (mm)", "Inox", "Estado", "Local", "Custo", "Situação", "Reservado por", "Vence em", "Cliente", "Pedido", "Dias em estoque", "Cadastro", "Observações"];
+  const linhas = S.items.filter(i => !i.archived).map(i => [
+    i.code, i.familia, i.item, i.comp, i.larg, i.alt, i.liga, i.condicao, i.local, i.custo,
+    { disp: "Disponível", reservado: "Reservado", vencendo: "Reservado", out: "Baixado" }[estado(i)],
+    i.reserva ? i.reserva.nome : "", i.reserva ? fmtData(i.reserva.expira) : "",
+    i.reserva ? i.reserva.cliente : "", i.reserva ? i.reserva.pedido : "",
+    dias(i.createdAt), fmtData(i.createdAt), i.obs
+  ]);
+  const cel = (v) => { const s = String(v == null ? "" : v); return /[";\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const csv = "﻿" + [cols, ...linhas].map(l => l.map(cel).join(";")).join("\r\n");
+  const nome = "estoque-livre-" + new Date().toISOString().slice(0, 10) + ".csv";
+  baixar(nome, csv, "text/csv;charset=utf-8");
+  toast("CSV baixado.");
+}
+
+/* ---------- etiquetas ---------- */
+function podeEtiquetar(itens) {
+  if (typeof jspdf === "undefined" || typeof QRious === "undefined") { toast("Gerador de etiquetas nao carregou. Recarregue a pagina.", true); return false; }
+  if (!itens.length) { toast("Nenhuma peca para etiquetar.", true); return false; }
+  return true;
+}
+
+/* Zebra: uma etiqueta por pagina, no tamanho exato da midia */
+async function etiquetaZebra(lista) {
+  const itens = lista.filter(i => !i.archived);
+  if (!podeEtiquetar(itens)) return;
+
+  const W = Math.min(300, Math.max(20, num(S.cfg.etqLargura) || 100));
+  const H = Math.min(300, Math.max(15, num(S.cfg.etqAltura) || 58));
+  const k = Math.min(W / 100, H / 58);
+
+  toast("Montando " + itens.length + " etiqueta(s) de " + W + "x" + H + " mm...");
+  /* jsPDF reordena o formato conforme a orientacao: uma etiqueta 100x58 e PAISAGEM.
+     Passar "p" aqui invertia a pagina para 58x100 - era o defeito da impressao. */
+  const deitada = W >= H;
+  const orient = deitada ? "l" : "p";
+  const fmt = deitada ? [Math.max(W, H), Math.min(W, H)] : [Math.min(W, H), Math.max(W, H)];
+  const { jsPDF } = jspdf;
+  const doc = new jsPDF({ unit: "mm", format: fmt, orientation: orient });
+  const qr = new QRious({ size: 320, level: "M", background: "#ffffff", foreground: "#000000" });
+
+  const m = 4 * k;
+  const qs = Math.min(H - 2 * m, W * 0.38);
+  const tx = m + qs + 4 * k;
+  const tw = Math.max(12, W - tx - m);
+
+  itens.forEach((it, n) => {
+    if (n > 0) doc.addPage(fmt, orient);
+    qr.value = urlItem(it.code);
+    try { doc.addImage(qr.toDataURL("image/png"), "PNG", m, (H - qs) / 2, qs, qs); } catch (e) {}
+
+    doc.setTextColor(0);
+    let y = m + 7 * k;
+    doc.setFont("courier", "bold"); doc.setFontSize(20 * k);
+    doc.text(it.code, tx, y);
+
+    y += 9 * k;
+    doc.setFont("helvetica", "bold"); doc.setFontSize(10 * k);
+    const nome = doc.splitTextToSize(String(it.item || "").toUpperCase(), tw).slice(0, 2);
+    doc.text(nome, tx, y);
+    y += nome.length * 4.6 * k + 2 * k;
+
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8 * k);
+    doc.text(doc.splitTextToSize([it.familia, it.liga ? "INOX " + it.liga : "", it.condicao].filter(Boolean).join(" / ").toUpperCase(), tw)[0] || "", tx, y);
+
+    y += 5 * k;
+    doc.setFont("courier", "bold"); doc.setFontSize(9.5 * k);
+    doc.text(medidas(it), tx, y);
+
+    if (it.local) {
+      y += 5 * k;
+      doc.setFont("helvetica", "normal"); doc.setFontSize(7.5 * k);
+      doc.text(doc.splitTextToSize(String(it.local), tw)[0] || "", tx, y);
+    }
+
+    doc.setFont("helvetica", "bold"); doc.setFontSize(5.6 * k);
+    doc.text("RODRIACO  ·  ESTOQUE LIVRE", m, H - 2.2 * k);
+  });
+
+  const nome = itens.length === 1
+    ? "etiqueta-" + itens[0].code + "-" + W + "x" + H + "mm.pdf"
+    : "etiquetas-zebra-" + itens.length + "-" + W + "x" + H + "mm.pdf";
+  baixar(nome, doc.output("blob"));
+  toast("Etiquetas prontas para a Zebra.");
+}
+
+/* Folha A4 para impressora comum: 3 x 7 rotulos de 70 x 37 mm */
+async function etiquetasA4(lista) {
+  const itens = lista.filter(i => !i.archived);
+  if (!podeEtiquetar(itens)) return;
+
+  toast("Montando folha com " + itens.length + " etiqueta(s)...");
+  const { jsPDF } = jspdf;
+  const doc = new jsPDF({ unit: "mm", format: "a4" });
+  const LW = 70, LH = 37, MX = 0, MY = 8, COLS = 3, ROWS = 7;
+  const qr = new QRious({ size: 220, level: "M", background: "#ffffff", foreground: "#000000" });
+
+  itens.forEach((it, n) => {
+    const idx = n % (COLS * ROWS);
+    if (idx === 0 && n > 0) doc.addPage();
+    const x = MX + (idx % COLS) * LW;
+    const y = MY + Math.floor(idx / COLS) * LH;
+
+    doc.setDrawColor(210); doc.setLineWidth(0.15);
+    doc.rect(x + 1.5, y + 1.5, LW - 3, LH - 3);
+
+    qr.value = urlItem(it.code);
+    try { doc.addImage(qr.toDataURL("image/png"), "PNG", x + 4, y + 6, 25, 25); } catch (e) {}
+
+    const tx = x + 32;
+    doc.setFont("courier", "bold"); doc.setFontSize(13); doc.setTextColor(0);
+    doc.text(it.code, tx, y + 11);
+    doc.setFont("helvetica", "bold"); doc.setFontSize(8.5);
+    doc.text(doc.splitTextToSize(String(it.item || "").toUpperCase(), LW - 36).slice(0, 2), tx, y + 16);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(7.5); doc.setTextColor(70);
+    doc.text([it.familia, it.liga ? "INOX " + it.liga : "", it.condicao].filter(Boolean).join(" / "), tx, y + 24);
+    doc.setFont("courier", "normal"); doc.setFontSize(8);
+    doc.text(medidas(it), tx, y + 28);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(7);
+    doc.text(String(it.local || "").slice(0, 30), tx, y + 32);
+    doc.setFontSize(5.6); doc.setTextColor(140);
+    doc.text("RODRIACO · Estoque Livre", x + 4, y + 33.5);
+  });
+
+  baixar("etiquetas-a4-" + itens.length + ".pdf", doc.output("blob"));
+  toast("Folha A4 pronta.");
+}
+
+/* ---------- exemplos ---------- */
+const EXEMPLOS = [
+  { familia: "Chapa", item: "Chapa escovada ponta de bobina", liga: "304", comp: 1240, larg: 610, alt: 1.2, condicao: "Novo", local: "Galpão 2 · prateleira B4", custo: 480, obs: "Canto direito com risco leve." },
+  { familia: "Tubo", item: "Tubo redondo polido 1.1/2\"", liga: "304", comp: 2100, larg: 38, alt: 38, condicao: "Novo", local: "Galpão 2 · rua A", custo: 210, obs: "" },
+  { familia: "Perfil", item: "Cantoneira 40×40", liga: "430", comp: 3000, larg: 40, alt: 40, condicao: "Usado", local: "Galpão 1 · fundo", custo: 95, obs: "Furos nas pontas." },
+  { familia: "Cuba", item: "Cuba retangular sem furo", liga: "304", comp: 500, larg: 400, alt: 250, condicao: "Novo", local: "Almoxarifado · nível 2", custo: 320, obs: "Sobrou de pedido cancelado." },
+  { familia: "Bancada", item: "Tampo com espelho 10cm", liga: "430", comp: 1800, larg: 700, alt: 40, condicao: "Usado", local: "Galpão 1 · encostado na parede", custo: 640, obs: "Amassado discreto no espelho." }
+];
+
+async function carregarExemplos() {
+  toast("Criando itens de exemplo…");
+  try {
+    for (const e of EXEMPLOS) {
+      const { data: code, error: eCod } = await sb.rpc("proximo_codigo");
+      if (eCod) throw eCod;
+      const { error } = await sb.from("itens").insert(Object.assign({}, e, {
+        code, exemplo: true, criado_por: S.user.email, criado_por_nome: S.user.nome,
+        criado_em: new Date(Date.now() - Math.floor(Math.random() * 150) * DAY).toISOString()
+      }));
+      if (error) throw error;
+      await registrar(code, "criado", "item de exemplo");
+    }
+    toast("5 itens de exemplo criados.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+async function removerExemplos() {
+  const ex = S.items.filter(i => i.exemplo);
+  if (!confirm("Remover os " + ex.length + " itens de exemplo?")) return;
+  try {
+    const { error } = await sb.from("itens").delete().eq("exemplo", true);
+    if (error) throw error;
+    toast("Exemplos removidos.");
+    await carregarTudo();
+  } catch (e) { toast(erroMsg(e), true); }
+}
+
+/* abertura: 1 segundo com a marca, depois entra no app */
+function sumirSplash() {
+  const sp = el("splash");
+  if (!sp) return;
+  sp.classList.add("sai");
+  setTimeout(() => sp.remove(), 340);
+}
+setTimeout(sumirSplash, 1000);
+
+boot();
+</script>
+</body>
+</html>

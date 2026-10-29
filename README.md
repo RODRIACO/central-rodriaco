@@ -33,6 +33,30 @@ Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase 
   indicadores e gráficos acompanham. O mesmo ▼ existe em todas as listas do ERP
   (Famílias, Componentes, Itens, Clientes, Pedidos, Ordens, Interações).
 
+## Apps de suporte
+
+Módulo **Apps de suporte**: apps da casa que rodam dentro da Central. Cada um é uma
+página irmã em `apps/<nome>/` (mesmo site, mesma publicação) aberta num iframe da
+mesma origem. Hoje: **Estoque Livre** (`apps/estoque-livre/`, cópia do app que está
+no Cloudflare; os dados continuam no mesmo Supabase).
+
+- **Login único:** o app avisa (`postMessage`) que abriu e a Central entrega a sessão.
+  Dentro da Central o app não renova token por conta própria: a Central renova antes
+  de vencer e reenvia. O botão Sair do app some; "Sair" é o da Central.
+- **Permissão de abrir:** subárea `apps.estoque_livre` na janela Permissões de Contas.
+  Dentro do app, os papéis dele (admin, estoque, comercial; `perfis.papel`) continuam
+  decidindo quem edita — é o que protege os dados no banco.
+- **Aberto direto** (`.../apps/estoque-livre/`, sem `?embutido=1`) o app funciona como
+  antes, com o próprio login.
+- **Novo app:** colocar a pasta em `apps/<nome>/`, acrescentar em `APPS_SUPORTE` e em
+  `SUBMENUS.apps` no `index.html` e fazer o app aceitar a sessão da Central como o
+  Estoque Livre faz (`EMBUTIDO`, `aoReceberCentral`).
+- **Etiquetas com QR:** o QR do Estoque Livre aponta para o endereço de onde a
+  etiqueta foi gerada. As já impressas apontam para o Cloudflare; **não desligue o
+  Cloudflare** enquanto houver etiqueta antiga em uso.
+- A versão da Central é a "verdade" do app; o repositório antigo `estoque-livre` fica
+  só como histórico enquanto o Cloudflare estiver no ar.
+
 ## Acesso (login e contas)
 
 O ERP inteiro fica atrás do login do Supabase, não só a Análise CSV:

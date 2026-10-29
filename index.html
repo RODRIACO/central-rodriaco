@@ -330,6 +330,7 @@
   .contas-tabela td.acoes { white-space: nowrap; }
   .contas-tabela select { min-width: 130px; }
   .contas-tabela td.resumo { max-width: 360px; line-height: 1.5; }
+  .app-embutido { display: block; width: 100%; height: calc(100vh - 150px); min-height: 520px; border: 1px solid var(--border); border-radius: 10px; background: #0B0A09; }
   .perm-grupo { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; background: var(--surface); }
   .perm-mod { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-strong); cursor: pointer; }
   .perm-subs { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 0 26px; }
@@ -473,10 +474,11 @@ var MODULOS = [
   { chave: 'qualidade', nome: 'Qualidade', disponivel: false, descricao: 'Inspeção e controle de não conformidades na fabricação.' },
   { chave: 'financeiro', nome: 'Financeiro', disponivel: false, descricao: 'Contas a pagar/receber, faturamento, fluxo de caixa.' },
   { chave: 'manutencao', nome: 'Manutenção', disponivel: false, descricao: 'Máquinas e equipamentos da fábrica.' },
+  { chave: 'apps', nome: 'Apps de suporte', disponivel: true, descricao: 'Apps da casa dentro da Central: Estoque Livre e os próximos.' },
   { chave: 'contas', nome: 'Contas', disponivel: true, somenteAdmin: true, descricao: 'Quem entra na Central e quais módulos cada pessoa pode usar.' }
 ];
 
-var ICONES_SVG = {"inicio": "<path d=\"M3 11.5L12 4l9 7.5\"/><path d=\"M5.5 10v10h13V10\"/><path d=\"M10 20v-5.5h4V20\"/>", "cadastros": "<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>", "comercial": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7\"/><path d=\"M3 13h18M11 13v2h2v-2\"/>", "compras": "<circle cx=\"9\" cy=\"20\" r=\"1.4\"/><circle cx=\"18\" cy=\"20\" r=\"1.4\"/><path d=\"M2.5 3.5H5l2.4 11a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L20.5 7.5H6\"/>", "pcp": "<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M8 3v4M16 3v4M4 10h16\"/><path d=\"M8.5 14h2M13.5 14h2M8.5 17.5h2\"/>", "producao": "<path d=\"M3 21V11l6 3.5V11l6 3.5V5h4v16z\"/><path d=\"M3 21h18M8 18h1M13 18h1\"/>", "estoque": "<path d=\"M12 3l8 4.5v9L12 21l-8-4.5v-9z\"/><path d=\"M4 7.5l8 4.5 8-4.5M12 12v9\"/>", "logistica": "<rect x=\"2\" y=\"6.5\" width=\"12\" height=\"9.5\" rx=\"1\"/><path d=\"M14 9.5h4.2L22 13v3h-8\"/><circle cx=\"7\" cy=\"18\" r=\"1.8\"/><circle cx=\"17.5\" cy=\"18\" r=\"1.8\"/>", "qualidade": "<path d=\"M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z\"/><path d=\"M8.8 12l2.2 2.2 4.2-4.4\"/>", "financeiro": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M14.6 9.3c-.5-.8-1.4-1.3-2.6-1.3-1.4 0-2.5.8-2.5 1.9 0 2.7 5.1 1.4 5.1 4.1 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.5-2.6-1.3M12 6.3V8M12 16v1.7\"/>", "manutencao": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z\"/>", "operador": "<rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2.5\"/><path d=\"M10.5 18.5h3\"/>", "contas": "<circle cx=\"9\" cy=\"8\" r=\"3.2\"/><path d=\"M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6\"/><circle cx=\"17\" cy=\"9\" r=\"2.5\"/><path d=\"M16.5 14.2c2.6.3 4.5 2.4 4.5 5\"/>", "sair": "<path d=\"M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>"};
+var ICONES_SVG = {"inicio": "<path d=\"M3 11.5L12 4l9 7.5\"/><path d=\"M5.5 10v10h13V10\"/><path d=\"M10 20v-5.5h4V20\"/>", "cadastros": "<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>", "comercial": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7\"/><path d=\"M3 13h18M11 13v2h2v-2\"/>", "compras": "<circle cx=\"9\" cy=\"20\" r=\"1.4\"/><circle cx=\"18\" cy=\"20\" r=\"1.4\"/><path d=\"M2.5 3.5H5l2.4 11a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L20.5 7.5H6\"/>", "pcp": "<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M8 3v4M16 3v4M4 10h16\"/><path d=\"M8.5 14h2M13.5 14h2M8.5 17.5h2\"/>", "producao": "<path d=\"M3 21V11l6 3.5V11l6 3.5V5h4v16z\"/><path d=\"M3 21h18M8 18h1M13 18h1\"/>", "estoque": "<path d=\"M12 3l8 4.5v9L12 21l-8-4.5v-9z\"/><path d=\"M4 7.5l8 4.5 8-4.5M12 12v9\"/>", "logistica": "<rect x=\"2\" y=\"6.5\" width=\"12\" height=\"9.5\" rx=\"1\"/><path d=\"M14 9.5h4.2L22 13v3h-8\"/><circle cx=\"7\" cy=\"18\" r=\"1.8\"/><circle cx=\"17.5\" cy=\"18\" r=\"1.8\"/>", "qualidade": "<path d=\"M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z\"/><path d=\"M8.8 12l2.2 2.2 4.2-4.4\"/>", "financeiro": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M14.6 9.3c-.5-.8-1.4-1.3-2.6-1.3-1.4 0-2.5.8-2.5 1.9 0 2.7 5.1 1.4 5.1 4.1 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.5-2.6-1.3M12 6.3V8M12 16v1.7\"/>", "manutencao": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z\"/>", "operador": "<rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2.5\"/><path d=\"M10.5 18.5h3\"/>", "apps": "<rect x=\"4\" y=\"4\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/><rect x=\"13.5\" y=\"4\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/><rect x=\"4\" y=\"13.5\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/><rect x=\"13.5\" y=\"13.5\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/>", "contas": "<circle cx=\"9\" cy=\"8\" r=\"3.2\"/><path d=\"M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6\"/><circle cx=\"17\" cy=\"9\" r=\"2.5\"/><path d=\"M16.5 14.2c2.6.3 4.5 2.4 4.5 5\"/>", "sair": "<path d=\"M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>"};
 function icoSvg(chave) { return '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">' + (ICONES_SVG[chave] || '') + '</svg>'; }
 MODULOS.forEach(function (m) { m.icone = icoSvg(m.chave); });
 
@@ -630,19 +632,22 @@ var SUBMENUS = {
   cadastros: [['familias', 'Famílias'], ['componentes', 'Componentes'], ['itens', 'Itens']],
   comercial: [['clientes', 'Clientes'], ['oportunidades', 'Oportunidades'], ['orcamentos', 'Orçamentos'], ['pedidos', 'Pedidos'], ['interacoes', 'Interações'], ['config', 'Configurações']],
   pcp: [['ordens', 'Ordens'], ['mapa', 'Mapa de Produção'], ['configPcp', 'Configurações']],
-  logistica: [['csv', 'Análise CSV']]
+  logistica: [['csv', 'Análise CSV']],
+  apps: [['estoque_livre', 'Estoque Livre']]
 };
 var NAVEGAR_SUB = {
   cadastros: function (s) { mudarAba(s); },
   comercial: function (s) { mudarAbaComercial(s); },
   pcp: function (s) { mudarAbaPcp(s); },
-  logistica: function (s) { mudarAbaLogistica(s); }
+  logistica: function (s) { mudarAbaLogistica(s); },
+  apps: function (s) { mudarAbaApps(s); }
 };
 var SUB_ATUAL = {
   cadastros: function () { return abaCadAtual; },
   comercial: function () { return abaComAtual; },
   pcp: function () { return abaPcpAtual; },
-  logistica: function () { return abaLogAtual; }
+  logistica: function () { return abaLogAtual; },
+  apps: function () { return abaAppsAtual; }
 };
 function montarNavbar() {
   var html = '<span class="menu-sel" id="menuSel" aria-hidden="true"></span>';
@@ -928,6 +933,52 @@ var MARCACAO_LOGISTICA = '' +
   '</div>';
 
 var abaLogAtual = 'csv';
+
+/* ---------- Apps de suporte: paginas irmas (mesma origem) abertas num iframe ---------- */
+var MARCACAO_APPS = '<div class="painel"><div id="appsConteudo"></div></div>';
+var APPS_SUPORTE = {
+  estoque_livre: { nome: 'Estoque Livre', url: 'apps/estoque-livre/?embutido=1' }
+};
+var abaAppsAtual = 'estoque_livre';
+function mudarAbaApps(aba) {
+  if (!podeSub('apps', aba) || !APPS_SUPORTE[aba]) return;
+  abaAppsAtual = aba;
+  atualizarSubmenuAtivo();
+  var raiz = document.getElementById('appsConteudo');
+  if (!raiz) return;
+  Object.keys(APPS_SUPORTE).forEach(function (k) {
+    var f = document.getElementById('appFrame_' + k);
+    if (k === aba && !f) {
+      f = document.createElement('iframe');
+      f.id = 'appFrame_' + k;
+      f.className = 'app-embutido';
+      f.title = APPS_SUPORTE[k].nome;
+      f.setAttribute('allow', 'camera; clipboard-write; fullscreen');
+      f.src = APPS_SUPORTE[k].url;
+      raiz.appendChild(f);
+    }
+    if (f) f.style.display = k === aba ? 'block' : 'none';
+  });
+}
+/* o app avisa que abriu; a Central entrega a sessao e renova antes de vencer */
+function appsEnviarSessao(alvo) {
+  var s = logObterSessao();
+  if (!s || !alvo) return;
+  try { alvo.postMessage({ tipo: 'central-sessao', access_token: s.access_token, refresh_token: s.refresh_token }, location.origin); } catch (e) {}
+}
+function appsDifundirSessao() {
+  document.querySelectorAll('.app-embutido').forEach(function (f) { appsEnviarSessao(f.contentWindow); });
+}
+window.addEventListener('message', function (e) {
+  if (e.origin !== location.origin || !e.data) return;
+  if (e.data.tipo === 'app-pronto') logToken().then(function () { appsEnviarSessao(e.source); }).catch(function () {});
+  else if (e.data.tipo === 'app-sair') sairDoErp();
+});
+setInterval(function () {
+  if (!document.querySelector('.app-embutido')) return;
+  var s = logObterSessao();
+  if (s && s.expira - 300 < Math.floor(Date.now() / 1000)) logRenovar().catch(function () {});
+}, 60000);
 function mudarAbaLogistica(aba) {
   if (!podeSub('logistica', aba)) return;
   abaLogAtual = aba;
@@ -967,6 +1018,7 @@ function logGuardarToken(j) {
     email: (j.user && j.user.email) || (logSessao && logSessao.email) || ''
   };
   logGravarSessao(logSessao);
+  appsDifundirSessao();
 }
 function logEntrar(email, senha) {
   return logAuth({ email: email, password: senha }, 'password').then(function (r) {
@@ -1711,6 +1763,11 @@ function abrirAba(chave) {
     painel.innerHTML = MARCACAO_LOGISTICA;
     document.getElementById('areaAbas').appendChild(painel);
     mudarAbaLogistica(primeiraSub('logistica'));
+  } else if (chave === 'apps') {
+    painel.className = 'painel-aba painel-largo';
+    painel.innerHTML = MARCACAO_APPS;
+    document.getElementById('areaAbas').appendChild(painel);
+    mudarAbaApps(primeiraSub('apps'));
   } else if (chave === 'contas') {
     painel.className = 'painel-aba painel-largo';
     painel.innerHTML = '<div class="painel"><div id="contasErp"></div></div>';
