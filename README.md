@@ -33,17 +33,40 @@ Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase 
   indicadores e gráficos acompanham. O mesmo ▼ existe em todas as listas do ERP
   (Famílias, Componentes, Itens, Clientes, Pedidos, Ordens, Interações).
 
-## Acesso (login do ERP)
+## Acesso (login e contas)
 
 O ERP inteiro fica atrás do login do Supabase, não só a Análise CSV:
 
-- Ao abrir, pede **e-mail e senha** — as mesmas contas do Estoque Livre.
-- Só entra conta **ativa** (`public.meu_status()` = `ativo`). Conta pendente fica
-  em "Aguardando liberação" até um administrador ativar no Estoque Livre.
-- O ERP nem monta antes de liberar. A mesma sessão serve para a Análise CSV
-  (não pede senha de novo). Rodapé do menu mostra o e-mail e o botão **Sair**.
-- Contas se criam e se liberam no Estoque Livre; o ERP só faz o login.
-- A Área do Operador (inclusive pelo QR da OP) também passa pelo login.
+- Ao abrir, pede **e-mail e senha** (contas do Supabase Auth, as mesmas dos outros
+  apps da casa).
+- Só entra conta **ativa** e com **ao menos um módulo liberado**. Conta ativa sem
+  módulo vê "Sem módulos liberados"; conta desativada vê "Aguardando liberação".
+- O menu e o painel inicial mostram só os módulos da pessoa. Administrador
+  (`perfis.papel = 'admin'`) acessa tudo.
+- Rodapé do menu mostra o e-mail e o botão **Sair**. A mesma sessão serve para a
+  Análise CSV.
+- A Área do Operador (inclusive pelo QR da OP) é um módulo à parte, "Área do
+  Operador", e também precisa de liberação.
+
+### Contas (só administrador)
+
+Módulo **Contas**: lista todas as contas, com uma coluna por módulo para marcar,
+perfis rápidos (PCP, Comercial, Logística, Operador, Todos, Nenhum) e botão
+Ativar/Desativar. Salva ao marcar; vale no próximo login da pessoa.
+
+- **Criar conta:** Supabase › Authentication › Users › Add user (marque *Auto
+  Confirm User*). Ela aparece na lista sem nenhum módulo.
+- **Desligue o cadastro aberto** (Authentication › Sign In / Providers › *Allow new
+  users to sign up*). Com ele ligado, qualquer e-mail do domínio liberado em
+  `config.dominios` do Estoque Livre se cadastra sozinho e entra ativo.
+- **Novo administrador:** hoje só pelo SQL Editor
+  (`update public.perfis set papel = 'admin' where email = '...'`, com o gatilho
+  `perfis_protege_papel` desligado durante o comando — veja o fim do `banco_acessos.sql`).
+- Os módulos liberados ficam em `public.acessos_erp`; `tem_acesso(modulo, nivel)` é
+  a função que as regras do banco usam. A tela liga/desliga; o banco já aceita
+  "ver" e "editar" para quando cada app passar a usar níveis.
+- Contas, papéis e situação vivem em `public.perfis`, compartilhada com o Estoque
+  Livre e o Controle de Ferramentas. A Central **não altera** `papel` de ninguém.
 
 **Leitura dos dados:** o local de entrega (`PedidoEndTipo`) é texto livre, quase
 sempre o nome da unidade/cliente; cidade e UF vêm do cadastro (`CidadeNome`,
@@ -57,12 +80,15 @@ os atrasos de verdade (o painel mostra os dois números).
 1. Suba `index.html` e este `README.md` na raiz do repositório
    (sugestão: `RODRIACO/central-rodriaco`).
 2. Em **Settings › Pages**, escolha *Deploy from a branch* › `main` › `/ (root)`.
-3. No Supabase (SQL Editor), rode **uma vez** o `banco_logistica.sql`. Ele deixa o
-   bucket privado e libera a leitura só para conta logada e ativa.
+3. No Supabase (SQL Editor), rode **uma vez** o `banco_acessos.sql` (antes do
+   primeiro login na versão nova — sem ele o ERP mostra erro ao entrar). Ele cria a
+   tabela de acessos, deixa o bucket do CSV privado, exige o módulo Logística para
+   ler o arquivo e garante `pcp1@mrinox.com.br` como administrador.
 4. Confira: abrir o endereço público do arquivo, sem login, tem que dar erro.
 
-O `banco_logistica.sql` não precisa ficar no repositório — ele só roda no
-Supabase. Se preferir manter, não tem segredo nele.
+O `banco_acessos.sql` substitui o antigo `banco_logistica.sql` (removido): rodar o
+antigo depois do novo devolveria a regra "qualquer conta ativa lê o CSV". Ele só
+roda no Supabase e não tem segredo.
 
 ## Segurança
 
@@ -72,8 +98,9 @@ Supabase. Se preferir manter, não tem segredo nele.
 - O login é o do Supabase Auth; a sessão fica no navegador (`localStorage`) e
   o botão **Sair** apaga.
 - **O login do ERP é uma porta de tela, não segurança de dados:** o `index.html`
-  é público no Pages e cadastros/pedidos ficam no navegador de cada PC. Só a
-  Análise CSV é protegida de verdade (bucket privado + regra no Supabase).
+  é público no Pages e cadastros/pedidos ficam no navegador de cada PC. Esconder
+  um módulo é só tela. Protegidos de verdade (regra no Supabase): a Análise CSV
+  (bucket privado + `tem_acesso('logistica')`) e a gestão de contas (só admin).
   Proteger os dados do ERP exige levá-los para o Supabase com RLS.
 
 ## Onde ficam os dados do ERP

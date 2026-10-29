@@ -320,6 +320,16 @@
   .log-paginacao { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; }
   .log-tabela-cab { margin-top: 4px; }
 
+  /* ===== CONTAS E ACESSOS ===== */
+  .contas-topo { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; margin: 10px 0 12px; }
+  .contas-topo .campo { flex: 1 1 260px; max-width: 420px; margin: 0; }
+  .contas-msg { font-size: 12.5px; color: var(--good); min-height: 18px; }
+  .contas-msg.erro { color: var(--danger); }
+  .contas-tabela th.mod, .contas-tabela td.mod { text-align: center; }
+  .contas-tabela td { font-size: 12.5px; }
+  .contas-tabela td.acoes { white-space: nowrap; }
+  .contas-tabela select { min-width: 130px; }
+
   /* ===== MENU LATERAL COM SUBTOPICOS ===== */
   .grupo-menu { display: flex; flex-direction: column; gap: 2px; }
   .sidebar .botao-menu .seta-menu { margin-left: auto; font-size: 11px; opacity: .6; transition: transform .15s ease; }
@@ -457,10 +467,11 @@ var MODULOS = [
   { chave: 'logistica', nome: 'Logística', disponivel: true, descricao: 'Análise do mapa de produção (CSV do Cosmos): embarques, locais de entrega e etapas da fábrica.' },
   { chave: 'qualidade', nome: 'Qualidade', disponivel: false, descricao: 'Inspeção e controle de não conformidades na fabricação.' },
   { chave: 'financeiro', nome: 'Financeiro', disponivel: false, descricao: 'Contas a pagar/receber, faturamento, fluxo de caixa.' },
-  { chave: 'manutencao', nome: 'Manutenção', disponivel: false, descricao: 'Máquinas e equipamentos da fábrica.' }
+  { chave: 'manutencao', nome: 'Manutenção', disponivel: false, descricao: 'Máquinas e equipamentos da fábrica.' },
+  { chave: 'contas', nome: 'Contas', disponivel: true, somenteAdmin: true, descricao: 'Quem entra na Central e quais módulos cada pessoa pode usar.' }
 ];
 
-var ICONES_SVG = {"inicio": "<path d=\"M3 11.5L12 4l9 7.5\"/><path d=\"M5.5 10v10h13V10\"/><path d=\"M10 20v-5.5h4V20\"/>", "cadastros": "<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>", "comercial": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7\"/><path d=\"M3 13h18M11 13v2h2v-2\"/>", "compras": "<circle cx=\"9\" cy=\"20\" r=\"1.4\"/><circle cx=\"18\" cy=\"20\" r=\"1.4\"/><path d=\"M2.5 3.5H5l2.4 11a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L20.5 7.5H6\"/>", "pcp": "<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M8 3v4M16 3v4M4 10h16\"/><path d=\"M8.5 14h2M13.5 14h2M8.5 17.5h2\"/>", "producao": "<path d=\"M3 21V11l6 3.5V11l6 3.5V5h4v16z\"/><path d=\"M3 21h18M8 18h1M13 18h1\"/>", "estoque": "<path d=\"M12 3l8 4.5v9L12 21l-8-4.5v-9z\"/><path d=\"M4 7.5l8 4.5 8-4.5M12 12v9\"/>", "logistica": "<rect x=\"2\" y=\"6.5\" width=\"12\" height=\"9.5\" rx=\"1\"/><path d=\"M14 9.5h4.2L22 13v3h-8\"/><circle cx=\"7\" cy=\"18\" r=\"1.8\"/><circle cx=\"17.5\" cy=\"18\" r=\"1.8\"/>", "qualidade": "<path d=\"M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z\"/><path d=\"M8.8 12l2.2 2.2 4.2-4.4\"/>", "financeiro": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M14.6 9.3c-.5-.8-1.4-1.3-2.6-1.3-1.4 0-2.5.8-2.5 1.9 0 2.7 5.1 1.4 5.1 4.1 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.5-2.6-1.3M12 6.3V8M12 16v1.7\"/>", "manutencao": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z\"/>", "operador": "<rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2.5\"/><path d=\"M10.5 18.5h3\"/>", "sair": "<path d=\"M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>"};
+var ICONES_SVG = {"inicio": "<path d=\"M3 11.5L12 4l9 7.5\"/><path d=\"M5.5 10v10h13V10\"/><path d=\"M10 20v-5.5h4V20\"/>", "cadastros": "<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>", "comercial": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7\"/><path d=\"M3 13h18M11 13v2h2v-2\"/>", "compras": "<circle cx=\"9\" cy=\"20\" r=\"1.4\"/><circle cx=\"18\" cy=\"20\" r=\"1.4\"/><path d=\"M2.5 3.5H5l2.4 11a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L20.5 7.5H6\"/>", "pcp": "<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M8 3v4M16 3v4M4 10h16\"/><path d=\"M8.5 14h2M13.5 14h2M8.5 17.5h2\"/>", "producao": "<path d=\"M3 21V11l6 3.5V11l6 3.5V5h4v16z\"/><path d=\"M3 21h18M8 18h1M13 18h1\"/>", "estoque": "<path d=\"M12 3l8 4.5v9L12 21l-8-4.5v-9z\"/><path d=\"M4 7.5l8 4.5 8-4.5M12 12v9\"/>", "logistica": "<rect x=\"2\" y=\"6.5\" width=\"12\" height=\"9.5\" rx=\"1\"/><path d=\"M14 9.5h4.2L22 13v3h-8\"/><circle cx=\"7\" cy=\"18\" r=\"1.8\"/><circle cx=\"17.5\" cy=\"18\" r=\"1.8\"/>", "qualidade": "<path d=\"M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z\"/><path d=\"M8.8 12l2.2 2.2 4.2-4.4\"/>", "financeiro": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M14.6 9.3c-.5-.8-1.4-1.3-2.6-1.3-1.4 0-2.5.8-2.5 1.9 0 2.7 5.1 1.4 5.1 4.1 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.5-2.6-1.3M12 6.3V8M12 16v1.7\"/>", "manutencao": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z\"/>", "operador": "<rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2.5\"/><path d=\"M10.5 18.5h3\"/>", "contas": "<circle cx=\"9\" cy=\"8\" r=\"3.2\"/><path d=\"M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6\"/><circle cx=\"17\" cy=\"9\" r=\"2.5\"/><path d=\"M16.5 14.2c2.6.3 4.5 2.4 4.5 5\"/>", "sair": "<path d=\"M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>"};
 function icoSvg(chave) { return '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">' + (ICONES_SVG[chave] || '') + '</svg>'; }
 MODULOS.forEach(function (m) { m.icone = icoSvg(m.chave); });
 
@@ -632,6 +643,7 @@ function montarNavbar() {
   var html = '<span class="menu-sel" id="menuSel" aria-hidden="true"></span>';
   for (var i = 0; i < MODULOS.length; i++) {
     var m = MODULOS[i];
+    if (!podeModulo(m.chave)) continue;
     var subs = SUBMENUS[m.chave];
     var btn = '<button type="button" class="botao-menu' + (m.disponivel ? ' disponivel' : '') + '" data-chave="' + m.chave + '">' + m.icone + ' <span class="rotulo-menu">' + escaparHTML(m.nome) + '</span>' + (subs ? '<span class="seta-menu">&#9656;</span>' : '') + '</button>';
     if (!subs) { html += btn; continue; }
@@ -804,7 +816,7 @@ function montarGrade() {
   var html = '';
   for (var i = 0; i < MODULOS.length; i++) {
     var m = MODULOS[i];
-    if (!m.disponivel) continue;
+    if (!m.disponivel || !podeModulo(m.chave)) continue;
     html += '<div class="cartao" data-chave="' + m.chave + '">' +
       '<div class="icone">' + m.icone + '</div>' +
       '<h3>' + escaparHTML(m.nome) + '</h3>' +
@@ -1225,7 +1237,7 @@ function logTratarErro(e, silencioso) {
   var detalhe = e && e.status ? 'O Supabase respondeu com erro ' + e.status + '. ' : 'Não consegui falar com o Supabase. ';
   el.innerHTML = '<div class="log-login">' +
     '<h3>Não consegui ler o arquivo</h3>' +
-    '<p class="dica">' + detalhe + 'Confira: (1) o <code>banco_logistica.sql</code> foi rodado no Supabase, (2) sua conta está ativa, (3) o robô já enviou o arquivo <code>' + escaparHTML(LOG_CFG.arquivo) + '</code> ao bucket <code>' + escaparHTML(LOG_CFG.bucket) + '</code>.</p>' +
+    '<p class="dica">' + detalhe + 'Confira: (1) o <code>banco_acessos.sql</code> foi rodado no Supabase, (2) sua conta está ativa e tem o módulo Logística, (3) o robô já enviou o arquivo <code>' + escaparHTML(LOG_CFG.arquivo) + '</code> ao bucket <code>' + escaparHTML(LOG_CFG.bucket) + '</code>.</p>' +
     '<div class="detalhe-acoes"><button type="button" class="btn btn-primario" id="logBtnTentar">Tentar de novo</button>' +
     '<button type="button" class="btn btn-contorno" id="logBtnSairErro">Sair</button></div></div>';
   document.getElementById('logBtnTentar').addEventListener('click', function () { logCarregar(false); });
@@ -1667,7 +1679,7 @@ function abrirAba(chave) {
 
   var modulo = null;
   for (var j = 0; j < MODULOS.length; j++) { if (MODULOS[j].chave === chave) { modulo = MODULOS[j]; break; } }
-  if (!modulo) return;
+  if (!modulo || !podeModulo(chave)) return;
 
   abas.push({ id: chave, titulo: modulo.nome, icone: modulo.icone, fechavel: true });
 
@@ -1692,6 +1704,11 @@ function abrirAba(chave) {
     painel.innerHTML = MARCACAO_LOGISTICA;
     document.getElementById('areaAbas').appendChild(painel);
     mudarAbaLogistica('csv');
+  } else if (chave === 'contas') {
+    painel.className = 'painel-aba painel-largo';
+    painel.innerHTML = '<div class="painel"><div id="contasErp"></div></div>';
+    document.getElementById('areaAbas').appendChild(painel);
+    renderizarContas();
   } else {
     painel.innerHTML = '<div class="placeholder-modulo"><span class="ic">' + modulo.icone + '</span><h3>' + escaparHTML(modulo.nome) + '</h3><p>Este módulo ainda está em construção.</p></div>';
     document.getElementById('areaAbas').appendChild(painel);
@@ -5251,8 +5268,18 @@ function montarHTML(estadoAtual) {
 
 /* ===== ACESSO AO ERP (login do Supabase; so conta ATIVA entra) ===== */
 var appIniciado = false;
-function contaStatus() {
-  return logFetchAut('/rest/v1/rpc/meu_status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).then(function (r) {
+var ACESSO = { admin: false, modulos: {} };
+function podeModulo(chave) {
+  if (chave === 'inicio') return true;
+  if (chave === 'contas') return !!ACESSO.admin;
+  return !!(ACESSO.admin || ACESSO.modulos[chave]);
+}
+function temAlgumModulo() {
+  for (var k in ACESSO.modulos) { if (ACESSO.modulos[k]) return true; }
+  return false;
+}
+function contaAcessos() {
+  return logFetchAut('/rest/v1/rpc/meus_acessos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).then(function (r) {
     if (!r.ok) { var e = new Error('status'); e.status = r.status; throw e; }
     return r.json();
   });
@@ -5273,7 +5300,7 @@ function telaAcessoLogin(mensagem, aoLiberar) {
   var el = criarTelaAcesso();
   el.innerHTML = acessoCard(
     '<h2>Central Rodriaço</h2>' +
-    '<p class="dica">Entre com o e-mail e a senha do Estoque Livre.</p>' +
+    '<p class="dica">Entre com o seu e-mail e a sua senha.</p>' +
     '<div class="campo"><label>E-mail</label><input type="email" id="acessoEmail" autocomplete="username"></div>' +
     '<div class="campo"><label>Senha</label><input type="password" id="acessoSenha" autocomplete="current-password"></div>' +
     '<div class="modal-aviso" id="acessoErro" style="' + (mensagem ? '' : 'display:none;') + '">' + escaparHTML(mensagem || '') + '</div>' +
@@ -5300,7 +5327,18 @@ function telaAcessoPendente(aoLiberar) {
   var el = criarTelaAcesso();
   el.innerHTML = acessoCard(
     '<h2>Aguardando liberação</h2>' +
-    '<p class="dica">A conta <strong>' + escaparHTML((s && s.email) || '') + '</strong> entrou, mas ainda não foi liberada. Peça a um administrador do Estoque Livre para ativar o seu acesso e depois toque em "Verificar de novo".</p>' +
+    '<p class="dica">A conta <strong>' + escaparHTML((s && s.email) || '') + '</strong> entrou, mas ainda não foi liberada. Peça ao administrador da Central para ativar o seu acesso e depois toque em "Verificar de novo".</p>' +
+    '<button type="button" class="btn btn-primario" id="acessoBtnDeNovo">Verificar de novo</button>' +
+    '<button type="button" class="btn btn-contorno" id="acessoBtnSair">Sair</button>');
+  document.getElementById('acessoBtnDeNovo').addEventListener('click', function () { exigirAcesso(aoLiberar); });
+  document.getElementById('acessoBtnSair').addEventListener('click', sairDoErp);
+}
+function telaAcessoSemModulo(aoLiberar) {
+  var s = logObterSessao();
+  var el = criarTelaAcesso();
+  el.innerHTML = acessoCard(
+    '<h2>Sem módulos liberados</h2>' +
+    '<p class="dica">A conta <strong>' + escaparHTML((s && s.email) || '') + '</strong> está ativa, mas ainda não tem nenhum módulo liberado. Peça ao administrador da Central para marcar o que você pode usar e depois toque em "Verificar de novo".</p>' +
     '<button type="button" class="btn btn-primario" id="acessoBtnDeNovo">Verificar de novo</button>' +
     '<button type="button" class="btn btn-contorno" id="acessoBtnSair">Sair</button>');
   document.getElementById('acessoBtnDeNovo').addEventListener('click', function () { exigirAcesso(aoLiberar); });
@@ -5308,7 +5346,7 @@ function telaAcessoPendente(aoLiberar) {
 }
 function telaAcessoErro(aoLiberar, e) {
   var el = criarTelaAcesso();
-  var detalhe = e && e.status ? 'O Supabase respondeu com erro ' + e.status + '. Se for 404, o banco.sql do Estoque Livre ainda não foi rodado neste projeto.' : 'Não consegui falar com o Supabase. Confira a internet.';
+  var detalhe = e && e.status ? 'O Supabase respondeu com erro ' + e.status + '. Se for 404, o banco_acessos.sql ainda não foi rodado neste projeto do Supabase.' : 'Não consegui falar com o Supabase. Confira a internet.';
   el.innerHTML = acessoCard(
     '<h2>Não consegui conferir o acesso</h2><p class="dica">' + escaparHTML(detalhe) + '</p>' +
     '<button type="button" class="btn btn-primario" id="acessoBtnDeNovo">Tentar de novo</button>' +
@@ -5317,8 +5355,11 @@ function telaAcessoErro(aoLiberar, e) {
   document.getElementById('acessoBtnSair').addEventListener('click', sairDoErp);
 }
 function conferirAcesso(aoLiberar) {
-  return contaStatus().then(function (st) {
-    if (st === 'ativo') liberarApp(aoLiberar); else telaAcessoPendente(aoLiberar);
+  return contaAcessos().then(function (a) {
+    if (!a || a.status !== 'ativo') { telaAcessoPendente(aoLiberar); return; }
+    ACESSO = { admin: !!a.admin, modulos: a.modulos || {} };
+    if (!ACESSO.admin && !temAlgumModulo()) { telaAcessoSemModulo(aoLiberar); return; }
+    liberarApp(aoLiberar);
   }).catch(function (e) {
     if (e && e.message === 'sem sessão') telaAcessoLogin('Sua sessão expirou. Entre de novo.', aoLiberar);
     else telaAcessoErro(aoLiberar, e);
@@ -5334,6 +5375,8 @@ function liberarApp(aoLiberar) {
   if (ini) ini.textContent = (email || '?').charAt(0).toUpperCase();
   var pill = document.getElementById('pillUsuario');
   if (pill) pill.title = email;
+  var btnOp = document.getElementById('btnAbrirOperador');
+  if (btnOp) btnOp.style.display = podeModulo('operador') ? '' : 'none';
   var btn = document.getElementById('btnSairErp');
   if (btn && !btn.getAttribute('data-ligado')) { btn.setAttribute('data-ligado', '1'); btn.addEventListener('click', sairDoErp); }
   if (!appIniciado) { appIniciado = true; aoLiberar(); }
@@ -5346,6 +5389,175 @@ function exigirAcesso(aoLiberar) {
   if (!logObterSessao()) { telaAcessoLogin('', aoLiberar); return; }
   criarTelaAcesso().innerHTML = acessoCard('<h2>Central Rodriaço</h2><p class="dica">Verificando acesso...</p>');
   conferirAcesso(aoLiberar);
+}
+
+/* ===== CONTAS E ACESSOS (so administrador) ===== */
+var CONTAS_PRESETS = [
+  { id: 'pcp', nome: 'PCP', modulos: ['cadastros', 'pcp', 'logistica', 'operador'] },
+  { id: 'comercial', nome: 'Comercial', modulos: ['cadastros', 'comercial'] },
+  { id: 'logistica', nome: 'Logística', modulos: ['logistica'] },
+  { id: 'operador', nome: 'Operador', modulos: ['operador'] },
+  { id: 'todos', nome: 'Todos os módulos', modulos: '*' },
+  { id: 'nenhum', nome: 'Nenhum módulo', modulos: [] }
+];
+var contasLista = null;
+var contasBusca = '';
+function contasModulosGrade() {
+  var l = [];
+  MODULOS.forEach(function (m) { if (m.disponivel && !m.somenteAdmin) l.push({ chave: m.chave, nome: m.nome }); });
+  l.push({ chave: 'operador', nome: 'Área do Operador' });
+  return l;
+}
+function contasApi(caminho, opcoes) {
+  return logFetchAut(caminho, opcoes).then(function (r) {
+    return r.text().then(function (t) {
+      if (!r.ok) {
+        var msg = '';
+        try { msg = JSON.parse(t).message || ''; } catch (e) {}
+        var err = new Error(msg || ('Erro ' + r.status));
+        err.status = r.status;
+        throw err;
+      }
+      try { return t ? JSON.parse(t) : null; } catch (e2) { return null; }
+    });
+  });
+}
+function contasEmailEu() { var s = logObterSessao(); return ((s && s.email) || '').toLowerCase(); }
+function contasCarregar() {
+  return Promise.all([
+    contasApi('/rest/v1/perfis?select=id,email,nome,papel,status&order=email.asc'),
+    contasApi('/rest/v1/acessos_erp?select=user_id,modulos')
+  ]).then(function (r) {
+    var mods = {};
+    (r[1] || []).forEach(function (a) { mods[a.user_id] = a.modulos || {}; });
+    contasLista = (r[0] || []).map(function (p) {
+      return { id: p.id, email: p.email || '', nome: p.nome || '', papel: p.papel, status: p.status, modulos: mods[p.id] || {} };
+    });
+  });
+}
+function contasMensagem(texto, erro) {
+  var el = document.getElementById('contasMsg');
+  if (!el) return;
+  el.textContent = texto || '';
+  el.className = 'contas-msg' + (erro ? ' erro' : '');
+}
+function contasAcharConta(id) {
+  for (var i = 0; i < contasLista.length; i++) { if (contasLista[i].id === id) return contasLista[i]; }
+  return null;
+}
+function contasTabelaHTML() {
+  var grade = contasModulosGrade();
+  var termo = contasBusca.toLowerCase();
+  var eu = contasEmailEu();
+  var linhas = contasLista.filter(function (c) {
+    return !termo || (c.email + ' ' + c.nome).toLowerCase().indexOf(termo) !== -1;
+  });
+  if (!linhas.length) return '<div class="lista-vazia">' + (contasLista.length ? 'Nenhuma conta com essa busca.' : 'Nenhuma conta encontrada.') + '</div>';
+  var html = '<div class="tabela-wrap"><table class="contas-tabela"><thead><tr><th>Conta</th><th>Situação</th>';
+  grade.forEach(function (g) { html += '<th class="mod">' + escaparHTML(g.nome) + '</th>'; });
+  html += '<th>Perfil rápido</th><th></th></tr></thead><tbody>';
+  linhas.forEach(function (c) {
+    var admin = c.papel === 'admin';
+    var meu = c.email.toLowerCase() === eu;
+    var ativa = c.status === 'ativo';
+    html += '<tr data-conta="' + escaparHTML(c.id) + '">' +
+      '<td><strong>' + escaparHTML(c.nome || c.email) + '</strong>' + (meu ? ' <span class="muted">(você)</span>' : '') + '<div class="sub">' + escaparHTML(c.email) + '</div></td>' +
+      '<td>' + (admin ? '<span class="badge-status status-op-aberta">Administrador</span>' :
+        (ativa ? '<span class="badge-status status-op-concluida">Ativa</span>' : '<span class="badge-status status-op-cancelada">Desativada</span>')) + '</td>';
+    grade.forEach(function (g) {
+      if (admin) { html += '<td class="mod"><span class="muted" title="Administrador acessa tudo">&#10003;</span></td>'; return; }
+      html += '<td class="mod"><input type="checkbox" data-mod="' + g.chave + '" aria-label="' + escaparHTML(g.nome) + '"' + (c.modulos[g.chave] ? ' checked' : '') + '></td>';
+    });
+    if (admin) html += '<td class="muted">—</td><td></td>';
+    else {
+      html += '<td><select data-preset><option value="">Aplicar perfil…</option>' +
+        CONTAS_PRESETS.map(function (p) { return '<option value="' + p.id + '">' + escaparHTML(p.nome) + '</option>'; }).join('') + '</select></td>' +
+        '<td class="acoes">' + (meu ? '' : '<button type="button" class="btn btn-contorno btn-sm" data-acao="' + (ativa ? 'desativar' : 'ativar') + '">' + (ativa ? 'Desativar' : 'Ativar') + '</button>') + '</td>';
+    }
+    html += '</tr>';
+  });
+  return html + '</tbody></table></div>';
+}
+function contasRedesenhar() {
+  var el = document.getElementById('contasTabela');
+  if (el) el.innerHTML = contasTabelaHTML();
+}
+function renderizarContas() {
+  var el = document.getElementById('contasErp');
+  if (!el) return;
+  if (!contasLista) {
+    el.innerHTML = '<div class="lista-vazia">Carregando as contas...</div>';
+    contasCarregar().then(renderizarContas).catch(function (e) {
+      el.innerHTML = '<div class="lista-vazia">Não consegui ler as contas (' + escaparHTML(e.message || 'erro') + '). Confira se o <code>banco_acessos.sql</code> foi rodado e se você é administrador.</div>' +
+        '<div class="detalhe-acoes" style="margin-top:12px;"><button type="button" class="btn btn-primario" id="contasBtnTentar">Tentar de novo</button></div>';
+      document.getElementById('contasBtnTentar').addEventListener('click', function () { contasLista = null; renderizarContas(); });
+    });
+    return;
+  }
+  el.innerHTML = '' +
+    '<div class="dashboard-cab"><h2>Contas e acessos</h2><div class="log-acoes">' +
+      '<button type="button" class="btn btn-contorno btn-sm" id="contasBtnAtualizar">&#8635; Atualizar</button></div></div>' +
+    '<p class="dica">Para criar uma conta: Supabase &rsaquo; Authentication &rsaquo; Users &rsaquo; Add user (marque <em>Auto Confirm User</em>). Ela aparece aqui sem nenhum módulo; marque o que a pessoa pode usar. Mudanças valem no próximo login dela. Administrador acessa tudo.</p>' +
+    '<div class="contas-topo"><div class="campo"><label>Buscar conta</label><input type="text" id="contasBusca" placeholder="Nome ou e-mail" autocomplete="off" value="' + escaparHTML(contasBusca) + '"></div>' +
+    '<div class="contas-msg" id="contasMsg"></div></div>' +
+    '<div id="contasTabela">' + contasTabelaHTML() + '</div>';
+  document.getElementById('contasBtnAtualizar').addEventListener('click', function () { contasLista = null; renderizarContas(); });
+  document.getElementById('contasBusca').addEventListener('input', function (e) { contasBusca = e.target.value.trim(); contasRedesenhar(); });
+  var tab = document.getElementById('contasTabela');
+  tab.addEventListener('change', contasMudou);
+  tab.addEventListener('click', contasClicou);
+}
+function contasGravarModulos(conta, modulos) {
+  contasMensagem('Salvando...', false);
+  return contasApi('/rest/v1/acessos_erp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+    body: JSON.stringify({ user_id: conta.id, modulos: modulos, atualizado_em: new Date().toISOString(), atualizado_por: contasEmailEu() })
+  }).then(function () {
+    conta.modulos = modulos;
+    contasMensagem('Salvo: ' + conta.email, false);
+  }).catch(function (e) {
+    contasMensagem('Não salvou (' + (e.message || 'erro') + ').', true);
+    contasRedesenhar();
+  });
+}
+function contasMudou(e) {
+  var t = e.target;
+  var tr = t.closest ? t.closest('tr[data-conta]') : null;
+  if (!tr) return;
+  var conta = contasAcharConta(tr.getAttribute('data-conta'));
+  if (!conta) return;
+  var modulos = {};
+  Object.keys(conta.modulos).forEach(function (k) { modulos[k] = conta.modulos[k]; });
+  if (t.hasAttribute('data-mod')) {
+    if (t.checked) modulos[t.getAttribute('data-mod')] = 'editar'; else delete modulos[t.getAttribute('data-mod')];
+  } else if (t.hasAttribute('data-preset')) {
+    var id = t.value, preset = null;
+    CONTAS_PRESETS.forEach(function (p) { if (p.id === id) preset = p; });
+    if (!preset) return;
+    modulos = {};
+    (preset.modulos === '*' ? contasModulosGrade().map(function (g) { return g.chave; }) : preset.modulos).forEach(function (k) { modulos[k] = 'editar'; });
+  } else return;
+  contasGravarModulos(conta, modulos).then(contasRedesenhar);
+}
+function contasClicou(e) {
+  var b = e.target.closest ? e.target.closest('[data-acao]') : null;
+  if (!b) return;
+  var tr = b.closest('tr[data-conta]');
+  var conta = tr ? contasAcharConta(tr.getAttribute('data-conta')) : null;
+  if (!conta) return;
+  var ativar = b.getAttribute('data-acao') === 'ativar';
+  if (!ativar && !window.confirm('Desativar ' + conta.email + '? A pessoa deixa de entrar na Central (e nos outros apps que usam esta conta).')) return;
+  contasMensagem('Salvando...', false);
+  contasApi('/rest/v1/perfis?id=eq.' + encodeURIComponent(conta.id), {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ status: ativar ? 'ativo' : 'pendente' })
+  }).then(function () {
+    conta.status = ativar ? 'ativo' : 'pendente';
+    contasMensagem((ativar ? 'Ativada: ' : 'Desativada: ') + conta.email, false);
+    contasRedesenhar();
+  }).catch(function (er) { contasMensagem('Não salvou (' + (er.message || 'erro') + ').', true); });
 }
 
 function inicializarApp() {
@@ -5369,8 +5581,8 @@ function inicializarApp() {
   });
 
   var btnOperador = document.getElementById('btnAbrirOperador');
-  if (btnOperador) btnOperador.addEventListener('click', function () { entrarModoOperador(null); });
-  if (location.hash.indexOf('#operador') === 0) {
+  if (btnOperador) btnOperador.addEventListener('click', function () { if (podeModulo('operador')) entrarModoOperador(null); });
+  if (location.hash.indexOf('#operador') === 0 && podeModulo('operador')) {
     var mOp = location.hash.match(/op=([^&]+)/);
     entrarModoOperador(mOp ? decodeURIComponent(mOp[1]) : null);
   }
