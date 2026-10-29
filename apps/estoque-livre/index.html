@@ -401,7 +401,6 @@ const ehIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.p
 const jaInstalado = () => (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || navigator.standalone === true;
 
 function convidarInstalacao(forcado) {
-  if (EMBUTIDO) return;
   if (!forcado) {
     if (jaInstalado()) return;
     try { if (localStorage.getItem("rodriaco.instalar.v1")) return; } catch (e) {}
@@ -498,7 +497,7 @@ function preenchendoAlgo() {
 const ehAdmin = () => S.user && S.user.papel === "admin";
 
 /* ---------------- banco (Supabase) ---------------- */
-const VERSAO = "20261020-075512";   /* carimbado por versao.py a cada publicacao */
+const VERSAO = "20261029-123059";   /* carimbado por versao.py a cada publicacao */
 /* Nome da funcao que troca senha, no Supabase. ATENCAO: o painel publicou
    com o nome automatico "clever-worker" e o endereco nao pode ser renomeado.
    No painel ela aparece como "admin-senha"; e a mesma coisa. Se um dia for
@@ -508,35 +507,86 @@ const FUNCAO_SENHA = "clever-worker";
 const SUPABASE_URL  = "https://vgcwzfeucfkaawwwhvjo.supabase.co";
 const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnY3d6ZmV1Y2ZrYWF3d3dodmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMDMyNzEsImV4cCI6MjEwNDY3OTI3MX0.ej6C2X0If1wLBRa4DoX_P2Z8-32IwZoN-AlcWKpM6RY";
 
-let sb = null;
+let sb = null;      /* dados: usa o token da sessao compartilhada */
+let sbAuth = null;  /* so entrar / criar conta; nao guarda nem renova nada */
 
-/* Dentro da Central (iframe da mesma origem, ?embutido=1) a sessao vem da
-   Central: sem tela de login e sem renovar token por conta propria. */
-const EMBUTIDO = (function () {
-  try { return window.parent !== window && /[?&]embutido=1/.test(location.search); } catch (e) { return false; }
-})();
-async function aoReceberCentral(e) {
-  if (e.origin !== location.origin || e.source !== window.parent) return;
-  const d = e.data || {};
-  if (d.tipo !== "central-sessao" || !d.access_token || !sb) return;
-  try {
-    const { data, error } = await sb.auth.setSession({ access_token: d.access_token, refresh_token: d.refresh_token });
-    if (error) throw error;
-    const nova = data ? data.session : null;
-    if (S.aguardandoCentral) { const f = S.aguardandoCentral; S.aguardandoCentral = null; f(nova); }
-    else if (S.sessao) S.sessao = nova || S.sessao;
-    else if (nova) await aoMudarSessao(nova);
-  } catch (er) {
-    console.warn("sessao da Central", er);
-    if (S.aguardandoCentral) { const f = S.aguardandoCentral; S.aguardandoCentral = null; f(null); }
-  }
+/* Sessao compartilhada com a Central Rodriaco: as duas paginas moram no mesmo
+   site e guardam o login na MESMA chave do localStorage, entao quem entrou em
+   uma abre a outra ja logada. O token e renovado por quem estiver aberto, um de
+   cada vez (navigator.locks); a biblioteca do Supabase nunca renova sozinha,
+   para duas abas nao gastarem o mesmo refresh token. */
+const CHAVE_SESSAO = "central_rodriaco_sb_v1";
+const agora = () => Math.floor(Date.now() / 1000);
+function lerSessaoGuardada() {
+  try { const r = localStorage.getItem(CHAVE_SESSAO); return r ? JSON.parse(r) : null; } catch (e) { return null; }
 }
-function esperarSessaoCentral(ms) {
-  return new Promise(resolve => {
-    S.aguardandoCentral = resolve;
-    try { window.parent.postMessage({ tipo: "app-pronto" }, location.origin); } catch (e) {}
-    setTimeout(() => { if (S.aguardandoCentral === resolve) { S.aguardandoCentral = null; resolve(null); } }, ms);
-  });
+function guardarSessao(g) {
+  try { if (g) localStorage.setItem(CHAVE_SESSAO, JSON.stringify(g)); else localStorage.removeItem(CHAVE_SESSAO); } catch (e) {}
+}
+function sessaoParaGuardar(ss, antiga) {
+  return {
+    access_token: ss.access_token,
+    refresh_token: ss.refresh_token,
+    expira: ss.expires_at || (agora() + (ss.expires_in || 3600)),
+    email: (ss.user && ss.user.email) || (antiga && antiga.email) || ""
+  };
+}
+function idDoToken(t) {
+  try {
+    const p = String(t).split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(p + "=".repeat((4 - p.length % 4) % 4))).sub || "";
+  } catch (e) { return ""; }
+}
+/* o que o resto do app enxerga como "sessao": so quem e */
+function sessaoDoApp(g) {
+  return g ? { user: { id: idDoToken(g.access_token), email: g.email || "" } } : null;
+}
+async function renovarSessao() {
+  const trabalho = async () => {
+    const g = lerSessaoGuardada();
+    if (!g || !g.refresh_token) return null;
+    if (g.expira - 300 > agora()) return g;          /* outra aba ja renovou */
+    let r;
+    try {
+      r = await fetch(SUPABASE_URL + "/auth/v1/token?grant_type=refresh_token", {
+        method: "POST",
+        headers: { apikey: SUPABASE_ANON, "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: g.refresh_token })
+      });
+    } catch (e) { return g; }                         /* sem internet: tenta de novo depois */
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) {
+      if (r.status >= 500 || r.status === 429) return g;
+      guardarSessao(null);
+      return null;
+    }
+    const nova = sessaoParaGuardar(j, g);
+    guardarSessao(nova);
+    return nova;
+  };
+  return (navigator.locks && navigator.locks.request)
+    ? navigator.locks.request("central_rodriaco_sessao", trabalho)
+    : trabalho();
+}
+/* sessao pronta para uso: renova se faltar pouco para vencer */
+async function sessaoValida() {
+  const g = lerSessaoGuardada();
+  if (!g) return null;
+  return g.expira - 120 < agora() ? renovarSessao() : g;
+}
+/* alguem entrou, saiu ou trocou de conta em outra aba */
+async function sincronizarSessao() {
+  const g = await sessaoValida();
+  if (!g) { if (S.sessao) limparSessaoLocal(); return; }
+  const eu = sessaoDoApp(g);
+  if (S.sessao && S.sessao.user.id !== eu.user.id) { location.reload(); return; }
+  if (!S.sessao) await aoMudarSessao(eu);
+}
+function limparSessaoLocal() {
+  S.sessao = null; S.user = null; S.items = []; S.users = [];
+  S.view = "home"; S.aberto = null; S.histCache = {}; S.modoEntrada = "entrar";
+  S.tentouPerfil = false; S.ready = true;
+  render();
 }
 
 /* espera a biblioteca aparecer: CDN lenta nao pode derrubar o app */
@@ -571,25 +621,21 @@ async function boot() {
     S.dbFail = true; render(); return;
   }
   sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
-    auth: { persistSession: !EMBUTIDO, autoRefreshToken: !EMBUTIDO, detectSessionInUrl: !EMBUTIDO }
+    accessToken: async () => { const g = await sessaoValida(); return g ? g.access_token : null; }
+  });
+  sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false }
   });
 
-  sb.auth.onAuthStateChange((evento, sessao) => {
-    if (evento === "INITIAL_SESSION" || EMBUTIDO) return;
-    aoMudarSessao(sessao);
+  window.addEventListener("storage", e => {
+    if (e.key === CHAVE_SESSAO || e.key === null) sincronizarSessao();
   });
+  setInterval(() => { if (S.sessao) sincronizarSessao(); }, 60000);
 
   let sessaoInicial = null;
-  try {
-    if (EMBUTIDO) {
-      window.addEventListener("message", aoReceberCentral);
-      sessaoInicial = await esperarSessaoCentral(6000);
-    } else {
-      const { data } = await sb.auth.getSession();
-      sessaoInicial = data ? data.session : null;
-    }
-  } catch (e) {
-    console.error("getSession", e);
+  try { sessaoInicial = sessaoDoApp(await sessaoValida()); }
+  catch (e) {
+    console.error("sessao", e);
     S.dbFail = true; render(); return;
   }
   await aoMudarSessao(sessaoInicial);
@@ -599,6 +645,7 @@ async function boot() {
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) return;
     verificarVersao();
+    sincronizarSessao();
     /* voltar da camera nao pode custar o cadastro que estava sendo digitado */
     if (S.sessao && !preenchendoAlgo()) carregarTudo();
   });
@@ -870,7 +917,7 @@ function render() {
   renderOverlay();
 }
 
-const botaoSair = () => EMBUTIDO ? "" : `<button class="btn ghost sm" data-act="sair">Sair</button>`;
+const botaoSair = () => `<button class="btn ghost sm" data-act="sair">Sair</button>`;
 
 const botaoAtualizar = () => `<button class="btn ghost sm btn-atualizar" data-act="atualizar" title="Atualizar" aria-label="Atualizar">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round">
@@ -1670,7 +1717,7 @@ async function entrar(d) {
       if (senha !== String(d.senha2 || "")) return toast("As duas senhas não são iguais.", true);
 
       toast("Criando seu acesso…");
-      const { data, error } = await sb.auth.signUp({ email, password: senha, options: { data: { nome } } });
+      const { data, error } = await sbAuth.auth.signUp({ email, password: senha, options: { data: { nome } } });
       if (error) throw error;
 
       if (!data || !data.session) {
@@ -1678,22 +1725,31 @@ async function entrar(d) {
         S.modoEntrada = "entrar"; render();
         return toast("Acesso criado. Agora entre com e-mail e senha.");
       }
+      await aoEntrar(data.session);
     } else {
       toast("Entrando…");
-      const { error } = await sb.auth.signInWithPassword({ email, password: senha });
+      const { data, error } = await sbAuth.auth.signInWithPassword({ email, password: senha });
       if (error) throw error;
+      await aoEntrar(data.session);
     }
-    /* onAuthStateChange assume daqui: carrega e renderiza */
   } catch (e) { toast(erroMsg(e), true); }
 }
 
+/* o login vale tambem para a Central (mesma chave): o app so repassa o que o Supabase devolveu */
+async function aoEntrar(ss) {
+  const g = sessaoParaGuardar(ss);
+  guardarSessao(g);
+  await aoMudarSessao(sessaoDoApp(g));
+}
+
 async function sair() {
-  if (EMBUTIDO) { try { window.parent.postMessage({ tipo: "app-sair" }, location.origin); } catch (e) {} return; }
-  try { await sb.auth.signOut(); } catch (e) {}
-  S.sessao = null; S.user = null; S.items = []; S.users = [];
-  S.view = "home"; S.aberto = null; S.histCache = {}; S.modoEntrada = "entrar";
-  S.tentouPerfil = false;
-  render();
+  const g = lerSessaoGuardada();
+  if (g && g.access_token) {
+    /* encerra so esta sessao no Supabase (os outros aparelhos continuam logados) */
+    try { fetch(SUPABASE_URL + "/auth/v1/logout?scope=local", { method: "POST", keepalive: true, headers: { apikey: SUPABASE_ANON, Authorization: "Bearer " + g.access_token } }).catch(() => {}); } catch (e) {}
+  }
+  guardarSessao(null);
+  limparSessaoLocal();
 }
 
 async function salvarMeuPerfil(d) {

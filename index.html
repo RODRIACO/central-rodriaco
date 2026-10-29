@@ -330,7 +330,12 @@
   .contas-tabela td.acoes { white-space: nowrap; }
   .contas-tabela select { min-width: 130px; }
   .contas-tabela td.resumo { max-width: 360px; line-height: 1.5; }
-  .app-embutido { display: block; width: 100%; height: calc(100vh - 150px); min-height: 520px; border: 1px solid var(--border); border-radius: 10px; background: #0B0A09; }
+  .apps-grade { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; margin-top: 12px; }
+  .app-cartao { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--ink); text-decoration: none; }
+  .app-cartao:hover { border-color: var(--accent); }
+  .app-cartao strong { font-size: 14px; color: var(--ink-strong); }
+  .app-cartao span { font-size: 12px; color: var(--muted); line-height: 1.5; }
+  .app-cartao em { font-style: normal; font-size: 12px; font-weight: 600; color: var(--accent-strong); margin-top: 4px; }
   .perm-grupo { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; background: var(--surface); }
   .perm-mod { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-strong); cursor: pointer; }
   .perm-subs { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 0 26px; }
@@ -640,14 +645,14 @@ var NAVEGAR_SUB = {
   comercial: function (s) { mudarAbaComercial(s); },
   pcp: function (s) { mudarAbaPcp(s); },
   logistica: function (s) { mudarAbaLogistica(s); },
-  apps: function (s) { mudarAbaApps(s); }
+  apps: function (s) { abrirApp(s); }
 };
 var SUB_ATUAL = {
   cadastros: function () { return abaCadAtual; },
   comercial: function () { return abaComAtual; },
   pcp: function () { return abaPcpAtual; },
   logistica: function () { return abaLogAtual; },
-  apps: function () { return abaAppsAtual; }
+  apps: function () { return null; }
 };
 function montarNavbar() {
   var html = '<span class="menu-sel" id="menuSel" aria-hidden="true"></span>';
@@ -934,51 +939,29 @@ var MARCACAO_LOGISTICA = '' +
 
 var abaLogAtual = 'csv';
 
-/* ---------- Apps de suporte: paginas irmas (mesma origem) abertas num iframe ---------- */
-var MARCACAO_APPS = '<div class="painel"><div id="appsConteudo"></div></div>';
+/* ---------- Apps de suporte: paginas irmas (mesma origem) abertas em nova aba ---------- */
 var APPS_SUPORTE = {
-  estoque_livre: { nome: 'Estoque Livre', url: 'apps/estoque-livre/?embutido=1' }
+  estoque_livre: { nome: 'Estoque Livre', url: 'apps/estoque-livre/', descricao: 'Sobras e peças livres: foto, reserva e etiqueta com QR.' }
 };
-var abaAppsAtual = 'estoque_livre';
-function mudarAbaApps(aba) {
-  if (!podeSub('apps', aba) || !APPS_SUPORTE[aba]) return;
-  abaAppsAtual = aba;
-  atualizarSubmenuAtivo();
-  var raiz = document.getElementById('appsConteudo');
-  if (!raiz) return;
+/* a sessao fica no localStorage (mesma origem): a aba do app ja abre logada */
+function abrirApp(chave) {
+  if (!podeSub('apps', chave) || !APPS_SUPORTE[chave]) return;
+  window.open(APPS_SUPORTE[chave].url, '_blank');
+}
+function marcacaoApps() {
+  var h = '<div class="painel"><h3 style="margin:0 0 4px;">Apps de suporte</h3>' +
+    '<p class="dica">Cada app abre em uma aba própria, já com o seu login.</p><div class="apps-grade">';
+  var n = 0;
   Object.keys(APPS_SUPORTE).forEach(function (k) {
-    var f = document.getElementById('appFrame_' + k);
-    if (k === aba && !f) {
-      f = document.createElement('iframe');
-      f.id = 'appFrame_' + k;
-      f.className = 'app-embutido';
-      f.title = APPS_SUPORTE[k].nome;
-      f.setAttribute('allow', 'camera; clipboard-write; fullscreen');
-      f.src = APPS_SUPORTE[k].url;
-      raiz.appendChild(f);
-    }
-    if (f) f.style.display = k === aba ? 'block' : 'none';
+    if (!podeSub('apps', k)) return;
+    n++;
+    var a = APPS_SUPORTE[k];
+    h += '<a class="app-cartao" href="' + a.url + '" target="_blank" rel="noopener"><strong>' + escaparHTML(a.nome) + '</strong>' +
+      '<span>' + escaparHTML(a.descricao) + '</span><em>Abrir em nova aba &#8599;</em></a>';
   });
+  if (!n) h += '<div class="lista-vazia">Nenhum app liberado para esta conta.</div>';
+  return h + '</div></div>';
 }
-/* o app avisa que abriu; a Central entrega a sessao e renova antes de vencer */
-function appsEnviarSessao(alvo) {
-  var s = logObterSessao();
-  if (!s || !alvo) return;
-  try { alvo.postMessage({ tipo: 'central-sessao', access_token: s.access_token, refresh_token: s.refresh_token }, location.origin); } catch (e) {}
-}
-function appsDifundirSessao() {
-  document.querySelectorAll('.app-embutido').forEach(function (f) { appsEnviarSessao(f.contentWindow); });
-}
-window.addEventListener('message', function (e) {
-  if (e.origin !== location.origin || !e.data) return;
-  if (e.data.tipo === 'app-pronto') logToken().then(function () { appsEnviarSessao(e.source); }).catch(function () {});
-  else if (e.data.tipo === 'app-sair') sairDoErp();
-});
-setInterval(function () {
-  if (!document.querySelector('.app-embutido')) return;
-  var s = logObterSessao();
-  if (s && s.expira - 300 < Math.floor(Date.now() / 1000)) logRenovar().catch(function () {});
-}, 60000);
 function mudarAbaLogistica(aba) {
   if (!podeSub('logistica', aba)) return;
   abaLogAtual = aba;
@@ -993,8 +976,12 @@ function logLerSessao() {
 function logGravarSessao(s) {
   try { if (s) localStorage.setItem(LOG_CFG.chaveSessao, JSON.stringify(s)); else localStorage.removeItem(LOG_CFG.chaveSessao); } catch (e) {}
 }
+/* o app aberto em outra aba usa a mesma sessao e tambem renova o token: a
+   verdade e sempre o localStorage, nunca a copia em memoria */
 function logObterSessao() {
-  if (!logSessao) logSessao = logLerSessao();
+  var raw;
+  try { raw = localStorage.getItem(LOG_CFG.chaveSessao); } catch (e) { return logSessao; }
+  try { logSessao = raw ? JSON.parse(raw) : null; } catch (e) { logSessao = null; }
   return logSessao;
 }
 function logSair() {
@@ -1018,7 +1005,6 @@ function logGuardarToken(j) {
     email: (j.user && j.user.email) || (logSessao && logSessao.email) || ''
   };
   logGravarSessao(logSessao);
-  appsDifundirSessao();
 }
 function logEntrar(email, senha) {
   return logAuth({ email: email, password: senha }, 'password').then(function (r) {
@@ -1026,18 +1012,28 @@ function logEntrar(email, senha) {
     logGuardarToken(r.json);
   });
 }
+/* uma aba por vez renova (navigator.locks); quem chega depois ve a sessao ja renovada */
 function logRenovar() {
-  var s = logObterSessao();
-  if (!s || !s.refresh_token) return Promise.reject(new Error('sem sessão'));
-  return logAuth({ refresh_token: s.refresh_token }, 'refresh_token').then(function (r) {
-    if (!r.ok) { logSair(); throw new Error('sem sessão'); }
-    logGuardarToken(r.json);
-  });
+  function trabalho() {
+    var s = logObterSessao();
+    if (!s || !s.refresh_token) return Promise.reject(new Error('sem sessão'));
+    if (s.expira - 300 > Math.floor(Date.now() / 1000)) return Promise.resolve();
+    return logAuth({ refresh_token: s.refresh_token }, 'refresh_token').then(function (r) {
+      if (!r.ok) {
+        if (r.status >= 500 || r.status === 429) throw new Error('Supabase indisponível (erro ' + r.status + ').');
+        logSair();
+        throw new Error('sem sessão');
+      }
+      logGuardarToken(r.json);
+    });
+  }
+  if (navigator.locks && navigator.locks.request) return navigator.locks.request('central_rodriaco_sessao', trabalho);
+  return trabalho();
 }
 function logToken() {
   var s = logObterSessao();
   if (!s) return Promise.resolve(null);
-  if (s.expira - 60 < Math.floor(Date.now() / 1000)) return logRenovar().then(function () { return logSessao.access_token; });
+  if (s.expira - 60 < Math.floor(Date.now() / 1000)) return logRenovar().then(function () { var n = logObterSessao(); return n ? n.access_token : null; });
   return Promise.resolve(s.access_token);
 }
 function logFetchAut(caminho, opcoes, jaRenovou) {
@@ -1765,9 +1761,8 @@ function abrirAba(chave) {
     mudarAbaLogistica(primeiraSub('logistica'));
   } else if (chave === 'apps') {
     painel.className = 'painel-aba painel-largo';
-    painel.innerHTML = MARCACAO_APPS;
+    painel.innerHTML = marcacaoApps();
     document.getElementById('areaAbas').appendChild(painel);
-    mudarAbaApps(primeiraSub('apps'));
   } else if (chave === 'contas') {
     painel.className = 'painel-aba painel-largo';
     painel.innerHTML = '<div class="painel"><div id="contasErp"></div></div>';
@@ -5463,9 +5458,20 @@ function liberarApp(aoLiberar) {
   if (!appIniciado) { appIniciado = true; aoLiberar(); }
 }
 function sairDoErp() {
+  var s = logObterSessao();
+  if (s && s.access_token) {
+    try { fetch(LOG_CFG.url + '/auth/v1/logout?scope=local', { method: 'POST', keepalive: true, headers: { 'apikey': LOG_CFG.anon, 'Authorization': 'Bearer ' + s.access_token } }).catch(function () {}); } catch (e) {}
+  }
   logSair();
   location.reload();
 }
+/* sair (ou entrar com outra conta) em outra aba, como a do app: esta recarrega */
+window.addEventListener('storage', function (e) {
+  if (e.key !== LOG_CFG.chaveSessao && e.key !== null) return;
+  var s = logLerSessao();
+  if (!s) { if (appIniciado) location.reload(); return; }
+  if (appIniciado && logSessao && s.email && logSessao.email && s.email !== logSessao.email) location.reload();
+});
 function exigirAcesso(aoLiberar) {
   if (!logObterSessao()) { telaAcessoLogin('', aoLiberar); return; }
   criarTelaAcesso().innerHTML = acessoCard('<h2>Central Rodriaço</h2><p class="dica">Verificando acesso...</p>');

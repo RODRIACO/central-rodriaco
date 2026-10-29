@@ -35,22 +35,28 @@ Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase 
 
 ## Apps de suporte
 
-Módulo **Apps de suporte**: apps da casa que rodam dentro da Central. Cada um é uma
-página irmã em `apps/<nome>/` (mesmo site, mesma publicação) aberta num iframe da
-mesma origem. Hoje: **Estoque Livre** (`apps/estoque-livre/`, cópia do app que está
-no Cloudflare; os dados continuam no mesmo Supabase).
+Módulo **Apps de suporte**: apps da casa que ficam no mesmo site da Central. Cada um é
+uma página irmã em `apps/<nome>/` e **abre em uma aba própria** (o item do menu e o
+cartão do módulo abrem a nova aba). Hoje: **Estoque Livre** (`apps/estoque-livre/`,
+cópia do app que está no Cloudflare; os dados continuam no mesmo Supabase).
 
-- **Login único:** o app avisa (`postMessage`) que abriu e a Central entrega a sessão.
-  Dentro da Central o app não renova token por conta própria: a Central renova antes
-  de vencer e reenvia. O botão Sair do app some; "Sair" é o da Central.
+- **Login único:** Central e apps guardam o login na mesma chave do `localStorage`
+  (`central_rodriaco_sb_v1`, mesmo site). Quem entrou em um abre o outro já logado;
+  entrar pelo próprio app também vale para a Central. **Sair** em qualquer um sai nos
+  dois (as outras abas percebem pelo evento `storage`). O Sair só encerra a sessão
+  deste navegador no Supabase (`scope=local`); outros aparelhos continuam logados.
+- **Renovação do token:** quem estiver aberto renova, um de cada vez
+  (`navigator.locks`), e quem chega depois usa a sessão já renovada. O app não deixa a
+  biblioteca do Supabase renovar sozinha (cliente de dados com `accessToken` e outro
+  cliente só para entrar), para duas abas não gastarem o mesmo refresh token.
 - **Permissão de abrir:** subárea `apps.estoque_livre` na janela Permissões de Contas.
   Dentro do app, os papéis dele (admin, estoque, comercial; `perfis.papel`) continuam
   decidindo quem edita — é o que protege os dados no banco.
-- **Aberto direto** (`.../apps/estoque-livre/`, sem `?embutido=1`) o app funciona como
-  antes, com o próprio login.
+- **Aberto direto** (`.../apps/estoque-livre/`) sem login na Central, o app mostra o
+  próprio login e o guarda na mesma chave.
 - **Novo app:** colocar a pasta em `apps/<nome>/`, acrescentar em `APPS_SUPORTE` e em
-  `SUBMENUS.apps` no `index.html` e fazer o app aceitar a sessão da Central como o
-  Estoque Livre faz (`EMBUTIDO`, `aoReceberCentral`).
+  `SUBMENUS.apps` no `index.html` e fazer o app usar a sessão compartilhada como o
+  Estoque Livre faz (`CHAVE_SESSAO`, `sessaoValida`, `renovarSessao`).
 - **Etiquetas com QR:** o QR do Estoque Livre aponta para o endereço de onde a
   etiqueta foi gerada. As já impressas apontam para o Cloudflare; **não desligue o
   Cloudflare** enquanto houver etiqueta antiga em uso.
