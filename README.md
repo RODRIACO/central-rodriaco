@@ -50,9 +50,12 @@ O ERP inteiro fica atrás do login do Supabase, não só a Análise CSV:
 
 ### Contas (só administrador)
 
-Módulo **Contas**: lista todas as contas, com uma coluna por módulo para marcar,
-perfis rápidos (PCP, Comercial, Logística, Operador, Todos, Nenhum) e botão
-Ativar/Desativar. Salva ao marcar; vale no próximo login da pessoa.
+Módulo **Contas**: lista todas as contas, com o resumo do que cada uma acessa,
+perfis rápidos (PCP, Comercial, Logística, Operador, Todos, Nenhum), botão
+Ativar/Desativar e o botão **Permissões**: janela com os módulos e, embaixo de cada
+um, as subáreas. Marcar o módulo marca todas as subáreas; é só desmarcar as que a
+pessoa não deve ver (ex.: Cadastros só com Itens). O menu mostra só o liberado e o
+módulo abre direto na primeira subárea permitida. Vale no próximo login da pessoa.
 
 - **Criar conta:** Supabase › Authentication › Users › Add user (marque *Auto
   Confirm User*). Ela aparece na lista sem nenhum módulo.
@@ -62,8 +65,9 @@ Ativar/Desativar. Salva ao marcar; vale no próximo login da pessoa.
 - **Novo administrador:** hoje só pelo SQL Editor
   (`update public.perfis set papel = 'admin' where email = '...'`, com o gatilho
   `perfis_protege_papel` desligado durante o comando — veja o fim do `banco_acessos.sql`).
-- Os módulos liberados ficam em `public.acessos_erp`; `tem_acesso(modulo, nivel)` é
-  a função que as regras do banco usam. A tela liga/desliga; o banco já aceita
+- Os acessos ficam em `public.acessos_erp` como chaves `modulo` (inteiro) ou
+  `modulo.sub` (uma subárea, ex.: `cadastros.itens`); `tem_acesso(modulo, nivel)` é
+  a função que as regras do banco usam (aceita `logistica.csv`). A tela liga/desliga; o banco já aceita
   "ver" e "editar" para quando cada app passar a usar níveis.
 - Contas, papéis e situação vivem em `public.perfis`, compartilhada com o Estoque
   Livre e o Controle de Ferramentas. A Central **não altera** `papel` de ninguém.

@@ -329,6 +329,11 @@
   .contas-tabela td { font-size: 12.5px; }
   .contas-tabela td.acoes { white-space: nowrap; }
   .contas-tabela select { min-width: 130px; }
+  .contas-tabela td.resumo { max-width: 360px; line-height: 1.5; }
+  .perm-grupo { border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; background: var(--surface); }
+  .perm-mod { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-strong); cursor: pointer; }
+  .perm-subs { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 8px 0 0 26px; }
+  .perm-subs label { display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--ink); cursor: pointer; }
 
   /* ===== MENU LATERAL COM SUBTOPICOS ===== */
   .grupo-menu { display: flex; flex-direction: column; gap: 2px; }
@@ -645,6 +650,7 @@ function montarNavbar() {
     var m = MODULOS[i];
     if (!podeModulo(m.chave)) continue;
     var subs = SUBMENUS[m.chave];
+    if (subs) subs = subs.filter(function (x) { return podeSub(m.chave, x[0]); });
     var btn = '<button type="button" class="botao-menu' + (m.disponivel ? ' disponivel' : '') + '" data-chave="' + m.chave + '">' + m.icone + ' <span class="rotulo-menu">' + escaparHTML(m.nome) + '</span>' + (subs ? '<span class="seta-menu">&#9656;</span>' : '') + '</button>';
     if (!subs) { html += btn; continue; }
     html += '<div class="grupo-menu" data-grupo-chave="' + m.chave + '">' + btn + '<div class="submenu">';
@@ -923,6 +929,7 @@ var MARCACAO_LOGISTICA = '' +
 
 var abaLogAtual = 'csv';
 function mudarAbaLogistica(aba) {
+  if (!podeSub('logistica', aba)) return;
   abaLogAtual = aba;
   atualizarSubmenuAtivo();
   if (aba === 'csv') renderizarLogisticaCsv();
@@ -1690,20 +1697,20 @@ function abrirAba(chave) {
   if (chave === 'cadastros') {
     painel.innerHTML = MARCACAO_CADASTROS;
     document.getElementById('areaAbas').appendChild(painel);
-    mudarAba('familias');
+    mudarAba(primeiraSub('cadastros'));
   } else if (chave === 'comercial') {
     painel.innerHTML = MARCACAO_COMERCIAL;
     document.getElementById('areaAbas').appendChild(painel);
-    mudarAbaComercial('clientes');
+    mudarAbaComercial(primeiraSub('comercial'));
   } else if (chave === 'pcp') {
     painel.innerHTML = MARCACAO_PCP;
     document.getElementById('areaAbas').appendChild(painel);
-    mudarAbaPcp('ordens');
+    mudarAbaPcp(primeiraSub('pcp'));
   } else if (chave === 'logistica') {
     painel.className = 'painel-aba painel-largo';
     painel.innerHTML = MARCACAO_LOGISTICA;
     document.getElementById('areaAbas').appendChild(painel);
-    mudarAbaLogistica('csv');
+    mudarAbaLogistica(primeiraSub('logistica'));
   } else if (chave === 'contas') {
     painel.className = 'painel-aba painel-largo';
     painel.innerHTML = '<div class="painel"><div id="contasErp"></div></div>';
@@ -1779,6 +1786,7 @@ var valoresSimulacao = {};
 var opcionaisExcluidos = {};
 
 function mudarAba(aba) {
+  if (!podeSub('cadastros', aba)) return;
   abaCadAtual = aba;
   atualizarSubmenuAtivo();
   document.getElementById('painelFamilias').style.display = aba === 'familias' ? 'block' : 'none';
@@ -3127,6 +3135,7 @@ var abaComAtual = 'clientes';
 var clienteAbertoId = null;
 
 function mudarAbaComercial(aba) {
+  if (!podeSub('comercial', aba)) return;
   abaComAtual = aba;
   atualizarSubmenuAtivo();
   document.getElementById('painelClientes').style.display = aba === 'clientes' ? 'block' : 'none';
@@ -4353,6 +4362,7 @@ function excluirPedido(id) {
 /* ===== PCP: ETAPAS / OPERADORES / MAPA DE PRODUÇÃO / IMPRESSÃO ===== */
 var abaPcpAtual = 'ordens';
 function mudarAbaPcp(aba) {
+  if (!podeSub('pcp', aba)) return;
   abaPcpAtual = aba;
   atualizarSubmenuAtivo();
   document.getElementById('painelOrdensPcp').style.display = aba === 'ordens' ? 'block' : 'none';
@@ -5269,10 +5279,24 @@ function montarHTML(estadoAtual) {
 /* ===== ACESSO AO ERP (login do Supabase; so conta ATIVA entra) ===== */
 var appIniciado = false;
 var ACESSO = { admin: false, modulos: {} };
+/* chaves: 'modulo' (inteiro; contas antigas e modulos sem subareas) ou 'modulo.sub' */
+function podeSub(modulo, sub) {
+  if (ACESSO.admin) return true;
+  return !!(ACESSO.modulos[modulo] || ACESSO.modulos[modulo + '.' + sub]);
+}
 function podeModulo(chave) {
   if (chave === 'inicio') return true;
   if (chave === 'contas') return !!ACESSO.admin;
-  return !!(ACESSO.admin || ACESSO.modulos[chave]);
+  if (ACESSO.admin || ACESSO.modulos[chave]) return true;
+  var subs = SUBMENUS[chave];
+  if (!subs) return false;
+  for (var i = 0; i < subs.length; i++) { if (ACESSO.modulos[chave + '.' + subs[i][0]]) return true; }
+  return false;
+}
+function primeiraSub(modulo) {
+  var subs = SUBMENUS[modulo] || [];
+  for (var i = 0; i < subs.length; i++) { if (podeSub(modulo, subs[i][0])) return subs[i][0]; }
+  return subs.length ? subs[0][0] : '';
 }
 function temAlgumModulo() {
   for (var k in ACESSO.modulos) { if (ACESSO.modulos[k]) return true; }
@@ -5402,11 +5426,45 @@ var CONTAS_PRESETS = [
 ];
 var contasLista = null;
 var contasBusca = '';
-function contasModulosGrade() {
+/* [{chave, nome, subs: [[chave, nome], ...] | null}] — o que da para liberar */
+function contasGrade() {
   var l = [];
-  MODULOS.forEach(function (m) { if (m.disponivel && !m.somenteAdmin) l.push({ chave: m.chave, nome: m.nome }); });
-  l.push({ chave: 'operador', nome: 'Área do Operador' });
+  MODULOS.forEach(function (m) {
+    if (m.disponivel && !m.somenteAdmin) l.push({ chave: m.chave, nome: m.nome, subs: SUBMENUS[m.chave] || null });
+  });
+  l.push({ chave: 'operador', nome: 'Área do Operador', subs: null });
   return l;
+}
+/* modulo inteiro ('cadastros') vira todas as subareas ('cadastros.itens', ...) */
+function contasConjunto(modulos) {
+  var out = {};
+  contasGrade().forEach(function (g) {
+    if (!g.subs) { if (modulos[g.chave]) out[g.chave] = true; return; }
+    g.subs.forEach(function (s) {
+      if (modulos[g.chave] || modulos[g.chave + '.' + s[0]]) out[g.chave + '.' + s[0]] = true;
+    });
+  });
+  return out;
+}
+function contasResumoHTML(modulos) {
+  var set = contasConjunto(modulos), partes = [];
+  contasGrade().forEach(function (g) {
+    if (!g.subs) { if (set[g.chave]) partes.push(escaparHTML(g.nome)); return; }
+    var marcadas = g.subs.filter(function (s) { return set[g.chave + '.' + s[0]]; });
+    if (!marcadas.length) return;
+    partes.push(marcadas.length === g.subs.length ? escaparHTML(g.nome) :
+      escaparHTML(g.nome) + ' <span class="muted">(' + marcadas.map(function (s) { return escaparHTML(s[1]); }).join(', ') + ')</span>');
+  });
+  return partes.length ? partes.join(' &middot; ') : '<span class="muted">Nenhum módulo</span>';
+}
+function contasExpandir(chaves) {
+  var out = {};
+  contasGrade().forEach(function (g) {
+    if (chaves !== '*' && chaves.indexOf(g.chave) === -1) return;
+    if (!g.subs) { out[g.chave] = 'editar'; return; }
+    g.subs.forEach(function (s) { out[g.chave + '.' + s[0]] = 'editar'; });
+  });
+  return out;
 }
 function contasApi(caminho, opcoes) {
   return logFetchAut(caminho, opcoes).then(function (r) {
@@ -5446,16 +5504,13 @@ function contasAcharConta(id) {
   return null;
 }
 function contasTabelaHTML() {
-  var grade = contasModulosGrade();
   var termo = contasBusca.toLowerCase();
   var eu = contasEmailEu();
   var linhas = contasLista.filter(function (c) {
     return !termo || (c.email + ' ' + c.nome).toLowerCase().indexOf(termo) !== -1;
   });
   if (!linhas.length) return '<div class="lista-vazia">' + (contasLista.length ? 'Nenhuma conta com essa busca.' : 'Nenhuma conta encontrada.') + '</div>';
-  var html = '<div class="tabela-wrap"><table class="contas-tabela"><thead><tr><th>Conta</th><th>Situação</th>';
-  grade.forEach(function (g) { html += '<th class="mod">' + escaparHTML(g.nome) + '</th>'; });
-  html += '<th>Perfil rápido</th><th></th></tr></thead><tbody>';
+  var html = '<div class="tabela-wrap"><table class="contas-tabela"><thead><tr><th>Conta</th><th>Situação</th><th>Acessos liberados</th><th>Perfil rápido</th><th></th></tr></thead><tbody>';
   linhas.forEach(function (c) {
     var admin = c.papel === 'admin';
     var meu = c.email.toLowerCase() === eu;
@@ -5464,15 +5519,13 @@ function contasTabelaHTML() {
       '<td><strong>' + escaparHTML(c.nome || c.email) + '</strong>' + (meu ? ' <span class="muted">(você)</span>' : '') + '<div class="sub">' + escaparHTML(c.email) + '</div></td>' +
       '<td>' + (admin ? '<span class="badge-status status-op-aberta">Administrador</span>' :
         (ativa ? '<span class="badge-status status-op-concluida">Ativa</span>' : '<span class="badge-status status-op-cancelada">Desativada</span>')) + '</td>';
-    grade.forEach(function (g) {
-      if (admin) { html += '<td class="mod"><span class="muted" title="Administrador acessa tudo">&#10003;</span></td>'; return; }
-      html += '<td class="mod"><input type="checkbox" data-mod="' + g.chave + '" aria-label="' + escaparHTML(g.nome) + '"' + (c.modulos[g.chave] ? ' checked' : '') + '></td>';
-    });
-    if (admin) html += '<td class="muted">—</td><td></td>';
+    if (admin) html += '<td class="resumo muted">Todos os módulos</td><td class="muted">—</td><td></td>';
     else {
-      html += '<td><select data-preset><option value="">Aplicar perfil…</option>' +
+      html += '<td class="resumo">' + contasResumoHTML(c.modulos) + '</td>' +
+        '<td><select data-preset><option value="">Aplicar perfil…</option>' +
         CONTAS_PRESETS.map(function (p) { return '<option value="' + p.id + '">' + escaparHTML(p.nome) + '</option>'; }).join('') + '</select></td>' +
-        '<td class="acoes">' + (meu ? '' : '<button type="button" class="btn btn-contorno btn-sm" data-acao="' + (ativa ? 'desativar' : 'ativar') + '">' + (ativa ? 'Desativar' : 'Ativar') + '</button>') + '</td>';
+        '<td class="acoes"><button type="button" class="btn btn-primario btn-sm" data-acao="permissoes">Permissões</button> ' +
+        (meu ? '' : '<button type="button" class="btn btn-contorno btn-sm" data-acao="' + (ativa ? 'desativar' : 'ativar') + '">' + (ativa ? 'Desativar' : 'Ativar') + '</button>') + '</td>';
     }
     html += '</tr>';
   });
@@ -5497,7 +5550,7 @@ function renderizarContas() {
   el.innerHTML = '' +
     '<div class="dashboard-cab"><h2>Contas e acessos</h2><div class="log-acoes">' +
       '<button type="button" class="btn btn-contorno btn-sm" id="contasBtnAtualizar">&#8635; Atualizar</button></div></div>' +
-    '<p class="dica">Para criar uma conta: Supabase &rsaquo; Authentication &rsaquo; Users &rsaquo; Add user (marque <em>Auto Confirm User</em>). Ela aparece aqui sem nenhum módulo; marque o que a pessoa pode usar. Mudanças valem no próximo login dela. Administrador acessa tudo.</p>' +
+    '<p class="dica">Para criar uma conta: Supabase &rsaquo; Authentication &rsaquo; Users &rsaquo; Add user (marque <em>Auto Confirm User</em>). Ela aparece aqui sem nenhum módulo. Em <strong>Permissões</strong> você marca o módulo (vem tudo marcado) e tira as subáreas que a pessoa não deve ver. Mudanças valem no próximo login dela. Administrador acessa tudo.</p>' +
     '<div class="contas-topo"><div class="campo"><label>Buscar conta</label><input type="text" id="contasBusca" placeholder="Nome ou e-mail" autocomplete="off" value="' + escaparHTML(contasBusca) + '"></div>' +
     '<div class="contas-msg" id="contasMsg"></div></div>' +
     '<div id="contasTabela">' + contasTabelaHTML() + '</div>';
@@ -5518,27 +5571,65 @@ function contasGravarModulos(conta, modulos) {
     contasMensagem('Salvo: ' + conta.email, false);
   }).catch(function (e) {
     contasMensagem('Não salvou (' + (e.message || 'erro') + ').', true);
-    contasRedesenhar();
   });
 }
 function contasMudou(e) {
   var t = e.target;
+  if (!t.hasAttribute || !t.hasAttribute('data-preset')) return;
   var tr = t.closest ? t.closest('tr[data-conta]') : null;
-  if (!tr) return;
-  var conta = contasAcharConta(tr.getAttribute('data-conta'));
-  if (!conta) return;
-  var modulos = {};
-  Object.keys(conta.modulos).forEach(function (k) { modulos[k] = conta.modulos[k]; });
-  if (t.hasAttribute('data-mod')) {
-    if (t.checked) modulos[t.getAttribute('data-mod')] = 'editar'; else delete modulos[t.getAttribute('data-mod')];
-  } else if (t.hasAttribute('data-preset')) {
-    var id = t.value, preset = null;
-    CONTAS_PRESETS.forEach(function (p) { if (p.id === id) preset = p; });
-    if (!preset) return;
-    modulos = {};
-    (preset.modulos === '*' ? contasModulosGrade().map(function (g) { return g.chave; }) : preset.modulos).forEach(function (k) { modulos[k] = 'editar'; });
-  } else return;
-  contasGravarModulos(conta, modulos).then(contasRedesenhar);
+  var conta = tr ? contasAcharConta(tr.getAttribute('data-conta')) : null;
+  var preset = null;
+  CONTAS_PRESETS.forEach(function (p) { if (p.id === t.value) preset = p; });
+  if (!conta || !preset) return;
+  contasGravarModulos(conta, contasExpandir(preset.modulos)).then(contasRedesenhar);
+}
+/* janela de permissoes: modulo marca/desmarca todas as subareas; cada subarea pode ser tirada */
+function contasAbrirPermissoes(conta) {
+  var set = contasConjunto(conta.modulos);
+  var corpo = '<p class="dica">Marque o módulo para liberar todas as subáreas e desmarque as que <strong>' + escaparHTML(conta.email) + '</strong> não deve ver.</p><div id="permLista">';
+  contasGrade().forEach(function (g) {
+    corpo += '<div class="perm-grupo" data-pg="' + g.chave + '"><label class="perm-mod"><input type="checkbox" data-pm="' + g.chave + '"' + (!g.subs && set[g.chave] ? ' checked' : '') + '> <strong>' + escaparHTML(g.nome) + '</strong></label>';
+    if (g.subs) {
+      corpo += '<div class="perm-subs">';
+      g.subs.forEach(function (s) {
+        corpo += '<label><input type="checkbox" data-ps="' + g.chave + '.' + s[0] + '"' + (set[g.chave + '.' + s[0]] ? ' checked' : '') + '> ' + escaparHTML(s[1]) + '</label>';
+      });
+      corpo += '</div>';
+    }
+    corpo += '</div>';
+  });
+  corpo += '</div>';
+  function sincronizar() {
+    document.querySelectorAll('#permLista .perm-grupo').forEach(function (grupo) {
+      var subs = grupo.querySelectorAll('[data-ps]');
+      if (!subs.length) return;
+      var marcadas = grupo.querySelectorAll('[data-ps]:checked').length;
+      var pm = grupo.querySelector('[data-pm]');
+      pm.checked = marcadas === subs.length;
+      pm.indeterminate = marcadas > 0 && marcadas < subs.length;
+    });
+  }
+  abrirModalBase('Permissões — ' + (conta.nome || conta.email), corpo, [
+    { texto: 'Cancelar', classe: 'btn-contorno', aoClicar: function () { return true; } },
+    { texto: 'Salvar', classe: 'btn-primario', aoClicar: function () {
+        var modulos = {};
+        document.querySelectorAll('#permLista [data-ps]:checked').forEach(function (c) { modulos[c.getAttribute('data-ps')] = 'editar'; });
+        document.querySelectorAll('#permLista [data-pm]').forEach(function (c) {
+          if (!c.closest('.perm-grupo').querySelector('[data-ps]') && c.checked) modulos[c.getAttribute('data-pm')] = 'editar';
+        });
+        contasGravarModulos(conta, modulos).then(contasRedesenhar);
+        return true;
+      } }
+  ]);
+  document.getElementById('permLista').addEventListener('change', function (e) {
+    var t = e.target;
+    if (t.hasAttribute('data-pm')) {
+      var grupo = t.closest('.perm-grupo');
+      grupo.querySelectorAll('[data-ps]').forEach(function (c) { c.checked = t.checked; });
+    }
+    sincronizar();
+  });
+  sincronizar();
 }
 function contasClicou(e) {
   var b = e.target.closest ? e.target.closest('[data-acao]') : null;
@@ -5546,7 +5637,9 @@ function contasClicou(e) {
   var tr = b.closest('tr[data-conta]');
   var conta = tr ? contasAcharConta(tr.getAttribute('data-conta')) : null;
   if (!conta) return;
-  var ativar = b.getAttribute('data-acao') === 'ativar';
+  var acao = b.getAttribute('data-acao');
+  if (acao === 'permissoes') { contasAbrirPermissoes(conta); return; }
+  var ativar = acao === 'ativar';
   if (!ativar && !window.confirm('Desativar ' + conta.email + '? A pessoa deixa de entrar na Central (e nos outros apps que usam esta conta).')) return;
   contasMensagem('Salvando...', false);
   contasApi('/rest/v1/perfis?id=eq.' + encodeURIComponent(conta.id), {

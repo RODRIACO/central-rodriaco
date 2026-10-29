@@ -11,6 +11,7 @@
 -- O que faz:
 --   1. cria public.acessos_erp (quais módulos cada conta pode usar);
 --   2. cria meus_acessos() e tem_acesso() — o ERP e as regras do banco usam;
+--      as chaves são 'modulo' (módulo inteiro) ou 'modulo.sub' (só uma subárea);
 --   3. só administrador lê/grava a tabela de acessos de todo mundo;
 --   4. a leitura do CSV da Logística passa a exigir o módulo "logistica"
 --      (substitui o banco_logistica.sql — não precisa rodar os dois);
@@ -33,7 +34,8 @@ end $$;
 
 -- ------------------------------------------------------------
 -- 1. ACESSOS POR MÓDULO
---    modulos = {"logistica":"editar","pcp":"editar"}
+--    modulos = {"cadastros.itens":"editar","logistica":"editar"}
+--    'modulo' libera o módulo inteiro; 'modulo.sub' libera só a subárea.
 --    Hoje a tela liga/desliga ("editar" = liberado). O banco já
 --    aceita "ver" para quando cada app passar a usar níveis.
 -- ------------------------------------------------------------
@@ -57,7 +59,8 @@ create policy acessos_admin on public.acessos_erp for all to authenticated
 -- ------------------------------------------------------------
 -- 2. FUNÇÕES
 --    meus_acessos(): o que a conta logada enxerga no ERP.
---    tem_acesso(modulo, nivel): usada pelas regras do banco.
+--    tem_acesso(modulo, nivel): usada pelas regras do banco. Aceita 'logistica.csv':
+--    vale a chave exata ou a do módulo inteiro ('logistica').
 --    Administrador (perfis.papel = 'admin' e ativo) tem tudo.
 -- ------------------------------------------------------------
 create or replace function public.meus_acessos()
@@ -86,7 +89,8 @@ begin
   select * into p from public.perfis where id = auth.uid();
   if not found or p.status <> 'ativo' then return false; end if;
   if p.papel = 'admin' then return true; end if;
-  select a.modulos ->> p_modulo into nivel from public.acessos_erp a where a.user_id = p.id;
+  select coalesce(a.modulos ->> p_modulo, a.modulos ->> split_part(p_modulo, '.', 1))
+    into nivel from public.acessos_erp a where a.user_id = p.id;
   if nivel is null then return false; end if;
   if p_nivel = 'ver' then return nivel in ('ver', 'editar'); end if;
   return nivel = 'editar';
@@ -98,7 +102,8 @@ grant execute on function public.tem_acesso(text, text)    to authenticated;
 
 -- ------------------------------------------------------------
 -- 3. LOGÍSTICA > ANÁLISE CSV
---    Bucket privado; leitura só para quem tem o módulo "logistica".
+--    Bucket privado; leitura só para quem tem a subárea "logistica.csv"
+--    (ou o módulo Logística inteiro).
 --    O robô usa a service key e continua gravando normalmente.
 -- ------------------------------------------------------------
 insert into storage.buckets (id, name, public)
@@ -108,7 +113,7 @@ on conflict (id) do update set public = false;
 drop policy if exists "cosmos ler" on storage.objects;
 create policy "cosmos ler" on storage.objects
   for select to authenticated
-  using (bucket_id = 'dados-cosmos' and public.tem_acesso('logistica', 'ver'));
+  using (bucket_id = 'dados-cosmos' and public.tem_acesso('logistica.csv', 'ver'));
 
 
 -- ------------------------------------------------------------
