@@ -1,0 +1,16 @@
+{
+  "name": "Controle de Ferramentas — Rodriaço",
+  "short_name": "Ferramentas",
+  "description": "Controle de ferramentas da Rodriaço: quem está com o quê, conserto, troca, perda e sucata.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0B0A09",
+  "theme_color": "#0B0A09",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icone-mask-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

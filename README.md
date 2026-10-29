@@ -37,8 +37,17 @@ Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase 
 
 Módulo **Apps de suporte**: apps da casa que ficam no mesmo site da Central. Cada um é
 uma página irmã em `apps/<nome>/` e **abre em uma aba própria** (o item do menu e o
-cartão do módulo abrem a nova aba). Hoje: **Estoque Livre** (`apps/estoque-livre/`,
-cópia do app que está no Cloudflare; os dados continuam no mesmo Supabase).
+cartão do módulo abrem a nova aba). Hoje: **Estoque Livre** (`apps/estoque-livre/`) e
+**Controle de Ferramentas** (`apps/ferramentas/`), cópias dos apps que estão no
+Cloudflare; os dados continuam no mesmo Supabase.
+
+- **Controle de Ferramentas — só o administrador altera.** Dentro da Central os demais
+  níveis (`estoque`, `comercial`) só consultam: sem cadastro, edição, troca, importação,
+  nem movimentação. Os valores em R$ continuam só para administrador (tabelas separadas
+  no banco). A regra vale na tela da cópia; para valer também no **banco** (e no app
+  antigo do Cloudflare, que usa o mesmo banco), rode **uma vez** o
+  `banco_ferramentas_admin.sql` no SQL Editor do Supabase. Depois dele, quem não é
+  administrador recebe "Somente o administrador altera as ferramentas." ao tentar gravar.
 
 - **Login único:** Central e apps guardam o login na mesma chave do `localStorage`
   (`central_rodriaco_sb_v1`, mesmo site). Quem entrou em um abre o outro já logado;

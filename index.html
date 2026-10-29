@@ -638,7 +638,7 @@ var SUBMENUS = {
   comercial: [['clientes', 'Clientes'], ['oportunidades', 'Oportunidades'], ['orcamentos', 'Orçamentos'], ['pedidos', 'Pedidos'], ['interacoes', 'Interações'], ['config', 'Configurações']],
   pcp: [['ordens', 'Ordens'], ['mapa', 'Mapa de Produção'], ['configPcp', 'Configurações']],
   logistica: [['csv', 'Análise CSV']],
-  apps: [['estoque_livre', 'Estoque Livre']]
+  apps: [['estoque_livre', 'Estoque Livre'], ['ferramentas', 'Controle de Ferramentas']]
 };
 var NAVEGAR_SUB = {
   cadastros: function (s) { mudarAba(s); },
@@ -941,7 +941,8 @@ var abaLogAtual = 'csv';
 
 /* ---------- Apps de suporte: paginas irmas (mesma origem) abertas em nova aba ---------- */
 var APPS_SUPORTE = {
-  estoque_livre: { nome: 'Estoque Livre', url: 'apps/estoque-livre/', descricao: 'Sobras e peças livres: foto, reserva e etiqueta com QR.' }
+  estoque_livre: { nome: 'Estoque Livre', url: 'apps/estoque-livre/', descricao: 'Sobras e peças livres: foto, reserva e etiqueta com QR.' },
+  ferramentas: { nome: 'Controle de Ferramentas', url: 'apps/ferramentas/', descricao: 'Quem está com cada ferramenta, conserto, troca e baixa. Só o administrador altera.' }
 };
 /* a sessao fica no localStorage (mesma origem): a aba do app ja abre logada */
 function abrirApp(chave) {
