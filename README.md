@@ -33,6 +33,32 @@ Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase 
   indicadores e gráficos acompanham. O mesmo ▼ existe em todas as listas do ERP
   (Famílias, Componentes, Itens, Clientes, Pedidos, Ordens, Interações).
 
+## Comercial › Análise de Pedidos
+
+Cruza o **Relatório de Pedidos** do Cosmos (`Relatorio de Pedidos.csv`, todos os
+pedidos desde 2017, sem valores) com as **OPs abertas** (`DADOS COSMOS.csv`). Os dois
+arquivos vêm do robô pelo mesmo bucket `dados-cosmos`; o robô gera o relatório pelo
+menu FBX › Vendas › Relatório de Pedidos a cada execução.
+
+- Uma linha por pedido (pedido com várias NFs vira uma linha só). Pedido = 5
+  primeiros dígitos da OP. OP de pedido que ainda não está no relatório aparece
+  como "Fora do relatório".
+- Situações: L Liberado, P Faturado Parcial, O Orçamento, B Bloqueado, E Expedido,
+  F Faturado Total, C Cancelado, D Devolução. Padrão: Liberado + Faturado Parcial,
+  pedidos a partir de 06/2025 (caixa "Mostrar pedidos antigos" traz o resto).
+- Indicadores clicáveis: liberado sem OP aberta (o principal), liberado com OP,
+  liberado com entrega vencida, faturado parcial com/sem OP, OP aberta em situação
+  errada (orçamento, cancelado, faturado total, fora do relatório) e embarque
+  depois da entrega.
+- Gráficos clicáveis: pedidos por mês, situação, dias desde o pedido, vendedores,
+  clientes, UF e etapa mais atrasada. Tabela com filtro por coluna; clicar no
+  pedido abre as OPs dele. Exportar CSV.
+- Aviso quando o Relatório de Pedidos tem mais de 3 horas (robô parado).
+- **Limite:** o arquivo do robô só tem OPs abertas, então "sem OP aberta" também
+  inclui pedido com OPs já concluídas esperando a nota.
+- Acesso: subárea Comercial › Análise de Pedidos. Rodar o `banco_analise_pedidos.sql`
+  no Supabase antes de publicar (ele libera a leitura do bucket para essa subárea).
+
 ## Apps de suporte
 
 Módulo **Apps de suporte**: apps da casa que ficam no mesmo site da Central. Cada um é

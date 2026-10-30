@@ -101,9 +101,9 @@ grant execute on function public.tem_acesso(text, text)    to authenticated;
 
 
 -- ------------------------------------------------------------
--- 3. LOGÍSTICA > ANÁLISE CSV
+-- 3. LOGÍSTICA > ANÁLISE CSV e COMERCIAL > ANÁLISE DE PEDIDOS
 --    Bucket privado; leitura só para quem tem a subárea "logistica.csv"
---    (ou o módulo Logística inteiro).
+--    ou "comercial.analisePedidos" (ou o módulo inteiro).
 --    O robô usa a service key e continua gravando normalmente.
 -- ------------------------------------------------------------
 insert into storage.buckets (id, name, public)
@@ -113,7 +113,9 @@ on conflict (id) do update set public = false;
 drop policy if exists "cosmos ler" on storage.objects;
 create policy "cosmos ler" on storage.objects
   for select to authenticated
-  using (bucket_id = 'dados-cosmos' and public.tem_acesso('logistica.csv', 'ver'));
+  using (bucket_id = 'dados-cosmos'
+         and (public.tem_acesso('logistica.csv', 'ver')
+              or public.tem_acesso('comercial.analisePedidos', 'ver')));
 
 
 -- ------------------------------------------------------------
