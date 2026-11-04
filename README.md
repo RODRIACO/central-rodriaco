@@ -36,9 +36,11 @@ Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase 
 ## Comercial › Análise de Pedidos
 
 Cruza o **Relatório de Pedidos** do Cosmos (`Relatorio de Pedidos.csv`, todos os
-pedidos desde 2017, sem valores) com as **OPs abertas** (`DADOS COSMOS.csv`). Os dois
-arquivos vêm do robô pelo mesmo bucket `dados-cosmos`; o robô gera o relatório pelo
-menu FBX › Vendas › Relatório de Pedidos a cada execução.
+pedidos desde 2017, sem valores) com as **OPs abertas** (`DADOS COSMOS.csv`) e com o
+**histórico de OPs concluídas** (`OPs concluidas.csv`). Os arquivos vêm dos robôs pelo
+mesmo bucket `dados-cosmos`: o robô da fábrica (de hora em hora) grava o Relatório de
+Pedidos e as OPs abertas; o robô na nuvem (repositório privado `RODRIACO/ROBO-COSMOS`,
+GitHub Actions, 1x por dia às 20:00) acumula as OPs concluídas.
 
 - Uma linha por pedido (pedido com várias NFs vira uma linha só). Pedido = 5
   primeiros dígitos da OP. OP de pedido que ainda não está no relatório aparece
@@ -46,16 +48,22 @@ menu FBX › Vendas › Relatório de Pedidos a cada execução.
 - Situações: L Liberado, P Faturado Parcial, O Orçamento, B Bloqueado, E Expedido,
   F Faturado Total, C Cancelado, D Devolução. Padrão: Liberado + Faturado Parcial,
   pedidos a partir de 06/2025 (caixa "Mostrar pedidos antigos" traz o resto).
-- Indicadores clicáveis: liberado sem OP aberta (o principal), liberado com OP,
-  liberado com entrega vencida, faturado parcial com/sem OP, OP aberta em situação
-  errada (orçamento, cancelado, faturado total, fora do relatório) e embarque
-  depois da entrega.
+- Coluna **OP**: OP aberta / OP concluída / Sem OP. O objetivo é saber quais pedidos
+  **chegaram ao PCP** (quem gera as OPs), então vale qualquer OP, aberta ou concluída.
+- Indicadores clicáveis: liberado que chegou ao PCP, liberado sem OP (aguardando PCP),
+  liberado com OP aberta, liberado só com OP concluída (o pedido segue Liberado com a
+  produção pronta: em geral o faturamento gerou outro número de pedido), liberado com
+  entrega vencida, faturado parcial com/sem OP, OP aberta em situação errada
+  (orçamento, cancelado, faturado total, fora do relatório) e embarque depois da entrega.
 - Gráficos clicáveis: pedidos por mês, situação, dias desde o pedido, vendedores,
   clientes, UF e etapa mais atrasada. Tabela com filtro por coluna; clicar no
   pedido abre as OPs dele. Exportar CSV.
 - Aviso quando o Relatório de Pedidos tem mais de 3 horas (robô parado).
-- **Limite:** o arquivo do robô só tem OPs abertas, então "sem OP aberta" também
-  inclui pedido com OPs já concluídas esperando a nota.
+- Avisos: histórico de concluídas com mais de 36 horas (robô das 20:00 parado) e
+  histórico não encontrado (a tela volta a mostrar só "sem OP aberta", que então
+  inclui pedido com OP já concluída).
+- **Limite:** o histórico de concluídas começa em 06/01/2025 (a tela mostra a faixa
+  coberta); pedido mais antigo que isso pode aparecer como "Sem OP".
 - Acesso: subárea Comercial › Análise de Pedidos. Rodar o `banco_analise_pedidos.sql`
   no Supabase antes de publicar (ele libera a leitura do bucket para essa subárea).
 

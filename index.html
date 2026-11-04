@@ -1746,23 +1746,29 @@ function logExportarCsv() {
   setTimeout(function () { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 500);
 }
 
-/* ===== COMERCIAL > ANÁLISE DE PEDIDOS (Relatório de Pedidos x OPs abertas; os dois arquivos vêm do robô pelo Supabase) ===== */
+/* ===== COMERCIAL > ANÁLISE DE PEDIDOS (Relatório de Pedidos x OPs abertas x OPs concluídas; os arquivos vêm dos robôs pelo Supabase) ===== */
 var AP_ARQ_PEDIDOS = 'Relatorio de Pedidos.csv';
 var AP_CORTE_ANTIGOS = '2025-06-01';
 var AP_HORAS_VELHO = 3;
+/* histórico das OPs concluídas: o robô na nuvem grava 1x por dia (20h) */
+var AP_ARQ_CONCLUIDAS = 'OPs concluidas.csv';
+var AP_HORAS_VELHO_CONC = 36;
 var AP_SITUACOES = { L: 'Liberado', P: 'Faturado Parcial', O: 'Orçamento', B: 'Bloqueado', E: 'Expedido', F: 'Faturado Total', C: 'Cancelado', D: 'Devolução', '?': 'Fora do relatório' };
 var AP_ORDEM_SIT = ['L', 'P', 'O', 'B', 'E', 'F', 'C', 'D', '?'];
 var AP_FAIXAS = [[0, 7, '0–7 dias'], [8, 15, '8–15 dias'], [16, 30, '16–30 dias'], [31, 90, '31–90 dias'], [91, 1e9, 'Mais de 90 dias']];
 var AP_COLUNAS = [
   { k: 'pedido', r: 'Pedido', t: 'texto' }, { k: 'data', r: 'Data', t: 'data' }, { k: 'entrega', r: 'Entrega', t: 'data' }, { k: 'sitNome', r: 'Situação', t: 'texto' },
+  { k: 'opSit', r: 'OP', t: 'texto' },
   { k: 'cliente', r: 'Cliente', t: 'texto' }, { k: 'cidade', r: 'Cidade', t: 'texto' }, { k: 'uf', r: 'UF', t: 'texto' }, { k: 'vendedor', r: 'Vendedor', t: 'texto' },
-  { k: 'nOps', r: 'OPs abertas', t: 'num', num: true }, { k: 'etapa', r: 'Etapa mais atrasada', t: 'texto' }, { k: 'embarque', r: 'Maior embarque', t: 'data' },
+  { k: 'nOps', r: 'OPs abertas', t: 'num', num: true }, { k: 'nConc', r: 'OPs concluídas', t: 'num', num: true }, { k: 'etapa', r: 'Etapa mais atrasada', t: 'texto' }, { k: 'embarque', r: 'Maior embarque', t: 'data' },
   { k: 'idade', r: 'Dias', t: 'num', num: true }, { k: 'alerta', r: 'Alerta', t: 'texto' }, { k: 'nfs', r: 'NF', t: 'texto' }, { k: 'faturamento', r: 'Faturamento', t: 'data' }
 ];
 
 var apDados = null;
 var apOpcoes = null;
-var apMeta = { pedidos: '', ops: '' };
+var apMeta = { pedidos: '', ops: '', conc: '' };
+/* tem: o histórico de concluídas foi lido; erro: motivo quando não foi; min/max: faixa de conclusão que ele cobre */
+var apHist = { tem: false, erro: '', min: '', max: '' };
 var apFiltros = null;
 var apOrdem = { k: 'data', dir: -1 };
 var apPagina = 0;
@@ -1845,7 +1851,42 @@ function apProcessarPedidos(texto) {
   }
   return mapa;
 }
-function apMontar(textoPedidos, textoOps) {
+/* histórico das OPs concluídas: 19 colunas, uma OP por linha; só o que a tela precisa */
+function apProcessarConcluidas(texto) {
+  var linhas = texto.split('\n');
+  var cab = linhas[0].replace(/\r/g, '').split(';');
+  var idx = {};
+  for (var h = 0; h < cab.length; h++) idx[cab[h].trim()] = h;
+  if (idx.MPPOPId === undefined) throw new Error('O arquivo de OPs concluídas está sem a coluna MPPOPId.');
+  var porPedido = {}, min = '', max = '';
+  for (var i = 1; i < linhas.length; i++) {
+    var ln = linhas[i];
+    if (!ln || !ln.trim()) continue;
+    var c = ln.split(';');
+    for (var k = 0; k < c.length; k++) c[k] = logDescascar(c[k]);
+    var opId = (c[idx.MPPOPId] || '').trim();
+    if (opId.length < 4) continue;
+    var o = {
+      op: opId,
+      item: (c[idx.ItemNome] || '').trim(),
+      qtd: parseFloat(String(c[idx.OPQtd] || '0').replace(',', '.')) || 0,
+      un: (c[idx.UnidadeId] || '').trim(),
+      tipo: (c[idx.Tipo] || '').trim() || '(sem tipo)',
+      abertura: logDataISO(c[idx.OPDataAbertura]),
+      conclusao: logDataISO(c[idx.OPDataConclusao]),
+      embarque: logDataISO(c[idx.PedidoDataEmbarque])
+    };
+    var ped = opId.slice(0, -3);
+    (porPedido[ped] = porPedido[ped] || []).push(o);
+    if (o.conclusao) {
+      if (!min || o.conclusao < min) min = o.conclusao;
+      if (o.conclusao > max) max = o.conclusao;
+    }
+  }
+  return { porPedido: porPedido, min: min, max: max };
+}
+/* conc: resultado de apProcessarConcluidas, ou null quando o histórico não pôde ser lido */
+function apMontar(textoPedidos, textoOps, conc) {
   var mapa = apProcessarPedidos(textoPedidos);
   logProcessarCsv(textoOps).forEach(function (o) {
     var p = mapa[o.pedido];
@@ -1861,6 +1902,10 @@ function apMontar(textoPedidos, textoOps) {
     var p = mapa[k];
     p.ops.sort(function (a, b) { return (a.embarque || '9999') < (b.embarque || '9999') ? -1 : ((a.embarque || '9999') > (b.embarque || '9999') ? 1 : String(a.op).localeCompare(String(b.op))); });
     p.nOps = p.ops.length;
+    p.opsConc = (conc && conc.porPedido[p.pedido]) || [];
+    p.opsConc.sort(function (a, b) { return a.conclusao < b.conclusao ? 1 : (a.conclusao > b.conclusao ? -1 : String(a.op).localeCompare(String(b.op))); });
+    p.nConc = p.opsConc.length;
+    p.opSit = p.nOps ? 'OP aberta' : (p.nConc ? 'OP concluída' : (conc ? 'Sem OP' : 'Sem OP aberta'));
     p.sitNome = AP_SITUACOES[p.sit] || ('Situação ' + p.sit);
     p.nfs = p.nfLista.join(', ');
     p.etapa = p.nOps ? p.ops[0].etapa : '';
@@ -1868,7 +1913,8 @@ function apMontar(textoPedidos, textoOps) {
     p.ops.forEach(function (o) { if (o.embarque > p.embarque) p.embarque = o.embarque; });
     p.antigo = !!(p.data && p.data < AP_CORTE_ANTIGOS);
     p.busca = (p.pedido + ' ' + p.cliente + ' ' + p.cidade + ' ' + p.vendedor + ' ' + p.nfs + ' ' + p.sitNome + ' ' +
-      p.ops.map(function (o) { return o.op + ' ' + o.item; }).join(' ')).toLowerCase();
+      p.ops.map(function (o) { return o.op + ' ' + o.item; }).join(' ') + ' ' +
+      p.opsConc.map(function (o) { return o.op + ' ' + o.item; }).join(' ')).toLowerCase();
     lista.push(p);
   }
   return lista;
@@ -1884,18 +1930,21 @@ function apDerivar(hoje) {
     p.idade = p.data ? Math.max(0, apDiasEntre(p.data, hoje)) : null;
     p.faixa = '';
     if (p.idade !== null) AP_FAIXAS.forEach(function (fx) { if (p.idade >= fx[0] && p.idade <= fx[1]) p.faixa = fx[2]; });
-    var lib = p.sit === 'L', parc = p.sit === 'P', comOp = p.nOps > 0;
+    var lib = p.sit === 'L', parc = p.sit === 'P', aberta = p.nOps > 0, chegou = aberta || p.nConc > 0;
     p.flags = {
-      semOp: lib && !comOp,
-      comOp: lib && comOp,
+      chegouPcp: lib && chegou,
+      semOp: lib && !chegou,
+      comOp: lib && aberta,
+      soConc: lib && !aberta && p.nConc > 0,
       entregaVencida: lib && !!p.entrega && p.entrega < hoje,
-      parcialComOp: parc && comOp,
-      parcialSemOp: parc && !comOp,
-      inconsist: comOp && !lib && !parc,
-      embAposEntrega: comOp && (lib || parc) && !!p.entrega && !!p.embarque && p.embarque > p.entrega
+      parcialComOp: parc && aberta,
+      parcialSemOp: parc && !chegou,
+      inconsist: aberta && !lib && !parc,
+      embAposEntrega: aberta && (lib || parc) && !!p.entrega && !!p.embarque && p.embarque > p.entrega
     };
     var al = [];
-    if (p.flags.semOp) al.push('Sem OP aberta');
+    if (p.flags.semOp) al.push(apHist.tem ? 'Sem OP (aguardando PCP)' : 'Sem OP aberta');
+    if (p.flags.soConc) al.push('Só OP concluída');
     if (p.flags.parcialSemOp) al.push('Parcial sem OP');
     if (p.flags.entregaVencida) al.push('Entrega vencida');
     if (p.flags.inconsist) al.push('OP em ' + p.sitNome);
@@ -1910,12 +1959,13 @@ function apGarantirHoje() {
 
 /* ---------- filtros ---------- */
 var AP_KPIS = {
-  semOp: 'Liberado sem OP aberta', comOp: 'Liberado com OP aberta', entregaVencida: 'Liberado com entrega vencida',
-  parcialComOp: 'Faturado parcial com OP aberta', parcialSemOp: 'Faturado parcial sem OP aberta',
+  chegouPcp: 'Liberado que chegou ao PCP', semOp: 'Liberado sem OP (aguardando PCP)', comOp: 'Liberado com OP aberta', soConc: 'Liberado só com OP concluída',
+  entregaVencida: 'Liberado com entrega vencida',
+  parcialComOp: 'Faturado parcial com OP aberta', parcialSemOp: 'Faturado parcial sem nenhuma OP',
   inconsist: 'OP aberta em situação errada', embAposEntrega: 'Embarque depois da entrega'
 };
 function apFiltrosPadrao() {
-  return { sits: { L: true, P: true }, kpi: '', antigos: false, campoData: 'data', de: '', ate: '', uf: '', cidade: '', cliente: '', vendedor: '', faixa: '', etapa: '', busca: '', cols: {} };
+  return { sits: { L: true, P: true }, kpi: '', opSit: '', antigos: false, campoData: 'data', de: '', ate: '', uf: '', cidade: '', cliente: '', vendedor: '', faixa: '', etapa: '', busca: '', cols: {} };
 }
 /* ign: 'kpi' ignora situação e indicador (os indicadores têm a situação deles); 'sit' ignora só a situação */
 function apPassa(p, f, ign) {
@@ -1938,6 +1988,7 @@ function apPassa(p, f, ign) {
   if (ign !== 'cliente' && f.cliente && p.cliente !== f.cliente) return false;
   if (ign !== 'vendedor' && f.vendedor && p.vendedor !== f.vendedor) return false;
   if (ign !== 'faixa' && f.faixa && p.faixa !== f.faixa) return false;
+  if (ign !== 'opSit' && f.opSit && p.opSit !== f.opSit) return false;
   if (ign !== 'etapa' && f.etapa && p.etapa !== f.etapa) return false;
   for (var ck in f.cols) {
     if (ign === 'col:' + ck) continue;
@@ -2006,10 +2057,23 @@ function renderizarAnalisePedidos() {
 }
 function apCarregar(silencioso) {
   var el = document.getElementById('analisePedidos');
-  if (el && !silencioso) el.innerHTML = '<div class="lista-vazia">Carregando o Relatório de Pedidos e as OPs abertas do Supabase...</div>';
-  return Promise.all([apBaixar(AP_ARQ_PEDIDOS), apBaixar(LOG_CFG.arquivo), apListar().catch(function () { return {}; })]).then(function (r) {
-    apDados = apMontar(logDecodificar(r[0]), logDecodificar(r[1]));
-    apMeta = { pedidos: r[2][AP_ARQ_PEDIDOS] || '', ops: r[2][LOG_CFG.arquivo] || '' };
+  if (el && !silencioso) el.innerHTML = '<div class="lista-vazia">Carregando o Relatório de Pedidos, as OPs abertas e o histórico de OPs concluídas do Supabase...</div>';
+  /* o histórico de concluídas é opcional: sem ele a tela funciona como antes e avisa */
+  var histErro = '';
+  var pConc = apBaixar(AP_ARQ_CONCLUIDAS).catch(function (e) {
+    if (e && e.message === 'sem sessão') throw e;
+    histErro = e && e.status ? 'erro ' + e.status : 'sem conexão';
+    return null;
+  });
+  return Promise.all([apBaixar(AP_ARQ_PEDIDOS), apBaixar(LOG_CFG.arquivo), pConc, apListar().catch(function () { return {}; })]).then(function (r) {
+    var conc = null;
+    if (r[2]) {
+      try { conc = apProcessarConcluidas(logDecodificar(r[2])); }
+      catch (e) { histErro = e.message; }
+    }
+    apHist = { tem: !!conc, erro: histErro, min: conc ? conc.min : '', max: conc ? conc.max : '' };
+    apDados = apMontar(logDecodificar(r[0]), logDecodificar(r[1]), conc);
+    apMeta = { pedidos: r[3][AP_ARQ_PEDIDOS] || '', ops: r[3][LOG_CFG.arquivo] || '', conc: r[3][AP_ARQ_CONCLUIDAS] || '' };
     apDerivar(logHojeISO());
     if (!apFiltros) apFiltros = apFiltrosPadrao();
     apOpcoes = {};
@@ -2039,7 +2103,7 @@ function apAgendarAuto() {
     if (!document.getElementById('apResultado')) { clearInterval(apTimer); apTimer = null; return; }
     if (!logObterSessao()) return;
     apListar().then(function (m) {
-      if ((m[AP_ARQ_PEDIDOS] && m[AP_ARQ_PEDIDOS] !== apMeta.pedidos) || (m[LOG_CFG.arquivo] && m[LOG_CFG.arquivo] !== apMeta.ops)) apCarregar(true);
+      if ((m[AP_ARQ_PEDIDOS] && m[AP_ARQ_PEDIDOS] !== apMeta.pedidos) || (m[LOG_CFG.arquivo] && m[LOG_CFG.arquivo] !== apMeta.ops) || (m[AP_ARQ_CONCLUIDAS] && m[AP_ARQ_CONCLUIDAS] !== apMeta.conc)) apCarregar(true);
     }).catch(function () {});
   }, LOG_CFG.atualizarAutoMs);
 }
@@ -2143,12 +2207,21 @@ function apRenderResultado() {
   if (!el) return;
   apGarantirHoje();
   var meta = document.getElementById('apMeta');
-  if (meta) meta.textContent = 'Pedidos de ' + apQuando(apMeta.pedidos) + ' · OPs de ' + apQuando(apMeta.ops) + ' · Supabase';
+  if (meta) meta.textContent = 'Pedidos de ' + apQuando(apMeta.pedidos) + ' · OPs abertas de ' + apQuando(apMeta.ops) + ' · OPs concluídas de ' + (apHist.tem ? apQuando(apMeta.conc) : 'não encontradas') + ' · Supabase';
   var html = '';
   if (apMeta.pedidos) {
     var horas = (Date.now() - new Date(apMeta.pedidos).getTime()) / 3600000;
     if (horas > AP_HORAS_VELHO) {
       html += '<div class="modal-aviso ap-aviso">O Relatório de Pedidos é de <b>' + apQuando(apMeta.pedidos) + '</b> (há ' + Math.floor(horas) + ' h). O robô pode estar com problema: pedidos novos aparecem como "Fora do relatório" e liberações recentes ainda não entram.</div>';
+    }
+  }
+  if (!apHist.tem) {
+    html += '<div class="modal-aviso ap-aviso">Não consegui ler o histórico de OPs concluídas (<code>' + escaparHTML(AP_ARQ_CONCLUIDAS) + '</code>' + (apHist.erro ? ', ' + escaparHTML(apHist.erro) : '') + '). ' +
+      'Enquanto isso, <b>"Sem OP aberta"</b> também inclui pedidos cuja OP já foi concluída.</div>';
+  } else if (apMeta.conc) {
+    var horasC = (Date.now() - new Date(apMeta.conc).getTime()) / 3600000;
+    if (horasC > AP_HORAS_VELHO_CONC) {
+      html += '<div class="modal-aviso ap-aviso">O histórico de OPs concluídas é de <b>' + apQuando(apMeta.conc) + '</b> (há ' + Math.floor(horasC) + ' h). O robô diário das 20:00 pode estar com problema: OPs concluídas recentemente ainda não aparecem.</div>';
     }
   }
   var rows = apFiltrar('');
@@ -2160,6 +2233,7 @@ function apRenderResultado() {
   html += '<div class="log-card log-card-largo">' + apSerieHTML() + '</div>';
   html += '<div class="log-graficos">' +
     '<div class="log-card">' + apBarrasHTML('Situação', 'sitNome', apFiltrar('sit'), 10) + '</div>' +
+    '<div class="log-card">' + apBarrasHTML('OP do pedido', 'opSit', apFiltrar('opSit'), 5) + '</div>' +
     '<div class="log-card">' + apBarrasHTML('Dias desde o pedido', 'faixa', apFiltrar('faixa'), 10, true) + '</div>' +
     '<div class="log-card">' + apBarrasHTML('Vendedores', 'vendedor', apFiltrar('vendedor'), 10) + '</div>' +
     '<div class="log-card">' + apBarrasHTML('Clientes', 'cliente', apFiltrar('cliente'), 10) + '</div>' +
@@ -2182,6 +2256,7 @@ function apChipsHTML() {
   if (f.cliente) c.push(['cliente', 'Cliente: ' + f.cliente]);
   if (f.vendedor) c.push(['vendedor', 'Vendedor: ' + f.vendedor]);
   if (f.faixa) c.push(['faixa', 'Dias: ' + f.faixa]);
+  if (f.opSit) c.push(['opSit', 'OP: ' + f.opSit]);
   if (f.etapa) c.push(['etapa', 'Etapa: ' + f.etapa]);
   if (f.busca) c.push(['busca', 'Busca: ' + f.busca]);
   if (f.antigos) c.push(['antigos', 'Inclui pedidos antigos']);
@@ -2207,7 +2282,7 @@ function apSitsHTML() {
 }
 function apKpisHTML(rows) {
   var base = apFiltrar('kpi');
-  var n = { semOp: 0, comOp: 0, entregaVencida: 0, parcialComOp: 0, parcialSemOp: 0, inconsist: 0, embAposEntrega: 0 };
+  var n = { chegouPcp: 0, semOp: 0, comOp: 0, soConc: 0, entregaVencida: 0, parcialComOp: 0, parcialSemOp: 0, inconsist: 0, embAposEntrega: 0 };
   var semOp30 = 0, opsLib = 0, vencSemOp = 0, inc = { O: 0, cf: 0, fora: 0, outras: 0 };
   base.forEach(function (p) {
     for (var k in n) { if (p.flags[k]) n[k]++; }
@@ -2229,21 +2304,27 @@ function apKpisHTML(rows) {
   var opsTot = 0;
   rows.forEach(function (p) { opsTot += p.nOps; });
   var k = apFiltros.kpi;
+  var faixaHist = apHist.tem && apHist.min ? ' O histórico de concluídas cobre ' + logFmtData(apHist.min) + ' a ' + logFmtData(apHist.max) + ': pedidos mais antigos que isso podem aparecer como "Sem OP".' : '';
   return '<div class="log-kpis">' +
     logKpiHTML('', 'Pedidos na tela', logNum(rows.length), logNum(opsTot) + ' OPs abertas') +
+    (apHist.tem ? apKpiHTML('chegouPcp', logNum(n.chegouPcp), logNum(n.comOp) + ' com OP aberta · ' + logNum(n.soConc) + ' só concluída', k) : '') +
     apKpiHTML('semOp', logNum(n.semOp), logNum(semOp30) + ' há mais de 30 dias', k) +
     apKpiHTML('comOp', logNum(n.comOp), logNum(opsLib) + ' OPs abertas', k) +
-    apKpiHTML('entregaVencida', logNum(n.entregaVencida), logNum(vencSemOp) + ' sem OP aberta', k) +
+    (apHist.tem ? apKpiHTML('soConc', logNum(n.soConc), 'provável pedido novo na NF', k) : '') +
+    apKpiHTML('entregaVencida', logNum(n.entregaVencida), logNum(vencSemOp) + (apHist.tem ? ' sem nenhuma OP' : ' sem OP aberta'), k) +
     apKpiHTML('parcialComOp', logNum(n.parcialComOp), 'saldo em produção', k) +
-    apKpiHTML('parcialSemOp', logNum(n.parcialSemOp), 'saldo sem OP aberta', k) +
+    apKpiHTML('parcialSemOp', logNum(n.parcialSemOp), apHist.tem ? 'saldo sem nenhuma OP' : 'saldo sem OP aberta', k) +
     apKpiHTML('inconsist', logNum(n.inconsist), subInc.join(' · '), k) +
     apKpiHTML('embAposEntrega', logNum(n.embAposEntrega), 'OP programada após a data prometida', k) +
     '</div>' +
     '<p class="dica">Os indicadores contam pedidos e respeitam os filtros, menos a situação: cada um já tem a sua. Clique num indicador para ver só aqueles pedidos. ' +
-    '<b>"Sem OP aberta"</b> também inclui pedido cujas OPs já foram concluídas e só esperam a nota: o arquivo do robô traz só as OPs abertas.</p>';
+    '<b>"Chegou ao PCP"</b> = o pedido tem OP, aberta ou já concluída. <b>"Só com OP concluída"</b> é pedido que continua Liberado mesmo com a produção pronta: em geral o faturamento gerou outro número de pedido.' + escaparHTML(faixaHist) + '</p>';
 }
 function apKpiHTML(chave, valor, sub, ativo) {
-  return logKpiHTML(chave, AP_KPIS[chave], valor, sub, ativo === chave);
+  var rotulo = AP_KPIS[chave];
+  if (!apHist.tem && chave === 'semOp') rotulo = 'Liberado sem OP aberta';
+  if (!apHist.tem && chave === 'parcialSemOp') rotulo = 'Faturado parcial sem OP aberta';
+  return logKpiHTML(chave, rotulo, valor, sub, ativo === chave);
 }
 function apBarrasHTML(titulo, dim, rows, max, ordemFixa) {
   var itens = apContar(rows, dim);
@@ -2351,11 +2432,13 @@ function apTabelaHTML(rows) {
       '<td>' + dt(p.data) + '</td>' +
       '<td>' + dt(p.entrega) + (entregaVenc && (p.sit === 'L' || p.sit === 'P') ? ' <span class="log-venc">vencida</span>' : '') + '</td>' +
       '<td>' + escaparHTML(p.sitNome) + '</td>' +
+      '<td>' + (p.opSit === 'Sem OP' ? '<span class="ap-alerta">Sem OP</span>' : escaparHTML(p.opSit)) + '</td>' +
       '<td>' + vaz(p.cliente) + '</td>' +
       '<td>' + vaz(p.cidade) + '</td>' +
       '<td>' + vaz(p.uf) + '</td>' +
       '<td>' + escaparHTML(p.vendedor) + '</td>' +
       '<td class="num">' + (p.nOps ? logNum(p.nOps) : '<span class="muted">0</span>') + '</td>' +
+      '<td class="num">' + (p.nConc ? logNum(p.nConc) : '<span class="muted">0</span>') + '</td>' +
       '<td>' + vaz(p.etapa) + '</td>' +
       '<td>' + dt(p.embarque) + '</td>' +
       '<td class="num">' + (p.idade === null ? '<span class="muted">—</span>' : logNum(p.idade)) + '</td>' +
@@ -2377,20 +2460,41 @@ function apOpsHTML(p) {
   if (p.condPag) info.push('Cond. pagamento: ' + escaparHTML(p.condPag));
   if (p.foraRel) info.push('Pedido ainda não está no Relatório de Pedidos (dados vindos das OPs).');
   var html = '<tr class="ap-ops-linha"><td colspan="' + AP_COLUNAS.length + '">' + (info.length ? '<div class="ap-ops-info">' + info.join(' · ') + '</div>' : '');
-  if (!p.nOps) return html + '<div class="ap-ops-info">Nenhuma OP aberta para este pedido no arquivo do robô.</div></td></tr>';
-  html += '<table class="ap-ops"><thead><tr><th>OP</th><th>Item</th><th>Qtd.</th><th>Tipo</th><th>Etapa atual</th><th>Abertura</th><th>Embarque</th><th>Entrega</th></tr></thead><tbody>';
-  p.ops.forEach(function (o) {
-    var venc = o.embarque && o.embarque < apHoje;
-    html += '<tr><td title="' + escaparHTML(o.obs) + '"><code>' + escaparHTML(o.op) + '</code></td>' +
-      '<td>' + escaparHTML(o.item) + '</td>' +
-      '<td>' + escaparHTML(String(o.qtd).replace('.', ',')) + ' ' + escaparHTML(o.un) + '</td>' +
-      '<td>' + escaparHTML(o.tipo) + '</td>' +
-      '<td>' + escaparHTML(o.etapa) + '</td>' +
-      '<td>' + (o.abertura ? logFmtData(o.abertura) : '—') + '</td>' +
-      '<td>' + (o.embarque ? logFmtData(o.embarque) + (venc ? ' <span class="log-venc">vencido</span>' : '') : '—') + '</td>' +
-      '<td>' + (o.entrega ? logFmtData(o.entrega) : '—') + '</td></tr>';
-  });
-  return html + '</tbody></table></td></tr>';
+  if (!p.nOps && !p.nConc) {
+    return html + '<div class="ap-ops-info">' + (apHist.tem ? 'Nenhuma OP, aberta ou concluída, para este pedido: ele ainda não chegou ao PCP.' : 'Nenhuma OP aberta para este pedido no arquivo do robô (o histórico de concluídas não está disponível).') + '</div></td></tr>';
+  }
+  if (p.nOps) {
+    html += '<div class="ap-ops-info"><b>OPs abertas</b></div>' +
+      '<table class="ap-ops"><thead><tr><th>OP</th><th>Item</th><th>Qtd.</th><th>Tipo</th><th>Etapa atual</th><th>Abertura</th><th>Embarque</th><th>Entrega</th></tr></thead><tbody>';
+    p.ops.forEach(function (o) {
+      var venc = o.embarque && o.embarque < apHoje;
+      html += '<tr><td title="' + escaparHTML(o.obs) + '"><code>' + escaparHTML(o.op) + '</code></td>' +
+        '<td>' + escaparHTML(o.item) + '</td>' +
+        '<td>' + escaparHTML(String(o.qtd).replace('.', ',')) + ' ' + escaparHTML(o.un) + '</td>' +
+        '<td>' + escaparHTML(o.tipo) + '</td>' +
+        '<td>' + escaparHTML(o.etapa) + '</td>' +
+        '<td>' + (o.abertura ? logFmtData(o.abertura) : '—') + '</td>' +
+        '<td>' + (o.embarque ? logFmtData(o.embarque) + (venc ? ' <span class="log-venc">vencido</span>' : '') : '—') + '</td>' +
+        '<td>' + (o.entrega ? logFmtData(o.entrega) : '—') + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  if (p.nConc) {
+    html += '<div class="ap-ops-info"' + (p.nOps ? ' style="margin-top:10px"' : '') + '><b>OPs concluídas</b>' +
+      (p.flags && p.flags.soConc ? ' — o pedido segue Liberado, mas toda a produção já terminou: provavelmente o faturamento gerou outro número de pedido.' : '') + '</div>' +
+      '<table class="ap-ops"><thead><tr><th>OP</th><th>Item</th><th>Qtd.</th><th>Tipo</th><th>Abertura</th><th>Conclusão</th><th>Embarque</th></tr></thead><tbody>';
+    p.opsConc.forEach(function (o) {
+      html += '<tr><td><code>' + escaparHTML(o.op) + '</code></td>' +
+        '<td>' + escaparHTML(o.item) + '</td>' +
+        '<td>' + escaparHTML(String(o.qtd).replace('.', ',')) + ' ' + escaparHTML(o.un) + '</td>' +
+        '<td>' + escaparHTML(o.tipo) + '</td>' +
+        '<td>' + (o.abertura ? logFmtData(o.abertura) : '—') + '</td>' +
+        '<td>' + (o.conclusao ? logFmtData(o.conclusao) : '—') + '</td>' +
+        '<td>' + (o.embarque ? logFmtData(o.embarque) : '—') + '</td></tr>';
+    });
+    html += '</tbody></table>';
+  }
+  return html + '</td></tr>';
 }
 function apClique(e) {
   var t = e.target;
@@ -2452,11 +2556,11 @@ function apExportarCsv() {
   if (!apDados) return;
   apGarantirHoje();
   var rows = apOrdenar(apFiltrar(''));
-  var linhas = [AP_COLUNAS.map(function (c) { return c.r; }).join(';') + ';Cond. pagamento;OPs'];
+  var linhas = [AP_COLUNAS.map(function (c) { return c.r; }).join(';') + ';Cond. pagamento;OPs abertas (números);OPs concluídas (números)'];
   function d(v) { return v ? logFmtData(v) : ''; }
   rows.forEach(function (p) {
-    linhas.push([p.pedido, d(p.data), d(p.entrega), p.sitNome, p.cliente, p.cidade, p.uf, p.vendedor, p.nOps, p.etapa, d(p.embarque),
-      p.idade === null ? '' : p.idade, p.alerta, p.nfs, d(p.faturamento), p.condPag, p.ops.map(function (o) { return o.op; }).join(' ')].map(logCsvCel).join(';'));
+    linhas.push([p.pedido, d(p.data), d(p.entrega), p.sitNome, p.opSit, p.cliente, p.cidade, p.uf, p.vendedor, p.nOps, p.nConc, p.etapa, d(p.embarque),
+      p.idade === null ? '' : p.idade, p.alerta, p.nfs, d(p.faturamento), p.condPag, p.ops.map(function (o) { return o.op; }).join(' '), p.opsConc.map(function (o) { return o.op; }).join(' ')].map(logCsvCel).join(';'));
   });
   var blob = new Blob(['﻿' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   var a = document.createElement('a');
