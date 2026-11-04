@@ -319,6 +319,20 @@
   .log-venc { font-size: 10px; font-weight: 700; color: var(--danger); background: var(--danger-soft); padding: 2px 6px; border-radius: 10px; margin-left: 4px; }
   .log-paginacao { display: flex; align-items: center; justify-content: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 12px; }
   .log-tabela-cab { margin-top: 4px; }
+  /* ===== ANALISE CSV > ITENS ===== */
+  .log-visoes { display: flex; gap: 6px; margin-bottom: 14px; }
+  .log-itens-barra { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; margin-bottom: 14px; }
+  .log-itens-barra .rotulo { font-size: 11.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+  .log-itens-barra .ap-check { margin: 0; }
+  .log-itens-barra .espaco { flex: 1 1 auto; }
+  .log-tabela tr.log-grupo td { background: var(--surface-2); font-weight: 700; color: var(--ink-strong); cursor: pointer; }
+  .log-tabela tr.log-grupo:hover td { background: var(--accent-soft); }
+  .log-tabela tr.log-subtotal td, .log-tabela tr.log-total td { font-weight: 700; color: var(--ink-strong); background: var(--surface-2); white-space: nowrap; }
+  .log-tabela tr.log-total td { border-top: 2px solid var(--accent); }
+  .log-tabela tr.log-item { cursor: pointer; }
+  .log-tabela tr.log-item:hover td { background: var(--surface-2); }
+  .log-tabela tr.log-item.aberto td { background: var(--accent-soft); }
+  .log-tabela td.sem-quebra { white-space: nowrap; }
   /* ===== COMERCIAL > ANALISE DE PEDIDOS ===== */
   .ap-sits { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 14px; }
   .ap-sits .rotulo { font-size: 11.5px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; margin-right: 4px; }
@@ -1144,6 +1158,7 @@ function logProcessarCsv(texto) {
       pedido: opId.slice(0, 5),
       op: opId,
       cliente: (c[idx.Cliente] || '').trim(),
+      itemId: (c[idx.ItemId] || '').trim(),
       item: (c[idx.ItemNome] || '').trim(),
       qtd: parseFloat(String(c[idx.OPQtd] || '0').replace(',', '.')) || 0,
       un: (c[idx.UnidadeId] || '').trim(),
@@ -1279,13 +1294,48 @@ function renderizarLogisticaCsv() {
   if (!el.getAttribute('data-ligado')) {
     el.setAttribute('data-ligado', '1');
     el.addEventListener('click', logClique);
+    el.addEventListener('change', function (e) {
+      var t = e.target;
+      if (t && t.id === 'logImpPedidos') logImpOpcoes.pedidos = t.checked;
+      else if (t && t.id === 'logImpPagina') logImpOpcoes.paginaPorGrupo = t.checked;
+    });
   }
   if (logDados) { logMontarDashboard(); return; }
   if (logObterSessao()) { logCarregar(false); return; }
   logTelaLogin('');
 }
+/* o mesmo cliente vem com grafias diferentes no Cosmos (S A, S.A., SA, S/A, LTDA...): aqui viram um só,
+   com o nome que mais aparece. Vale só na Análise CSV. */
+function logChaveCliente(nome) {
+  var s = String(nome || '').toUpperCase();
+  try { s = s.normalize('NFD').replace(/[\u0300-\u036f]/g, ''); } catch (e) {}
+  s = s.replace(/[^A-Z0-9]+/g, ' ').trim();
+  var m;
+  while ((m = /^(.*\S) (S A|SA|LTDA|EIRELI|ME|EPP)$/.exec(s))) s = m[1];
+  return s;
+}
+function logUnirClientes(rows) {
+  var freq = Object.create(null);
+  rows.forEach(function (r) {
+    var k = logChaveCliente(r.cliente) || r.cliente;
+    r._ck = k;
+    var f = freq[k] || (freq[k] = Object.create(null));
+    f[r.cliente] = (f[r.cliente] || 0) + 1;
+  });
+  var nome = Object.create(null);
+  Object.keys(freq).forEach(function (k) {
+    var melhor = '', n = -1;
+    Object.keys(freq[k]).forEach(function (v) {
+      var q = freq[k][v];
+      if (q > n || (q === n && v < melhor)) { melhor = v; n = q; }
+    });
+    nome[k] = melhor;
+  });
+  rows.forEach(function (r) { r.cliente = nome[r._ck]; delete r._ck; });
+}
 function logAplicar(texto, meta) {
   logDados = logProcessarCsv(texto);
+  logUnirClientes(logDados);
   logMeta = meta;
   if (!logFiltros) logFiltros = logFiltrosPadrao();
   logPagina = 0;
@@ -1469,9 +1519,13 @@ function logRenderResultado() {
     meta.textContent = (quando ? 'Arquivo de ' + quando + ' · ' : '') + logNum(logDados.length) + ' OPs · ' + logMeta.origem;
   }
   var rows = logFiltrar('');
-  var html = logChipsHTML();
+  var html = logVisoesHTML() + logChipsHTML();
   if (!rows.length) {
     el.innerHTML = html + '<div class="lista-vazia">Nenhuma OP com esses filtros.</div>';
+    return;
+  }
+  if (logVisao === 'itens') {
+    el.innerHTML = html + logItensHTML(rows);
     return;
   }
   html += logKpisHTML(rows);
@@ -1491,7 +1545,7 @@ function logRenderResultado() {
   var serie = el.querySelector('.col-serie');
   if (atual && serie) serie.scrollLeft = Math.max(0, atual.offsetLeft - serie.clientWidth / 2);
 }
-function logChipsHTML() {
+function logChipsLista() {
   var f = logFiltros, c = [];
   if (f.de || f.ate) c.push(['data', logRotuloCampo(f.campoData) + ': ' + (f.de ? logFmtData(f.de) : '…') + ' → ' + (f.ate ? logFmtData(f.ate) : '…')]);
   if (f.uf) c.push(['uf', 'UF: ' + (f.uf === '__sem' ? 'não informada' : f.uf)]);
@@ -1509,6 +1563,10 @@ function logChipsHTML() {
   Object.keys(f.cols).forEach(function (k) {
     c.push(['col:' + k, logRotuloColuna(k) + ': ' + (f.cols[k].length === 1 ? logRotuloCol(k, f.cols[k][0]) : f.cols[k].length + ' valores')]);
   });
+  return c;
+}
+function logChipsHTML() {
+  var c = logChipsLista();
   if (!c.length) return '';
   return '<div class="log-chips">' + c.map(function (x) {
     return '<span class="chip-filtro">' + escaparHTML(x[1]) + ' <button type="button" data-chip="' + x[0] + '" aria-label="Remover filtro">&times;</button></span>';
@@ -1677,11 +1735,31 @@ function logAplicarRapido(tipo) {
 function logClique(e) {
   var t = e.target;
   if (!t.closest) return;
-  var alvo = t.closest('[data-dim],[data-kpi],[data-chip],[data-colfiltro],[data-pagina],[data-gran],[data-de],[data-rapido]');
+  var alvo = t.closest('[data-dim],[data-kpi],[data-chip],[data-colfiltro],[data-pagina],[data-gran],[data-de],[data-rapido],[data-visao],[data-agrup],[data-itemord],[data-grupo],[data-itemlinha],[data-gruposall],[data-imprimir]');
   if (!alvo || !logDados) return;
   logHoje = logHojeISO();
   var f = logFiltros;
-  if (alvo.hasAttribute('data-dim')) {
+  if (alvo.hasAttribute('data-visao')) {
+    logVisao = alvo.getAttribute('data-visao') === 'itens' ? 'itens' : 'ops';
+  } else if (alvo.hasAttribute('data-agrup')) {
+    logAgrup = alvo.getAttribute('data-agrup');
+  } else if (alvo.hasAttribute('data-itemord')) {
+    var ko = alvo.getAttribute('data-itemord');
+    if (logOrdemItens.k === ko) logOrdemItens.dir *= -1;
+    else { logOrdemItens.k = ko; logOrdemItens.dir = (ko === 'nome' || ko === 'emb') ? 1 : -1; }
+  } else if (alvo.hasAttribute('data-grupo')) {
+    var gk = alvo.getAttribute('data-grupo');
+    logGruposAbertos[gk] = !logGrupoAberto(gk, logGruposAbertos.__n || 1);
+  } else if (alvo.hasAttribute('data-itemlinha')) {
+    var ik = alvo.getAttribute('data-itemlinha');
+    if (logItensAbertos[ik]) delete logItensAbertos[ik]; else logItensAbertos[ik] = true;
+  } else if (alvo.hasAttribute('data-gruposall')) {
+    var abrir = alvo.getAttribute('data-gruposall') === 'abrir';
+    logItensAgrupar(logFiltrar(''), logAgrup).grupos.forEach(function (g) { logGruposAbertos[g.chave] = abrir; });
+  } else if (alvo.hasAttribute('data-imprimir')) {
+    logImprimirItens();
+    return;
+  } else if (alvo.hasAttribute('data-dim')) {
     var dim = alvo.getAttribute('data-dim'), val = alvo.getAttribute('data-val');
     f[dim] = f[dim] === val ? '' : val;
     if (dim === 'uf') f.cidade = '';
@@ -1732,6 +1810,7 @@ function logCsvCel(v) {
 function logExportarCsv() {
   if (!logDados) return;
   logHoje = logHojeISO();
+  if (logVisao === 'itens') { logExportarItens(); return; }
   var rows = logOrdenar(logFiltrar(''));
   var linhas = [LOG_COLUNAS.map(function (c) { return c.r; }).join(';')];
   rows.forEach(function (r) {
@@ -1744,6 +1823,265 @@ function logExportarCsv() {
   document.body.appendChild(a);
   a.click();
   setTimeout(function () { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 500);
+}
+
+/* ===== ANÁLISE CSV › ITENS (soma dos itens das OPs abertas, agrupada, com impressão) ===== */
+var logVisao = 'ops';
+var logAgrup = 'item';
+var logOrdemItens = { k: 'qtd', dir: -1 };
+var logGruposAbertos = {};
+var logItensAbertos = {};
+var logImpOpcoes = { pedidos: false, paginaPorGrupo: false };
+var LOG_AGRUPS = [['item', 'Item'], ['cliente', 'Cliente › Item'], ['tipo', 'Tipo › Item'], ['pedido', 'Pedido › Item']];
+
+/* peças (PC/UN) somam juntas; m² e qualquer outra unidade ficam à parte */
+function logGrupoUnidade(un) {
+  var u = String(un || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+  if (!u || u === 'PC' || u === 'UN' || u === 'PCS' || u === 'UND') return 'un.';
+  if (u === 'M2') return 'm²';
+  return String(un).toLowerCase();
+}
+function logUnTexto(obj) {
+  var ks = Object.keys(obj).sort(function (a, b) { return a === 'un.' ? -1 : (b === 'un.' ? 1 : a.localeCompare(b, 'pt-BR')); });
+  return ks.length ? ks.map(function (k) { return logNum(obj[k]) + ' ' + k; }).join(' · ') : '0';
+}
+function logAccNovo() { return { qtd: {}, venc: {}, qtdNum: 0, nOps: 0, peds: {}, nPeds: 0, embMin: '', embMax: '' }; }
+function logAccSomar(a, r) {
+  var g = logGrupoUnidade(r.un);
+  a.qtd[g] = (a.qtd[g] || 0) + r.qtd;
+  a.qtdNum += r.qtd;
+  if (r.embarque && r.embarque < logHoje) a.venc[g] = (a.venc[g] || 0) + r.qtd;
+  a.nOps++;
+  a.peds[r.pedido] = 1;
+  if (r.embarque) {
+    if (!a.embMin || r.embarque < a.embMin) a.embMin = r.embarque;
+    if (r.embarque > a.embMax) a.embMax = r.embarque;
+  }
+}
+function logAccFim(a) { a.nPeds = Object.keys(a.peds).length; }
+function logPedidosLista(a) {
+  return Object.keys(a.peds).sort(function (x, y) { return +x - +y || x.localeCompare(y); });
+}
+
+/* res: { grupos: [{chave, rotulo, acc, lista: [{key, cod, nome, un, acc, ops}]}], total, nItens } */
+function logItensAgrupar(rows, modo) {
+  var grupos = Object.create(null), ordem = [], total = logAccNovo(), distintos = Object.create(null);
+  rows.forEach(function (r) {
+    var gk = modo === 'cliente' ? (r.cliente || '(sem cliente)') : (modo === 'tipo' ? r.tipo : (modo === 'pedido' ? r.pedido : ''));
+    var g = grupos[gk];
+    if (!g) {
+      g = grupos[gk] = { chave: gk, rotulo: modo === 'pedido' ? 'Pedido ' + r.pedido + ' — ' + (r.cliente || '(sem cliente)') : gk, acc: logAccNovo(), linhas: Object.create(null), lista: [] };
+      ordem.push(g);
+    }
+    var ik = r.itemId || r.item;
+    var l = g.linhas[ik];
+    if (!l) { l = g.linhas[ik] = { key: ik, cod: r.itemId, nome: r.item, un: r.un, acc: logAccNovo(), ops: [] }; g.lista.push(l); }
+    logAccSomar(l.acc, r);
+    logAccSomar(g.acc, r);
+    logAccSomar(total, r);
+    l.ops.push(r);
+    distintos[ik] = 1;
+  });
+  ordem.forEach(function (g) { logAccFim(g.acc); g.lista.forEach(function (l) { logAccFim(l.acc); }); });
+  logAccFim(total);
+  if (modo === 'pedido') ordem.sort(function (a, b) { return +b.chave - +a.chave; });
+  else ordem.sort(function (a, b) { return b.acc.qtdNum - a.acc.qtdNum || a.rotulo.localeCompare(b.rotulo, 'pt-BR'); });
+  return { grupos: ordem, total: total, nItens: Object.keys(distintos).length };
+}
+function logItensOrdenar(lista) {
+  var k = logOrdemItens.k, d = logOrdemItens.dir;
+  return lista.slice().sort(function (a, b) {
+    var r;
+    if (k === 'nome') r = a.nome.localeCompare(b.nome, 'pt-BR');
+    else if (k === 'ops') r = a.acc.nOps - b.acc.nOps;
+    else if (k === 'peds') r = a.acc.nPeds - b.acc.nPeds;
+    else if (k === 'emb') r = (a.acc.embMin || '9999').localeCompare(b.acc.embMin || '9999');
+    else r = a.acc.qtdNum - b.acc.qtdNum;
+    return r * d || a.nome.localeCompare(b.nome, 'pt-BR');
+  });
+}
+/* com poucos grupos já vêm abertos; com muitos, fechados (clique no grupo ou "Expandir tudo") */
+function logGrupoAberto(chave, n) {
+  return logGruposAbertos[chave] !== undefined ? logGruposAbertos[chave] : n <= 3;
+}
+function logVisoesHTML() {
+  return '<div class="log-visoes">' +
+    '<button type="button" class="btn btn-sm ' + (logVisao === 'ops' ? 'btn-primario' : 'btn-contorno') + '" data-visao="ops">OPs</button>' +
+    '<button type="button" class="btn btn-sm ' + (logVisao === 'itens' ? 'btn-primario' : 'btn-contorno') + '" data-visao="itens">Itens</button></div>';
+}
+function logThItem(k, rotulo, cls) {
+  var at = logOrdemItens.k === k;
+  return '<th class="th-ordenavel' + (cls ? ' ' + cls : '') + '" data-itemord="' + k + '">' + rotulo + (at ? (logOrdemItens.dir > 0 ? ' ▲' : ' ▼') : '') + '</th>';
+}
+function logSomaVenc(a) {
+  var n = 0;
+  Object.keys(a.venc).forEach(function (k) { n += a.venc[k]; });
+  return n;
+}
+function logItemLinhaHTML(g, l) {
+  var id = g.chave + '§' + l.key;
+  var aberto = !!logItensAbertos[id];
+  var venc = logSomaVenc(l.acc);
+  var h = '<tr class="log-item' + (aberto ? ' aberto' : '') + '" data-itemlinha="' + escaparHTML(id) + '">' +
+    '<td>' + (l.cod ? '<code>' + escaparHTML(l.cod) + '</code>' : '<span class="muted">—</span>') + '</td>' +
+    '<td>' + escaparHTML(l.nome) + '</td>' +
+    '<td>' + escaparHTML(l.un) + '</td>' +
+    '<td class="num sem-quebra"><strong>' + logNum(l.acc.qtdNum) + '</strong></td>' +
+    '<td class="num">' + logNum(l.acc.nOps) + '</td>' +
+    '<td class="num">' + logNum(l.acc.nPeds) + '</td>' +
+    '<td>' + (l.acc.embMin ? logFmtData(l.acc.embMin) : '<span class="muted">—</span>') + '</td>' +
+    '<td>' + (l.acc.embMax ? logFmtData(l.acc.embMax) : '<span class="muted">—</span>') + '</td>' +
+    '<td class="num">' + (venc ? '<span class="log-venc">' + logNum(venc) + '</span>' : '<span class="muted">0</span>') + '</td></tr>';
+  if (aberto) {
+    var ops = l.ops.slice().sort(function (a, b) { return (a.embarque || '9999').localeCompare(b.embarque || '9999') || String(a.op).localeCompare(String(b.op)); });
+    h += '<tr class="ap-ops-linha"><td colspan="9"><table class="ap-ops"><thead><tr><th>Pedido</th><th>OP</th><th>Cliente</th><th>Qtd.</th><th>Etapa atual</th><th>Embarque</th><th>Entrega</th><th>NF</th></tr></thead><tbody>';
+    ops.forEach(function (o) {
+      h += '<tr><td>' + escaparHTML(o.pedido) + '</td><td><code>' + escaparHTML(o.op) + '</code></td><td>' + escaparHTML(o.cliente) + '</td>' +
+        '<td>' + escaparHTML(String(o.qtd).replace('.', ',')) + ' ' + escaparHTML(o.un) + '</td><td>' + escaparHTML(o.etapa) + '</td>' +
+        '<td>' + (o.embarque ? logFmtData(o.embarque) + (o.embarque < logHoje ? ' <span class="log-venc">vencido</span>' : '') : '—') + '</td>' +
+        '<td>' + (o.entrega ? logFmtData(o.entrega) : '—') + '</td><td>' + (o.nf ? escaparHTML(o.nf) : '—') + '</td></tr>';
+    });
+    h += '</tbody></table></td></tr>';
+  }
+  return h;
+}
+function logItensHTML(rows) {
+  var res = logItensAgrupar(rows, logAgrup);
+  var tot = res.total;
+  var temGrupos = logAgrup !== 'item';
+  logGruposAbertos.__n = res.grupos.length;
+  var h = '<div class="log-itens-barra"><span class="rotulo">Agrupar por</span>' +
+    LOG_AGRUPS.map(function (a) {
+      return '<button type="button" class="btn btn-sm ' + (logAgrup === a[0] ? 'btn-primario' : 'btn-contorno') + '" data-agrup="' + a[0] + '">' + escaparHTML(a[1]) + '</button>';
+    }).join('') +
+    '<span class="espaco"></span>' +
+    (temGrupos && res.grupos.length > 1 ? '<button type="button" class="btn btn-contorno btn-sm" data-gruposall="abrir">Expandir tudo</button><button type="button" class="btn btn-contorno btn-sm" data-gruposall="fechar">Recolher tudo</button>' : '') +
+    '</div>' +
+    '<div class="log-itens-barra"><span class="rotulo">Impressão</span>' +
+    '<label class="ap-check"><input type="checkbox" id="logImpPedidos"' + (logImpOpcoes.pedidos ? ' checked' : '') + '> Mostrar os pedidos de cada item</label>' +
+    (temGrupos ? '<label class="ap-check"><input type="checkbox" id="logImpPagina"' + (logImpOpcoes.paginaPorGrupo ? ' checked' : '') + '> Uma página por grupo</label>' : '') +
+    '<button type="button" class="btn btn-primario btn-sm" data-imprimir="1">Imprimir</button></div>';
+  h += '<div class="log-kpis">' +
+    logKpiHTML('', 'Itens diferentes', logNum(res.nItens), '') +
+    logKpiHTML('', 'Quantidade total', logUnTexto(tot.qtd), 'soma dos itens abaixo') +
+    logKpiHTML('', 'OPs abertas', logNum(tot.nOps), '') +
+    logKpiHTML('', 'Pedidos', logNum(tot.nPeds), '') +
+    logKpiHTML('', 'Qtd. com embarque vencido', logUnTexto(tot.venc), 'OP aberta, embarque antes de hoje') +
+    '</div>';
+  h += '<div class="log-tabela-cab"><h4>Itens (' + logNum(res.nItens) + ') <span class="muted" style="text-transform:none;font-weight:400;">— clique no item para ver as OPs' + (temGrupos ? ' e no grupo para abrir ou fechar' : '') + '</span></h4></div>' +
+    '<div class="tabela-wrap"><table class="log-tabela"><thead><tr>' +
+    '<th>Cód.</th>' + logThItem('nome', 'Item') + '<th>Un.</th>' + logThItem('qtd', 'Qtd. total', 'num') + logThItem('ops', 'OPs', 'num') + logThItem('peds', 'Pedidos', 'num') +
+    logThItem('emb', '1º embarque') + '<th>Últ. embarque</th><th class="num">Qtd. vencida</th></tr></thead><tbody>';
+  res.grupos.forEach(function (g) {
+    var aberto = !temGrupos || logGrupoAberto(g.chave, res.grupos.length);
+    if (temGrupos) {
+      h += '<tr class="log-grupo" data-grupo="' + escaparHTML(g.chave) + '"><td colspan="9">' + (aberto ? '▾ ' : '▸ ') + escaparHTML(g.rotulo) +
+        ' <span class="muted">— ' + logNum(g.lista.length) + ' itens · ' + logUnTexto(g.acc.qtd) + ' · ' + logNum(g.acc.nOps) + ' OPs · ' + logNum(g.acc.nPeds) + ' pedidos</span></td></tr>';
+    }
+    if (!aberto) return;
+    logItensOrdenar(g.lista).forEach(function (l) { h += logItemLinhaHTML(g, l); });
+    if (temGrupos) {
+      h += '<tr class="log-subtotal"><td colspan="3">Subtotal — ' + escaparHTML(g.rotulo) + '</td><td class="num">' + escaparHTML(logUnTexto(g.acc.qtd)) + '</td>' +
+        '<td class="num">' + logNum(g.acc.nOps) + '</td><td class="num">' + logNum(g.acc.nPeds) + '</td><td colspan="3"></td></tr>';
+    }
+  });
+  h += '<tr class="log-total"><td colspan="3">Total geral</td><td class="num">' + escaparHTML(logUnTexto(tot.qtd)) + '</td>' +
+    '<td class="num">' + logNum(tot.nOps) + '</td><td class="num">' + logNum(tot.nPeds) + '</td>' +
+    '<td colspan="2"></td><td class="num">' + escaparHTML(logUnTexto(tot.venc)) + '</td></tr>';
+  return h + '</tbody></table></div>' +
+    '<p class="dica">Soma a quantidade de cada OP aberta. Peças (PC e UN) somam juntas; m² e outras unidades aparecem à parte. Os filtros do topo valem aqui: escolha o cliente e o tipo de produto e o total sai pronto.</p>';
+}
+function logAgrupRotulo() {
+  var r = 'Item';
+  LOG_AGRUPS.forEach(function (a) { if (a[0] === logAgrup) r = a[1]; });
+  return r;
+}
+function logExportarItens() {
+  var res = logItensAgrupar(logFiltrar(''), logAgrup);
+  var linhas = ['Grupo;Cód. Cosmos;Item;Un.;Qtd. total;OPs;Pedidos;1º embarque;Últ. embarque;Qtd. com embarque vencido;Números dos pedidos'];
+  res.grupos.forEach(function (g) {
+    logItensOrdenar(g.lista).forEach(function (l) {
+      linhas.push([logAgrup === 'item' ? '' : g.rotulo, l.cod, l.nome, l.un, String(l.acc.qtdNum).replace('.', ','), l.acc.nOps, l.acc.nPeds,
+        logFmtData(l.acc.embMin).replace('—', ''), logFmtData(l.acc.embMax).replace('—', ''), String(logSomaVenc(l.acc)).replace('.', ','), logPedidosLista(l.acc).join(' ')].map(logCsvCel).join(';'));
+    });
+  });
+  var blob = new Blob(['﻿' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'analise-itens-' + logHoje + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 500);
+}
+function logImprimirItens() {
+  if (!logDados) return;
+  logHoje = logHojeISO();
+  var rows = logFiltrar('');
+  if (!rows.length) return;
+  var res = logItensAgrupar(rows, logAgrup);
+  var tot = res.total;
+  var temGrupos = logAgrup !== 'item';
+  var agora = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  var arquivo = logMeta.atualizadoEm ? new Date(logMeta.atualizadoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+  var filtros = logChipsLista().map(function (c) { return '<span>' + escaparHTML(c[1]) + '</span>'; }).join('') || '<span>Sem filtros: todas as OPs abertas</span>';
+  var colgrupo = '<colgroup><col style="width:9%"><col><col style="width:5%"><col style="width:9%"><col style="width:6%"><col style="width:7%"><col style="width:9%"><col style="width:9%"><col style="width:9%"></colgroup>';
+  var thead = '<thead><tr><th>Cód.</th><th>Item</th><th>Un.</th><th class="n">Qtd. total</th><th class="n">OPs</th><th class="n">Pedidos</th><th>1º embarque</th><th>Últ. embarque</th><th class="n">Qtd. vencida</th></tr></thead>';
+  function linhaItem(l) {
+    var v = logSomaVenc(l.acc);
+    var t = '<tr><td>' + escaparHTML(l.cod) + '</td><td>' + escaparHTML(l.nome) + '</td><td>' + escaparHTML(l.un) + '</td>' +
+      '<td class="n"><b>' + logNum(l.acc.qtdNum) + '</b></td><td class="n">' + logNum(l.acc.nOps) + '</td><td class="n">' + logNum(l.acc.nPeds) + '</td>' +
+      '<td>' + (l.acc.embMin ? logFmtData(l.acc.embMin) : '') + '</td><td>' + (l.acc.embMax ? logFmtData(l.acc.embMax) : '') + '</td>' +
+      '<td class="n">' + (v ? logNum(v) : '') + '</td></tr>';
+    if (logImpOpcoes.pedidos) t += '<tr class="peds"><td></td><td colspan="8">Pedidos: ' + escaparHTML(logPedidosLista(l.acc).join(', ')) + '</td></tr>';
+    return t;
+  }
+  var corpo = '';
+  res.grupos.forEach(function (g, i) {
+    var quebra = temGrupos && logImpOpcoes.paginaPorGrupo && i > 0;
+    corpo += '<div class="grupo' + (quebra ? ' quebra' : '') + '">';
+    if (temGrupos) {
+      corpo += '<div class="grupo-tit">' + escaparHTML(g.rotulo) + ' <span>' + logNum(g.lista.length) + ' itens · ' + escaparHTML(logUnTexto(g.acc.qtd)) + ' · ' + logNum(g.acc.nOps) + ' OPs · ' + logNum(g.acc.nPeds) + ' pedidos</span></div>';
+    }
+    corpo += '<table>' + colgrupo + thead + '<tbody>' + logItensOrdenar(g.lista).map(linhaItem).join('');
+    if (temGrupos) {
+      corpo += '<tr class="sub"><td colspan="3">Subtotal — ' + escaparHTML(g.rotulo) + '</td><td class="n">' + escaparHTML(logUnTexto(g.acc.qtd)) + '</td>' +
+        '<td class="n">' + logNum(g.acc.nOps) + '</td><td class="n">' + logNum(g.acc.nPeds) + '</td><td colspan="3"></td></tr>';
+    }
+    corpo += '</tbody></table></div>';
+  });
+  corpo += '<table class="fim">' + colgrupo + '<tbody><tr class="tot"><td colspan="3">TOTAL GERAL — ' + logNum(res.nItens) + ' itens diferentes</td><td class="n">' + escaparHTML(logUnTexto(tot.qtd)) + '</td>' +
+    '<td class="n">' + logNum(tot.nOps) + '</td><td class="n">' + logNum(tot.nPeds) + '</td><td colspan="2"></td><td class="n">' + escaparHTML(logUnTexto(tot.venc)) + '</td></tr></tbody></table>';
+  var win = window.open('', '_blank');
+  if (!win) { alert('O navegador bloqueou a janela de impressão. Libere pop-ups para este site e tente de novo.'); return; }
+  win.document.write(
+    '<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>Análise de itens — Rodriaço</title><style>' +
+    '@page{size:A4 landscape;margin:10mm 10mm 14mm 10mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px Arial,sans-serif;color:#666;}}' +
+    'body{font-family:Arial,sans-serif;color:#111;font-size:11px;margin:0;padding:12px;}' +
+    '.toolbar{margin-bottom:10px;}.btn-print{padding:10px 20px;background:#F97316;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;}' +
+    '.cab{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0F0F0F;padding-bottom:8px;margin-bottom:8px;}' +
+    '.marca{font-size:20px;font-weight:800;color:#F97316;}h1{font-size:15px;margin:2px 0 0;}' +
+    '.meta{font-size:10px;color:#555;text-align:right;line-height:1.5;}' +
+    '.filtros{margin:6px 0 4px;font-size:10.5px;}.filtros b{margin-right:6px;}.filtros span{display:inline-block;border:1px solid #bbb;border-radius:10px;padding:1px 8px;margin:0 4px 3px 0;}' +
+    '.resumo{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 10px;}.resumo div{border:1px solid #ccc;border-radius:6px;padding:4px 10px;font-size:10px;color:#555;}.resumo b{display:block;font-size:13px;color:#111;}' +
+    'table{width:100%;border-collapse:collapse;table-layout:fixed;margin-bottom:6px;}thead{display:table-header-group;}' +
+    'th,td{border-bottom:1px solid #ddd;padding:3px 5px;text-align:left;font-size:10.5px;vertical-align:top;overflow-wrap:anywhere;}' +
+    'th{background:#f1f1f1;text-transform:uppercase;font-size:9px;letter-spacing:.03em;}td.n,th.n{text-align:right;}' +
+    'tr{page-break-inside:avoid;}.peds td{color:#555;font-size:9.5px;padding-top:0;}' +
+    '.grupo{margin-bottom:10px;}.grupo-tit{font-size:12px;font-weight:700;background:#FFEDD5;border:1px solid #F97316;padding:4px 6px;page-break-after:avoid;}.grupo-tit span{font-weight:400;font-size:10.5px;color:#555;margin-left:8px;}' +
+    '.sub td{font-weight:700;background:#f7f7f7;border-top:1px solid #888;}.fim{margin-top:8px;page-break-inside:avoid;}.tot td{font-weight:800;background:#FFEDD5;border-top:2px solid #F97316;font-size:11.5px;}' +
+    '.quebra{page-break-before:always;}' +
+    '@media print{.toolbar{display:none;}body{padding:0;}}' +
+    '</style></head><body>' +
+    '<div class="toolbar"><button class="btn-print" onclick="window.print()">Imprimir</button></div>' +
+    '<div class="cab"><div><div class="marca">RODRIAÇO</div><h1>Análise de itens — OPs abertas</h1></div>' +
+    '<div class="meta">Agrupado por: <b>' + escaparHTML(logAgrupRotulo()) + '</b><br>Impresso em ' + escaparHTML(agora) +
+    (arquivo ? '<br>Arquivo do Cosmos de ' + escaparHTML(arquivo) : '') + '<br>Embarque vencido = antes de ' + escaparHTML(logFmtData(logHoje)) + '</div></div>' +
+    '<div class="filtros"><b>Filtros:</b>' + filtros + '</div>' +
+    '<div class="resumo"><div>Itens diferentes<b>' + logNum(res.nItens) + '</b></div><div>Quantidade total<b>' + escaparHTML(logUnTexto(tot.qtd)) + '</b></div>' +
+    '<div>OPs abertas<b>' + logNum(tot.nOps) + '</b></div><div>Pedidos<b>' + logNum(tot.nPeds) + '</b></div></div>' +
+    corpo + '</body></html>'
+  );
+  win.document.close();
 }
 
 /* ===== COMERCIAL > ANÁLISE DE PEDIDOS (Relatório de Pedidos x OPs abertas x OPs concluídas; os arquivos vêm dos robôs pelo Supabase) ===== */

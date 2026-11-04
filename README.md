@@ -32,6 +32,25 @@ Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase 
   Selecionar tudo / Limpar e OK. Os filtros de coluna se somam aos do painel e
   indicadores e gráficos acompanham. O mesmo ▼ existe em todas as listas do ERP
   (Famílias, Componentes, Itens, Clientes, Pedidos, Ordens, Interações).
+- **Clientes com grafias diferentes viram um só** (S A, S.A., SA, S/A, LTDA, acento,
+  hífen): fica o nome que mais aparece. Vale só aqui; a Análise de Pedidos não muda.
+
+### Tela Itens (seletor **OPs | Itens** no topo)
+
+Soma os itens das **OPs abertas** com os mesmos filtros do painel (cliente, tipo de
+produto, UF, datas, etapa, busca). Ex.: cliente Sodexo + tipo Balcões Neutros = 391 un.,
+74 itens, 72 pedidos, 198 OPs.
+
+- **Agrupar por:** Item, Cliente › Item, Tipo › Item ou Pedido › Item (subtotal por
+  grupo e total geral). A coluna **Tipo** do Cosmos é a família do item; procurar
+  "neutro" no nome perderia balcões como "UTE TAL" e "MIX".
+- Por item: código Cosmos, quantidade total, nº de OPs, nº de pedidos, primeiro e
+  último embarque e quantidade com embarque vencido. Clicar no item abre as OPs.
+- Peças (PC e UN) somam juntas; m² e outras unidades ficam à parte no total.
+- **Imprimir:** abre um relatório A4 paisagem (marca, data/hora, data do arquivo do
+  Cosmos, filtros usados, subtotais, total geral, cabeçalho repetido em cada página).
+  Opções: mostrar os pedidos de cada item; uma página por grupo. "Salvar como PDF" na
+  janela de impressão gera o PDF. Exportar CSV traz o mesmo agrupamento.
 
 ## Comercial › Análise de Pedidos
 
