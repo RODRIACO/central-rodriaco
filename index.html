@@ -1282,11 +1282,17 @@ function logFiltrar(ign) {
   for (var i = 0; i < logDados.length; i++) { if (logPassa(logDados[i], logFiltros, ign)) out.push(logDados[i]); }
   return out;
 }
-function logContar(rows, dim) {
-  var m = {};
+/* porOp: conta cada OP (pedido) uma vez por valor; sem porOp conta linhas */
+function logContar(rows, dim, porOp) {
+  var m = {}, vistos = {};
   for (var i = 0; i < rows.length; i++) {
     var v = dim === 'uf' ? (rows[i].uf || '__sem') : rows[i][dim];
     if ((dim === 'local' || dim === 'cidade') && !v) continue;
+    if (porOp) {
+      var sv = vistos[v] || (vistos[v] = {});
+      if (sv[rows[i].pedido]) continue;
+      sv[rows[i].pedido] = 1;
+    }
     m[v] = (m[v] || 0) + 1;
   }
   return Object.keys(m).map(function (k) { return { chave: k, n: m[k] }; }).sort(function (a, b) { return b.n - a.n || String(a.chave).localeCompare(String(b.chave), 'pt-BR'); });
@@ -1541,13 +1547,13 @@ function logRenderResultado() {
   html += logKpisHTML(rows);
   html += '<div class="log-card log-card-largo">' + logSerieHTML() + '</div>';
   html += '<div class="log-graficos">' +
-    '<div class="log-card">' + logBarrasHTML('Etapa atual na fábrica', 'etapa', logFiltrar('etapa'), 14) + '</div>' +
-    '<div class="log-card">' + logBarrasHTML('Tipo de produto', 'tipo', logFiltrar('tipo'), 10) + '</div>' +
-    '<div class="log-card">' + logBarrasHTML('UF de entrega', 'uf', logFiltrar('uf'), 12) + '</div>' +
-    '<div class="log-card">' + logBarrasHTML('Cidades', 'cidade', logFiltrar('cidade'), 10) + '</div>' +
-    '<div class="log-card">' + logBarrasHTML('Vendedores', 'vendedor', logFiltrar('vendedor'), 10) + '</div>' +
-    '<div class="log-card">' + logBarrasHTML('Local de entrega', 'local', logFiltrar('local'), 10) + '</div>' +
-    '<div class="log-card">' + logBarrasHTML('Clientes', 'cliente', logFiltrar('cliente'), 10) + '</div>' +
+    '<div class="log-card">' + logBarrasHTML('Etapa atual na fábrica', 'etapa', logFiltrar('etapa'), 14, false) + '</div>' +
+    '<div class="log-card">' + logBarrasHTML('Tipo de produto', 'tipo', logFiltrar('tipo'), 10, false) + '</div>' +
+    '<div class="log-card">' + logBarrasHTML('UF de entrega', 'uf', logFiltrar('uf'), 12, true) + '</div>' +
+    '<div class="log-card">' + logBarrasHTML('Cidades', 'cidade', logFiltrar('cidade'), 10, true) + '</div>' +
+    '<div class="log-card">' + logBarrasHTML('Vendedores', 'vendedor', logFiltrar('vendedor'), 10, true) + '</div>' +
+    '<div class="log-card">' + logBarrasHTML('Local de entrega', 'local', logFiltrar('local'), 10, true) + '</div>' +
+    '<div class="log-card">' + logBarrasHTML('Clientes', 'cliente', logFiltrar('cliente'), 10, true) + '</div>' +
     '</div>';
   html += logTabelaHTML(rows);
   el.innerHTML = html;
@@ -1587,46 +1593,52 @@ function logKpiHTML(acao, rotulo, valor, sub, ativo) {
     '<div class="log-kpi-valor">' + valor + '</div><div class="log-kpi-rotulo">' + rotulo + '</div>' +
     (sub ? '<div class="log-kpi-sub">' + sub + '</div>' : '') + '</div>';
 }
+function logContarChaves(o) { return Object.keys(o).length; }
 function logKpisHTML(rows) {
-  var peds = {}, clis = {}, venc = 0, vencSemNf = 0, prox7 = 0, semLocal = 0, semEmb = 0, comNf = 0;
+  /* o embarque, o local e o cliente são da OP inteira: cada indicador conta OPs (pedido) e mostra as linhas na observação */
+  var peds = {}, clis = {}, venc = {}, prox7 = {}, semLocal = {}, semEmb = {}, comNf = {}, nfPorOp = {};
+  var vencL = 0, prox7L = 0, semLocalL = 0, semEmbL = 0, comNfL = 0;
   var lim7 = logSomarDias(logHoje, 7);
   rows.forEach(function (r) {
     peds[r.pedido] = 1;
     clis[r.cliente] = 1;
+    if (r.nf) { nfPorOp[r.pedido] = 1; comNf[r.pedido] = 1; comNfL++; }
     if (r.embarque) {
-      if (r.embarque < logHoje) { venc++; if (!r.nf) vencSemNf++; }
-      else if (r.embarque <= lim7) prox7++;
-    } else semEmb++;
-    if (!r.local) semLocal++;
-    if (r.nf) comNf++;
+      if (r.embarque < logHoje) { venc[r.pedido] = 1; vencL++; }
+      else if (r.embarque <= lim7) { prox7[r.pedido] = 1; prox7L++; }
+    } else { semEmb[r.pedido] = 1; semEmbL++; }
+    if (!r.local) { semLocal[r.pedido] = 1; semLocalL++; }
   });
+  var vencSemNf = 0;
+  Object.keys(venc).forEach(function (p) { if (!nfPorOp[p]) vencSemNf++; });
   var f = logFiltros;
   return '<div class="log-kpis">' +
-    logKpiHTML('', 'OPs abertas', logNum(Object.keys(peds).length), 'um pedido = uma OP') +
+    logKpiHTML('', 'OPs abertas', logNum(logContarChaves(peds)), 'um pedido = uma OP') +
     logKpiHTML('', 'Linhas de OP', logNum(rows.length), 'itens das OPs') +
-    logKpiHTML('', 'Clientes', logNum(Object.keys(clis).length), '') +
-    logKpiHTML('vencidas', 'Embarque vencido', logNum(venc), logNum(vencSemNf) + ' sem NF emitida', f.vencidas) +
-    logKpiHTML('prox7', 'Embarques nos próx. 7 dias', logNum(prox7), '', f.de === logHoje && f.ate === lim7 && f.campoData === 'embarque') +
-    logKpiHTML('semLocal', 'Sem local de entrega', logNum(semLocal), '', f.semLocal) +
-    logKpiHTML('semEmbarque', 'Sem data de embarque', logNum(semEmb), '', f.semEmbarque) +
-    logKpiHTML('comNf', 'Com NF emitida', logNum(comNf), 'ainda abertas no Cosmos', f.comNf) +
+    logKpiHTML('', 'Clientes', logNum(logContarChaves(clis)), '') +
+    logKpiHTML('vencidas', 'OPs com embarque vencido', logNum(logContarChaves(venc)), logNum(vencL) + ' linhas · ' + logNum(vencSemNf) + ' OPs sem NF emitida', f.vencidas) +
+    logKpiHTML('prox7', 'OPs com embarque nos próx. 7 dias', logNum(logContarChaves(prox7)), logNum(prox7L) + ' linhas', f.de === logHoje && f.ate === lim7 && f.campoData === 'embarque') +
+    logKpiHTML('semLocal', 'OPs sem local de entrega', logNum(logContarChaves(semLocal)), logNum(semLocalL) + ' linhas', f.semLocal) +
+    logKpiHTML('semEmbarque', 'OPs sem data de embarque', logNum(logContarChaves(semEmb)), logNum(semEmbL) + ' linhas', f.semEmbarque) +
+    logKpiHTML('comNf', 'OPs com NF emitida', logNum(logContarChaves(comNf)), logNum(comNfL) + ' linhas · ainda abertas no Cosmos', f.comNf) +
     '</div>' +
-    '<p class="dica">"Embarque vencido" = OP ainda aberta no Cosmos com embarque antes de hoje. As que já têm NF emitida provavelmente já saíram e só esperam a baixa; as <b>sem NF emitida</b> são os atrasos de verdade. Os números respeitam os filtros acima. A <b>OP</b> é o número de 5 dígitos (o mesmo do pedido); os 3 últimos dígitos do código completo são a <b>linha</b> dela.</p>';
+    '<p class="dica">Os indicadores contam <b>OPs</b> (o número de 5 dígitos, igual ao do pedido); as linhas de cada uma aparecem na observação. "Embarque vencido" = OP ainda aberta no Cosmos com embarque antes de hoje. As que já têm NF emitida provavelmente já saíram e só esperam a baixa; as <b>sem NF emitida</b> são os atrasos de verdade. Os números respeitam os filtros acima. A <b>linha</b> são os 3 últimos dígitos do código completo da OP.</p>';
 }
-function logBarrasHTML(titulo, dim, rows, max) {
-  var itens = logContar(rows, dim);
+/* porOp: as barras contam OPs (dado da OP: UF, cidade, vendedor, local, cliente); sem porOp contam linhas (etapa e tipo variam de item para item) */
+function logBarrasHTML(titulo, dim, rows, max, porOp) {
+  var itens = logContar(rows, dim, porOp);
   var sel = logFiltros[dim];
   var topo = itens.slice(0, max);
   if (sel && !topo.some(function (x) { return x.chave === sel; })) {
     for (var i = 0; i < itens.length; i++) { if (itens[i].chave === sel) { topo.push(itens[i]); break; } }
   }
-  var html = '<h4>' + escaparHTML(titulo) + '</h4>';
+  var html = '<h4>' + escaparHTML(titulo) + ' <span class="muted" style="text-transform:none;font-weight:400;">(' + (porOp ? 'OPs' : 'linhas') + ')</span></h4>';
   if (!topo.length) return html + '<div class="lista-vazia-mini">Sem dados.</div>';
   var maior = topo[0].n;
   html += '<div class="barras">';
   topo.forEach(function (x) {
     var rot = x.chave === '__sem' ? 'Não informada' : x.chave;
-    html += '<div class="barra-linha' + (sel === x.chave ? ' sel' : '') + '" data-dim="' + dim + '" data-val="' + escaparHTML(x.chave) + '" title="' + escaparHTML(rot) + ' — ' + x.n + ' linhas">' +
+    html += '<div class="barra-linha' + (sel === x.chave ? ' sel' : '') + '" data-dim="' + dim + '" data-val="' + escaparHTML(x.chave) + '" title="' + escaparHTML(rot) + ' — ' + x.n + (porOp ? ' OPs' : ' linhas') + '">' +
       '<span class="barra-rotulo">' + escaparHTML(rot) + '</span>' +
       '<span class="barra-trilho"><span class="barra-preenche" style="width:' + Math.max(2, Math.round(x.n / maior * 100)) + '%"></span></span>' +
       '<span class="barra-n">' + logNum(x.n) + '</span></div>';
@@ -1638,19 +1650,22 @@ function logBarrasHTML(titulo, dim, rows, max) {
 function logSerieHTML() {
   var campo = logFiltros.campoData;
   var rows = logFiltrar('data');
-  var porBalde = {}, min = '', max = '';
+  var porBalde = {}, vistos = {}, min = '', max = '';
   rows.forEach(function (r) {
     var d = r[campo];
     if (!d) return;
     var k = logGran === 'mes' ? d.slice(0, 7) : logSegunda(d);
+    var sv = vistos[k] || (vistos[k] = {});
+    if (sv[r.pedido]) return;
+    sv[r.pedido] = 1;
     porBalde[k] = (porBalde[k] || 0) + 1;
     if (!min || k < min) min = k;
     if (!max || k > max) max = k;
   });
-  var cab = '<div class="log-serie-cab"><h4>Linhas de OP por ' + (logGran === 'mes' ? 'mês' : 'semana') + ' — ' + logRotuloCampo(campo) + '</h4>' +
+  var cab = '<div class="log-serie-cab"><h4>OPs por ' + (logGran === 'mes' ? 'mês' : 'semana') + ' — ' + logRotuloCampo(campo) + '</h4>' +
     '<div class="log-gran"><button type="button" class="btn btn-sm ' + (logGran === 'semana' ? 'btn-primario' : 'btn-contorno') + '" data-gran="semana">Semana</button>' +
     '<button type="button" class="btn btn-sm ' + (logGran === 'mes' ? 'btn-primario' : 'btn-contorno') + '" data-gran="mes">Mês</button></div></div>';
-  if (!min) return cab + '<div class="lista-vazia-mini">Nenhuma linha de OP com data de ' + logRotuloCampo(campo).toLowerCase() + '.</div>';
+  if (!min) return cab + '<div class="lista-vazia-mini">Nenhuma OP com data de ' + logRotuloCampo(campo).toLowerCase() + '.</div>';
   var chaves = [], k = min, guarda = 0;
   while (k <= max && guarda++ < 160) {
     chaves.push(k);
@@ -1671,7 +1686,7 @@ function logSerieHTML() {
     var ate = logGran === 'mes' ? logFimDoMes(c) : logSomarDias(c, 6);
     var rot = logGran === 'mes' ? LOG_MESES[+c.slice(5, 7) - 1] + '/' + c.slice(2, 4) : c.slice(8, 10) + '/' + c.slice(5, 7);
     var sel = logFiltros.de === de && logFiltros.ate === ate;
-    html += '<div class="col-item' + (sel ? ' sel' : '') + (c === chaveAtual ? ' atual' : '') + '" data-de="' + de + '" data-ate="' + ate + '" title="' + logFmtData(de) + ' a ' + logFmtData(ate) + ' — ' + n + ' linhas">' +
+    html += '<div class="col-item' + (sel ? ' sel' : '') + (c === chaveAtual ? ' atual' : '') + '" data-de="' + de + '" data-ate="' + ate + '" title="' + logFmtData(de) + ' a ' + logFmtData(ate) + ' — ' + n + ' OPs">' +
       '<span class="col-n">' + (n ? n : '') + '</span>' +
       '<span class="col-barra" style="height:' + (n ? Math.max(3, Math.round(n / maiorN * 130)) : 0) + 'px"></span>' +
       '<span class="col-rot">' + rot + '</span></div>';

@@ -43,6 +43,12 @@ número do pedido**, e os **3 últimos são a linha** dela (38421001 = OP 38421,
 ordens (625 hoje) e "Linhas de OP" conta as linhas (3.187). Vale também na Análise de
 Pedidos do Comercial.
 
+**Indicadores e gráficos da Análise CSV contam OPs.** Embarque, local, cliente, UF e
+vendedor são da OP inteira (em todas as OPs, todas as linhas têm o mesmo embarque), então
+"OPs com embarque vencido" = 361 de 668 OPs, com as 1.560 linhas na observação. Só
+**Etapa atual** e **Tipo de produto** contam linhas, porque variam de item para item (o
+título do gráfico diz "OPs" ou "linhas").
+
 ### Tela Itens (seletor **OPs | Itens** no topo)
 
 Soma os itens das **OPs abertas** com os mesmos filtros do painel (cliente, tipo de
