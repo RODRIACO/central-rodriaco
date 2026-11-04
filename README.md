@@ -140,6 +140,22 @@ O ERP inteiro fica atrás do login do Supabase, não só a Análise CSV:
 - A Área do Operador (inclusive pelo QR da OP) é um módulo à parte, "Área do
   Operador", e também precisa de liberação.
 
+### Esqueci minha senha / definir nova senha
+
+- Na tela de login, **Esqueci minha senha** pede o e-mail e o Supabase manda um link
+  (vale 1 hora, uso único). O botão *Send password recovery* do painel
+  (Authentication › Users) manda o mesmo e-mail.
+- O link abre a Central com o acesso temporário no `#` da URL (`type=recovery`) e ela
+  mostra **Definir nova senha** (mínimo de 8 caracteres), grava com `PUT /auth/v1/user`
+  e já entra logada. Link vencido ou já usado mostra "Link inválido ou vencido" com
+  "Pedir novo link". A senha vale para a Central e para os apps (login único).
+- **Configuração no Supabase (uma vez):** Authentication › URL Configuration › *Site URL*
+  = `https://rodriaco.github.io/central-rodriaco/` e o mesmo endereço em *Redirect URLs*.
+  Sem isso o e-mail aponta para o endereço antigo do Cloudflare.
+- Se um link de recuperação cair no Estoque Livre ou no Controle de Ferramentas, o app
+  repassa para a Central (`type=recovery` / `error_code=` no `#`). O `#i=CODIGO` do QR
+  das etiquetas não é afetado.
+
 ### Contas (só administrador)
 
 Módulo **Contas**: lista todas as contas, com o resumo do que cada uma acessa,

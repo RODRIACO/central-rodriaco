@@ -293,6 +293,7 @@ tr:last-child td{border-bottom:0}
 </head>
 <body>
 
+<script>/* link de e-mail do Supabase (recuperar senha) que caiu aqui: quem trata é a Central */if(/[#&](type=recovery|error_code=)/.test(location.hash))location.replace("../../"+location.hash);</script>
 <script>if(navigator.standalone)document.documentElement.classList.add("standalone");</script>
 
 <div id="splash" aria-hidden="true">
@@ -497,7 +498,7 @@ function preenchendoAlgo() {
 const ehAdmin = () => S.user && S.user.papel === "admin";
 
 /* ---------------- banco (Supabase) ---------------- */
-const VERSAO = "20261029-123059";   /* carimbado por versao.py a cada publicacao */
+const VERSAO = "20261104-112743";   /* carimbado por versao.py a cada publicacao */
 /* Nome da funcao que troca senha, no Supabase. ATENCAO: o painel publicou
    com o nome automatico "clever-worker" e o endereco nao pode ser renomeado.
    No painel ela aparece como "admin-senha"; e a mesma coisa. Se um dia for

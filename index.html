@@ -394,6 +394,8 @@
   .acesso-marca { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
   .acesso-marca .selo { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; font-weight: 800; color: #0F0F0F; }
   .acesso-marca strong { color: #fff; letter-spacing: .03em; }
+  .acesso-link { background: none; border: 0; padding: 0; margin-top: 14px; color: var(--accent-strong); font-size: 12.5px; text-decoration: underline; cursor: pointer; }
+  .acesso-ok { font-size: 12.5px; color: var(--good); margin-bottom: 12px; }
   .acesso-card h2 { margin: 0 0 6px; font-size: 19px; color: var(--ink-strong); text-transform: uppercase; letter-spacing: .03em; }
   .acesso-card .btn { width: 100%; justify-content: center; margin-top: 6px; }
   .pill-usuario .rotulo-menu { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px; }
@@ -6566,7 +6568,8 @@ function telaAcessoLogin(mensagem, aoLiberar) {
     '<div class="campo"><label>E-mail</label><input type="email" id="acessoEmail" autocomplete="username"></div>' +
     '<div class="campo"><label>Senha</label><input type="password" id="acessoSenha" autocomplete="current-password"></div>' +
     '<div class="modal-aviso" id="acessoErro" style="' + (mensagem ? '' : 'display:none;') + '">' + escaparHTML(mensagem || '') + '</div>' +
-    '<button type="button" class="btn btn-primario" id="acessoBtnEntrar">Entrar</button>');
+    '<button type="button" class="btn btn-primario" id="acessoBtnEntrar">Entrar</button>' +
+    '<div><button type="button" class="acesso-link" id="acessoBtnEsqueci">Esqueci minha senha</button></div>');
   function entrar() {
     var erro = document.getElementById('acessoErro');
     var email = document.getElementById('acessoEmail').value.trim();
@@ -6581,6 +6584,7 @@ function telaAcessoLogin(mensagem, aoLiberar) {
     });
   }
   document.getElementById('acessoBtnEntrar').addEventListener('click', entrar);
+  document.getElementById('acessoBtnEsqueci').addEventListener('click', function () { telaEsqueciSenha(aoLiberar, document.getElementById('acessoEmail').value.trim()); });
   document.getElementById('acessoSenha').addEventListener('keydown', function (e) { if (e.key === 'Enter') entrar(); });
   document.getElementById('acessoEmail').focus();
 }
@@ -6658,7 +6662,129 @@ window.addEventListener('storage', function (e) {
   if (!s) { if (appIniciado) location.reload(); return; }
   if (appIniciado && logSessao && s.email && logSessao.email && s.email !== logSessao.email) location.reload();
 });
+/* ===== RECUPERAR / DEFINIR SENHA =====
+   O e-mail do Supabase ("Esqueci minha senha" ou "Send password recovery" no painel) leva à Central com um
+   acesso temporário no # da URL (#access_token=...&type=recovery). Aqui a pessoa define a nova senha. */
+function acessoHashParams() {
+  var h = (location.hash || '').replace(/^#/, ''), p = {};
+  if (!h || h.indexOf('=') === -1) return p;
+  h.split('&').forEach(function (kv) {
+    var i = kv.indexOf('=');
+    if (i < 1) return;
+    try { p[decodeURIComponent(kv.slice(0, i))] = decodeURIComponent(kv.slice(i + 1).replace(/\+/g, ' ')); } catch (e) {}
+  });
+  return p;
+}
+function acessoLimparHash() {
+  try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { location.hash = ''; }
+}
+/* true = a URL era um link de e-mail e a tela certa já foi aberta */
+function acessoTratarLinkEmail(aoLiberar) {
+  var p = acessoHashParams();
+  if (p.type === 'recovery' && p.access_token) { acessoLimparHash(); telaNovaSenha(p, aoLiberar); return true; }
+  if (p.error_code || (p.error && p.error_description)) { acessoLimparHash(); telaLinkInvalido(aoLiberar); return true; }
+  return false;
+}
+function acessoPost(url, metodo, token, corpo) {
+  return fetch(url, {
+    method: metodo,
+    headers: { 'Content-Type': 'application/json', 'apikey': LOG_CFG.anon, 'Authorization': 'Bearer ' + (token || LOG_CFG.anon) },
+    body: JSON.stringify(corpo)
+  }).then(function (r) {
+    return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, json: j || {} }; });
+  });
+}
+function telaLinkInvalido(aoLiberar) {
+  criarTelaAcesso().innerHTML = acessoCard(
+    '<h2>Link inválido ou vencido</h2>' +
+    '<p class="dica">O link de recuperação vale por 1 hora e só pode ser usado uma vez. Peça um novo.</p>' +
+    '<button type="button" class="btn btn-primario" id="acessoBtnNovoLink">Pedir novo link</button>' +
+    '<div><button type="button" class="acesso-link" id="acessoBtnVoltar">Voltar ao login</button></div>');
+  document.getElementById('acessoBtnNovoLink').addEventListener('click', function () { telaEsqueciSenha(aoLiberar, ''); });
+  document.getElementById('acessoBtnVoltar').addEventListener('click', function () { exigirAcesso(aoLiberar); });
+}
+function telaEsqueciSenha(aoLiberar, emailInicial) {
+  criarTelaAcesso().innerHTML = acessoCard(
+    '<h2>Esqueci minha senha</h2>' +
+    '<p class="dica">Digite o seu e-mail. Se ele estiver cadastrado, você recebe um link para criar uma nova senha.</p>' +
+    '<div class="campo"><label>E-mail</label><input type="email" id="esqueciEmail" autocomplete="username"></div>' +
+    '<div class="acesso-ok" id="esqueciOk" style="display:none;"></div>' +
+    '<div class="modal-aviso" id="esqueciErro" style="display:none;"></div>' +
+    '<button type="button" class="btn btn-primario" id="esqueciBtn">Enviar link</button>' +
+    '<div><button type="button" class="acesso-link" id="esqueciVoltar">Voltar ao login</button></div>');
+  var campo = document.getElementById('esqueciEmail');
+  campo.value = emailInicial || '';
+  function enviar() {
+    var ok = document.getElementById('esqueciOk'), erro = document.getElementById('esqueciErro');
+    var email = campo.value.trim();
+    ok.style.display = 'none'; erro.style.display = 'none';
+    if (!email || email.indexOf('@') < 1) { erro.textContent = 'Digite o seu e-mail.'; erro.style.display = 'block'; return; }
+    var btn = document.getElementById('esqueciBtn');
+    btn.disabled = true;
+    var volta = location.origin + location.pathname;
+    acessoPost(LOG_CFG.url + '/auth/v1/recover?redirect_to=' + encodeURIComponent(volta), 'POST', '', { email: email }).then(function (r) {
+      if (r.ok) {
+        ok.textContent = 'Pronto. Se este e-mail estiver cadastrado, o link chega em instantes (olhe também o spam). Ele vale por 1 hora.';
+        ok.style.display = 'block';
+        setTimeout(function () { btn.disabled = false; }, 30000);
+        return;
+      }
+      btn.disabled = false;
+      erro.textContent = r.status === 429 ? 'Aguarde cerca de 1 minuto antes de pedir outro link.' : 'Não consegui enviar agora (erro ' + r.status + '). Tente de novo em instantes.';
+      erro.style.display = 'block';
+    }).catch(function () {
+      btn.disabled = false;
+      erro.textContent = 'Sem conexão com o servidor. Tente de novo.';
+      erro.style.display = 'block';
+    });
+  }
+  document.getElementById('esqueciBtn').addEventListener('click', enviar);
+  campo.addEventListener('keydown', function (e) { if (e.key === 'Enter') enviar(); });
+  document.getElementById('esqueciVoltar').addEventListener('click', function () { exigirAcesso(aoLiberar); });
+  campo.focus();
+}
+function telaNovaSenha(p, aoLiberar) {
+  criarTelaAcesso().innerHTML = acessoCard(
+    '<h2>Definir nova senha</h2>' +
+    '<p class="dica">Escolha a senha que você vai usar na Central e nos apps (Estoque Livre, Controle de Ferramentas). Mínimo de 8 caracteres.</p>' +
+    '<div class="campo"><label>Nova senha</label><input type="password" id="novaSenha" autocomplete="new-password"></div>' +
+    '<div class="campo"><label>Repetir a nova senha</label><input type="password" id="novaSenha2" autocomplete="new-password"></div>' +
+    '<div class="modal-aviso" id="novaSenhaErro" style="display:none;"></div>' +
+    '<button type="button" class="btn btn-primario" id="novaSenhaBtn">Salvar senha</button>');
+  var erro = document.getElementById('novaSenhaErro');
+  function falha(msg, venceu) {
+    erro.textContent = msg;
+    erro.style.display = 'block';
+    document.getElementById('novaSenhaBtn').disabled = false;
+    if (venceu) telaLinkInvalido(aoLiberar);
+  }
+  function salvar() {
+    var a = document.getElementById('novaSenha').value, b = document.getElementById('novaSenha2').value;
+    erro.style.display = 'none';
+    if (a.length < 8) { falha('A senha precisa ter pelo menos 8 caracteres.'); return; }
+    if (a !== b) { falha('As duas senhas não são iguais.'); return; }
+    document.getElementById('novaSenhaBtn').disabled = true;
+    acessoPost(LOG_CFG.url + '/auth/v1/user', 'PUT', p.access_token, { password: a }).then(function (r) {
+      if (!r.ok) {
+        var c = (r.json && (r.json.error_code || r.json.code)) || '';
+        if (r.status === 401 || r.status === 403 || c === 'bad_jwt' || c === 'session_not_found') { telaLinkInvalido(aoLiberar); return; }
+        if (c === 'same_password') { falha('A nova senha precisa ser diferente da atual.'); return; }
+        if (c === 'weak_password') { falha('Senha fraca demais. Use letras e números, com pelo menos 8 caracteres.'); return; }
+        falha('Não foi possível salvar a senha (erro ' + r.status + ').');
+        return;
+      }
+      /* a senha mudou: já entra logado com o acesso temporário do link */
+      logGuardarToken({ access_token: p.access_token, refresh_token: p.refresh_token || '', expires_in: parseInt(p.expires_in, 10) || 3600, user: { email: (r.json && r.json.email) || '' } });
+      exigirAcesso(aoLiberar);
+    }).catch(function () { falha('Sem conexão com o servidor. Tente de novo.'); });
+  }
+  document.getElementById('novaSenhaBtn').addEventListener('click', salvar);
+  document.getElementById('novaSenha2').addEventListener('keydown', function (e) { if (e.key === 'Enter') salvar(); });
+  document.getElementById('novaSenha').focus();
+}
+
 function exigirAcesso(aoLiberar) {
+  if (acessoTratarLinkEmail(aoLiberar)) return;
   if (!logObterSessao()) { telaAcessoLogin('', aoLiberar); return; }
   criarTelaAcesso().innerHTML = acessoCard('<h2>Central Rodriaço</h2><p class="dica">Verificando acesso...</p>');
   conferirAcesso(aoLiberar);

@@ -224,6 +224,7 @@ td.dim{color:var(--ink-3)}
 <div id="tela"></div>
 <div id="printarea"></div>
 
+<script>/* link de e-mail do Supabase (recuperar senha) que caiu aqui: quem trata é a Central */if(/[#&](type=recovery|error_code=)/.test(location.hash))location.replace("../../"+location.hash);</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 "use strict";
@@ -234,7 +235,7 @@ td.dim{color:var(--ink-3)}
    banco (RLS), não esta tela.
    ============================================================ */
 
-const VERSAO = "20261029-133114";
+const VERSAO = "20261104-112743";
 const SUPABASE_URL  = "https://vgcwzfeucfkaawwwhvjo.supabase.co";
 const SUPABASE_ANON  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnY3d6ZmV1Y2ZrYWF3d3dodmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMDMyNzEsImV4cCI6MjEwNDY3OTI3MX0.ej6C2X0If1wLBRa4DoX_P2Z8-32IwZoN-AlcWKpM6RY";
 
