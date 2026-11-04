@@ -60,7 +60,8 @@ produto, UF, datas, etapa, busca). Ex.: cliente Sodexo + tipo Balcões Neutros =
   "neutro" no nome perderia balcões como "UTE TAL" e "MIX".
 - Por item: código Cosmos, quantidade total, nº de OPs, nº de linhas, primeiro e
   último embarque e quantidade com embarque vencido. Clicar no item abre as OPs.
-- Peças (PC e UN) somam juntas; m² e outras unidades ficam à parte no total.
+- Os totais somam **só peças (PC e UN)**; itens em m² ou outra unidade aparecem na lista
+  com a unidade, mas não entram na soma.
 - **Imprimir:** abre um relatório A4 paisagem (marca, data/hora, data do arquivo do
   Cosmos, filtros usados, subtotais, total geral, cabeçalho repetido em cada página).
   Opções: mostrar os pedidos de cada item; uma página por grupo. "Salvar como PDF" na

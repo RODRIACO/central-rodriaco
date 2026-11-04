@@ -1859,16 +1859,16 @@ var logItensAbertos = {};
 var logImpOpcoes = { pedidos: false, paginaPorGrupo: false };
 var LOG_AGRUPS = [['item', 'Item'], ['cliente', 'Cliente › Item'], ['tipo', 'Tipo › Item'], ['pedido', 'OP › Item']];
 
-/* peças (PC/UN) somam juntas; m² e qualquer outra unidade ficam à parte */
+/* PC e UN são a mesma coisa para o total (peças); qualquer outra unidade (m²...) fica de fora da soma */
 function logGrupoUnidade(un) {
   var u = String(un || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
   if (!u || u === 'PC' || u === 'UN' || u === 'PCS' || u === 'UND') return 'un.';
   if (u === 'M2') return 'm²';
   return String(un).toLowerCase();
 }
+/* os totais somam só peças (PC e UN); m² e outras unidades aparecem na lista de itens, mas não entram na soma */
 function logUnTexto(obj) {
-  var ks = Object.keys(obj).sort(function (a, b) { return a === 'un.' ? -1 : (b === 'un.' ? 1 : a.localeCompare(b, 'pt-BR')); });
-  return ks.length ? ks.map(function (k) { return logNum(obj[k]) + ' ' + k; }).join(' · ') : '0';
+  return logNum(obj['un.'] || 0) + ' un.';
 }
 function logAccNovo() { return { qtd: {}, venc: {}, qtdNum: 0, nOps: 0, peds: {}, nPeds: 0, embMin: '', embMax: '' }; }
 function logAccSomar(a, r) {
@@ -1988,7 +1988,7 @@ function logItensHTML(rows) {
     '<button type="button" class="btn btn-primario btn-sm" data-imprimir="1">Imprimir</button></div>';
   h += '<div class="log-kpis">' +
     logKpiHTML('', 'Itens diferentes', logNum(res.nItens), '') +
-    logKpiHTML('', 'Quantidade total', logUnTexto(tot.qtd), 'soma dos itens abaixo') +
+    logKpiHTML('', 'Quantidade total', logUnTexto(tot.qtd), 'só peças (PC e UN)') +
     logKpiHTML('', 'OPs abertas', logNum(tot.nPeds), '') +
     logKpiHTML('', 'Linhas de OP', logNum(tot.nOps), '') +
     logKpiHTML('', 'Qtd. com embarque vencido', logUnTexto(tot.venc), 'OP aberta, embarque antes de hoje') +
@@ -2014,7 +2014,7 @@ function logItensHTML(rows) {
     '<td class="num">' + logNum(tot.nPeds) + '</td><td class="num">' + logNum(tot.nOps) + '</td>' +
     '<td colspan="2"></td><td class="num">' + escaparHTML(logUnTexto(tot.venc)) + '</td></tr>';
   return h + '</tbody></table></div>' +
-    '<p class="dica">Soma a quantidade de cada OP aberta. Peças (PC e UN) somam juntas; m² e outras unidades aparecem à parte. Os filtros do topo valem aqui: escolha o cliente e o tipo de produto e o total sai pronto.</p>';
+    '<p class="dica">Soma a quantidade de cada OP aberta. Os totais somam só peças (PC e UN); itens em m² ou em outra unidade aparecem na lista, com a unidade, mas não entram na soma. Os filtros do topo valem aqui: escolha o cliente e o tipo de produto e o total sai pronto.</p>';
 }
 function logAgrupRotulo() {
   var r = 'Item';
@@ -2100,7 +2100,7 @@ function logImprimirItens() {
     '<div class="toolbar"><button class="btn-print" onclick="window.print()">Imprimir</button></div>' +
     '<div class="cab"><div><div class="marca">RODRIAÇO</div><h1>Análise de itens — OPs abertas</h1></div>' +
     '<div class="meta">Agrupado por: <b>' + escaparHTML(logAgrupRotulo()) + '</b><br>Impresso em ' + escaparHTML(agora) +
-    (arquivo ? '<br>Arquivo do Cosmos de ' + escaparHTML(arquivo) : '') + '<br>Embarque vencido = antes de ' + escaparHTML(logFmtData(logHoje)) + '</div></div>' +
+    (arquivo ? '<br>Arquivo do Cosmos de ' + escaparHTML(arquivo) : '') + '<br>Totais somam só peças (PC e UN)<br>Embarque vencido = antes de ' + escaparHTML(logFmtData(logHoje)) + '</div></div>' +
     '<div class="filtros"><b>Filtros:</b>' + filtros + '</div>' +
     '<div class="resumo"><div>Itens diferentes<b>' + logNum(res.nItens) + '</b></div><div>Quantidade total<b>' + escaparHTML(logUnTexto(tot.qtd)) + '</b></div>' +
     '<div>OPs abertas<b>' + logNum(tot.nPeds) + '</b></div><div>Linhas de OP<b>' + logNum(tot.nOps) + '</b></div></div>' +
