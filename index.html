@@ -948,7 +948,7 @@ var LOG_UFS = { AC: 1, AL: 1, AP: 1, AM: 1, BA: 1, CE: 1, DF: 1, ES: 1, GO: 1, M
 var LOG_MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
 var LOG_POR_PAGINA = 50;
 var LOG_COLUNAS = [
-  { k: 'pedido', r: 'Pedido', t: 'texto' }, { k: 'op', r: 'OP', t: 'texto' }, { k: 'cliente', r: 'Cliente', t: 'texto' }, { k: 'item', r: 'Item', t: 'texto' },
+  { k: 'pedido', r: 'Pedido / OP', t: 'texto' }, { k: 'linha', r: 'Linha', t: 'texto' }, { k: 'cliente', r: 'Cliente', t: 'texto' }, { k: 'item', r: 'Item', t: 'texto' },
   { k: 'qtd', r: 'Qtd.', num: true, t: 'num' }, { k: 'tipo', r: 'Tipo', t: 'texto' }, { k: 'etapa', r: 'Etapa atual', t: 'texto' },
   { k: 'embarque', r: 'Embarque', t: 'data' }, { k: 'entrega', r: 'Entrega', t: 'data' }, { k: 'local', r: 'Local de entrega', t: 'texto' },
   { k: 'endereco', r: 'Endereço', t: 'texto' }, { k: 'cidade', r: 'Cidade', t: 'texto' }, { k: 'uf', r: 'UF', t: 'texto' },
@@ -1118,6 +1118,8 @@ function logDescascar(c) {
   if (c.length > 1 && c.charAt(0) === '"' && c.charAt(c.length - 1) === '"') c = c.slice(1, -1).replace(/""/g, '"');
   return c;
 }
+/* código da OP = ordem (5 dígitos, igual ao pedido) + linha (3 dígitos): 38421001 = OP 38421, linha 001 */
+function opLinha(op) { return String(op || '').slice(-3); }
 function logDataISO(s) {
   var m = /^(\d{2})\/(\d{2})\/(\d{4})/.exec(s || '');
   if (m) return +m[3] < 2001 ? '' : m[3] + '-' + m[2] + '-' + m[1];
@@ -1159,6 +1161,7 @@ function logProcessarCsv(texto) {
     var r = {
       pedido: opId.slice(0, 5),
       op: opId,
+      linha: opId.slice(-3),
       cliente: (c[idx.Cliente] || '').trim(),
       itemId: (c[idx.ItemId] || '').trim(),
       item: (c[idx.ItemNome] || '').trim(),
@@ -1511,6 +1514,11 @@ function logAtualizar(sincronizar) {
   if (sincronizar) logSincronizarEntradas();
   logRenderResultado();
 }
+function logContarOrdens(rows) {
+  var m = {};
+  rows.forEach(function (r) { m[r.pedido] = 1; });
+  return Object.keys(m).length;
+}
 function logRenderResultado() {
   var el = document.getElementById('logResultado');
   if (!el) return;
@@ -1518,12 +1526,12 @@ function logRenderResultado() {
   var meta = document.getElementById('logMeta');
   if (meta) {
     var quando = logMeta.atualizadoEm ? new Date(logMeta.atualizadoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-    meta.textContent = (quando ? 'Arquivo de ' + quando + ' · ' : '') + logNum(logDados.length) + ' OPs · ' + logMeta.origem;
+    meta.textContent = (quando ? 'Arquivo de ' + quando + ' · ' : '') + logNum(logContarOrdens(logDados)) + ' OPs · ' + logNum(logDados.length) + ' linhas · ' + logMeta.origem;
   }
   var rows = logFiltrar('');
   var html = logVisoesHTML() + logChipsHTML();
   if (!rows.length) {
-    el.innerHTML = html + '<div class="lista-vazia">Nenhuma OP com esses filtros.</div>';
+    el.innerHTML = html + '<div class="lista-vazia">Nenhuma linha de OP com esses filtros.</div>';
     return;
   }
   if (logVisao === 'itens') {
@@ -1594,8 +1602,8 @@ function logKpisHTML(rows) {
   });
   var f = logFiltros;
   return '<div class="log-kpis">' +
-    logKpiHTML('', 'OPs abertas', logNum(rows.length), '') +
-    logKpiHTML('', 'Pedidos', logNum(Object.keys(peds).length), '') +
+    logKpiHTML('', 'OPs abertas', logNum(Object.keys(peds).length), 'um pedido = uma OP') +
+    logKpiHTML('', 'Linhas de OP', logNum(rows.length), 'itens das OPs') +
     logKpiHTML('', 'Clientes', logNum(Object.keys(clis).length), '') +
     logKpiHTML('vencidas', 'Embarque vencido', logNum(venc), logNum(vencSemNf) + ' sem NF emitida', f.vencidas) +
     logKpiHTML('prox7', 'Embarques nos próx. 7 dias', logNum(prox7), '', f.de === logHoje && f.ate === lim7 && f.campoData === 'embarque') +
@@ -1603,7 +1611,7 @@ function logKpisHTML(rows) {
     logKpiHTML('semEmbarque', 'Sem data de embarque', logNum(semEmb), '', f.semEmbarque) +
     logKpiHTML('comNf', 'Com NF emitida', logNum(comNf), 'ainda abertas no Cosmos', f.comNf) +
     '</div>' +
-    '<p class="dica">"Embarque vencido" = OP ainda aberta no Cosmos com embarque antes de hoje. As que já têm NF emitida provavelmente já saíram e só esperam a baixa; as <b>sem NF emitida</b> são os atrasos de verdade. Os números respeitam os filtros acima.</p>';
+    '<p class="dica">"Embarque vencido" = OP ainda aberta no Cosmos com embarque antes de hoje. As que já têm NF emitida provavelmente já saíram e só esperam a baixa; as <b>sem NF emitida</b> são os atrasos de verdade. Os números respeitam os filtros acima. A <b>OP</b> é o número de 5 dígitos (o mesmo do pedido); os 3 últimos dígitos do código completo são a <b>linha</b> dela.</p>';
 }
 function logBarrasHTML(titulo, dim, rows, max) {
   var itens = logContar(rows, dim);
@@ -1618,7 +1626,7 @@ function logBarrasHTML(titulo, dim, rows, max) {
   html += '<div class="barras">';
   topo.forEach(function (x) {
     var rot = x.chave === '__sem' ? 'Não informada' : x.chave;
-    html += '<div class="barra-linha' + (sel === x.chave ? ' sel' : '') + '" data-dim="' + dim + '" data-val="' + escaparHTML(x.chave) + '" title="' + escaparHTML(rot) + ' — ' + x.n + ' OPs">' +
+    html += '<div class="barra-linha' + (sel === x.chave ? ' sel' : '') + '" data-dim="' + dim + '" data-val="' + escaparHTML(x.chave) + '" title="' + escaparHTML(rot) + ' — ' + x.n + ' linhas">' +
       '<span class="barra-rotulo">' + escaparHTML(rot) + '</span>' +
       '<span class="barra-trilho"><span class="barra-preenche" style="width:' + Math.max(2, Math.round(x.n / maior * 100)) + '%"></span></span>' +
       '<span class="barra-n">' + logNum(x.n) + '</span></div>';
@@ -1639,10 +1647,10 @@ function logSerieHTML() {
     if (!min || k < min) min = k;
     if (!max || k > max) max = k;
   });
-  var cab = '<div class="log-serie-cab"><h4>OPs por ' + (logGran === 'mes' ? 'mês' : 'semana') + ' — ' + logRotuloCampo(campo) + '</h4>' +
+  var cab = '<div class="log-serie-cab"><h4>Linhas de OP por ' + (logGran === 'mes' ? 'mês' : 'semana') + ' — ' + logRotuloCampo(campo) + '</h4>' +
     '<div class="log-gran"><button type="button" class="btn btn-sm ' + (logGran === 'semana' ? 'btn-primario' : 'btn-contorno') + '" data-gran="semana">Semana</button>' +
     '<button type="button" class="btn btn-sm ' + (logGran === 'mes' ? 'btn-primario' : 'btn-contorno') + '" data-gran="mes">Mês</button></div></div>';
-  if (!min) return cab + '<div class="lista-vazia-mini">Nenhuma OP com data de ' + logRotuloCampo(campo).toLowerCase() + '.</div>';
+  if (!min) return cab + '<div class="lista-vazia-mini">Nenhuma linha de OP com data de ' + logRotuloCampo(campo).toLowerCase() + '.</div>';
   var chaves = [], k = min, guarda = 0;
   while (k <= max && guarda++ < 160) {
     chaves.push(k);
@@ -1663,7 +1671,7 @@ function logSerieHTML() {
     var ate = logGran === 'mes' ? logFimDoMes(c) : logSomarDias(c, 6);
     var rot = logGran === 'mes' ? LOG_MESES[+c.slice(5, 7) - 1] + '/' + c.slice(2, 4) : c.slice(8, 10) + '/' + c.slice(5, 7);
     var sel = logFiltros.de === de && logFiltros.ate === ate;
-    html += '<div class="col-item' + (sel ? ' sel' : '') + (c === chaveAtual ? ' atual' : '') + '" data-de="' + de + '" data-ate="' + ate + '" title="' + logFmtData(de) + ' a ' + logFmtData(ate) + ' — ' + n + ' OPs">' +
+    html += '<div class="col-item' + (sel ? ' sel' : '') + (c === chaveAtual ? ' atual' : '') + '" data-de="' + de + '" data-ate="' + ate + '" title="' + logFmtData(de) + ' a ' + logFmtData(ate) + ' — ' + n + ' linhas">' +
       '<span class="col-n">' + (n ? n : '') + '</span>' +
       '<span class="col-barra" style="height:' + (n ? Math.max(3, Math.round(n / maiorN * 130)) : 0) + 'px"></span>' +
       '<span class="col-rot">' + rot + '</span></div>';
@@ -1690,7 +1698,7 @@ function logTabelaHTML(rows) {
   if (logPagina >= paginas) logPagina = paginas - 1;
   var ini = logPagina * LOG_POR_PAGINA;
   var fatia = ord.slice(ini, ini + LOG_POR_PAGINA);
-  var html = '<div class="log-tabela-cab"><h4>OPs (' + logNum(total) + ')</h4></div><div class="tabela-wrap"><table class="log-tabela"><thead><tr>';
+  var html = '<div class="log-tabela-cab"><h4>Linhas de OP (' + logNum(total) + ')</h4></div><div class="tabela-wrap"><table class="log-tabela"><thead><tr>';
   LOG_COLUNAS.forEach(function (c) {
     var ativo = logFiltros.cols[c.k] !== undefined || (logOrdem.escolhida && logOrdem.k === c.k);
     html += '<th' + (c.num ? ' class="num"' : '') + '><span class="th-rotulo">' + c.r + '</span> ' +
@@ -1701,7 +1709,7 @@ function logTabelaHTML(rows) {
     var venc = r.embarque && r.embarque < logHoje;
     html += '<tr>' +
       '<td>' + escaparHTML(r.pedido) + '</td>' +
-      '<td title="' + escaparHTML(r.obs) + '"><code>' + escaparHTML(r.op) + '</code></td>' +
+      '<td title="' + escaparHTML(r.obs) + '"><code>' + escaparHTML(r.linha) + '</code></td>' +
       '<td>' + escaparHTML(r.cliente) + '</td>' +
       '<td>' + escaparHTML(r.item) + '</td>' +
       '<td class="num">' + escaparHTML(String(r.qtd).replace('.', ',')) + ' ' + escaparHTML(r.un) + '</td>' +
@@ -1816,7 +1824,7 @@ function logExportarCsv() {
   var rows = logOrdenar(logFiltrar(''));
   var linhas = [LOG_COLUNAS.map(function (c) { return c.r; }).join(';')];
   rows.forEach(function (r) {
-    linhas.push([r.pedido, r.op, r.cliente, r.item, String(r.qtd).replace('.', ','), r.tipo, r.etapa, logFmtData(r.embarque).replace('—', ''), logFmtData(r.entrega).replace('—', ''), r.local, r.endereco, r.cidade, r.uf, r.vendedor, r.nf, logFmtData(r.faturamento).replace('—', '')].map(logCsvCel).join(';'));
+    linhas.push([r.pedido, r.linha, r.cliente, r.item, String(r.qtd).replace('.', ','), r.tipo, r.etapa, logFmtData(r.embarque).replace('—', ''), logFmtData(r.entrega).replace('—', ''), r.local, r.endereco, r.cidade, r.uf, r.vendedor, r.nf, logFmtData(r.faturamento).replace('—', '')].map(logCsvCel).join(';'));
   });
   var blob = new Blob(['﻿' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   var a = document.createElement('a');
@@ -1834,7 +1842,7 @@ var logOrdemItens = { k: 'qtd', dir: -1 };
 var logGruposAbertos = {};
 var logItensAbertos = {};
 var logImpOpcoes = { pedidos: false, paginaPorGrupo: false };
-var LOG_AGRUPS = [['item', 'Item'], ['cliente', 'Cliente › Item'], ['tipo', 'Tipo › Item'], ['pedido', 'Pedido › Item']];
+var LOG_AGRUPS = [['item', 'Item'], ['cliente', 'Cliente › Item'], ['tipo', 'Tipo › Item'], ['pedido', 'OP › Item']];
 
 /* peças (PC/UN) somam juntas; m² e qualquer outra unidade ficam à parte */
 function logGrupoUnidade(un) {
@@ -1872,7 +1880,7 @@ function logItensAgrupar(rows, modo) {
     var gk = modo === 'cliente' ? (r.cliente || '(sem cliente)') : (modo === 'tipo' ? r.tipo : (modo === 'pedido' ? r.pedido : ''));
     var g = grupos[gk];
     if (!g) {
-      g = grupos[gk] = { chave: gk, rotulo: modo === 'pedido' ? 'Pedido ' + r.pedido + ' — ' + (r.cliente || '(sem cliente)') : gk, acc: logAccNovo(), linhas: Object.create(null), lista: [] };
+      g = grupos[gk] = { chave: gk, rotulo: modo === 'pedido' ? 'OP ' + r.pedido + ' — ' + (r.cliente || '(sem cliente)') : gk, acc: logAccNovo(), linhas: Object.create(null), lista: [] };
       ordem.push(g);
     }
     var ik = r.itemId || r.item;
@@ -1895,8 +1903,8 @@ function logItensOrdenar(lista) {
   return lista.slice().sort(function (a, b) {
     var r;
     if (k === 'nome') r = a.nome.localeCompare(b.nome, 'pt-BR');
-    else if (k === 'ops') r = a.acc.nOps - b.acc.nOps;
-    else if (k === 'peds') r = a.acc.nPeds - b.acc.nPeds;
+    else if (k === 'ops') r = a.acc.nPeds - b.acc.nPeds;
+    else if (k === 'linhas') r = a.acc.nOps - b.acc.nOps;
     else if (k === 'emb') r = (a.acc.embMin || '9999').localeCompare(b.acc.embMin || '9999');
     else r = a.acc.qtdNum - b.acc.qtdNum;
     return r * d || a.nome.localeCompare(b.nome, 'pt-BR');
@@ -1929,16 +1937,16 @@ function logItemLinhaHTML(g, l) {
     '<td>' + escaparHTML(l.nome) + '</td>' +
     '<td>' + escaparHTML(l.un) + '</td>' +
     '<td class="num sem-quebra"><strong>' + logNum(l.acc.qtdNum) + '</strong></td>' +
-    '<td class="num">' + logNum(l.acc.nOps) + '</td>' +
     '<td class="num">' + logNum(l.acc.nPeds) + '</td>' +
+    '<td class="num">' + logNum(l.acc.nOps) + '</td>' +
     '<td>' + (l.acc.embMin ? logFmtData(l.acc.embMin) : '<span class="muted">—</span>') + '</td>' +
     '<td>' + (l.acc.embMax ? logFmtData(l.acc.embMax) : '<span class="muted">—</span>') + '</td>' +
     '<td class="num">' + (venc ? '<span class="log-venc">' + logNum(venc) + '</span>' : '<span class="muted">0</span>') + '</td></tr>';
   if (aberto) {
     var ops = l.ops.slice().sort(function (a, b) { return (a.embarque || '9999').localeCompare(b.embarque || '9999') || String(a.op).localeCompare(String(b.op)); });
-    h += '<tr class="ap-ops-linha"><td colspan="9"><table class="ap-ops"><thead><tr><th>Pedido</th><th>OP</th><th>Cliente</th><th>Qtd.</th><th>Etapa atual</th><th>Embarque</th><th>Entrega</th><th>NF</th></tr></thead><tbody>';
+    h += '<tr class="ap-ops-linha"><td colspan="9"><table class="ap-ops"><thead><tr><th>OP</th><th>Linha</th><th>Cliente</th><th>Qtd.</th><th>Etapa atual</th><th>Embarque</th><th>Entrega</th><th>NF</th></tr></thead><tbody>';
     ops.forEach(function (o) {
-      h += '<tr><td>' + escaparHTML(o.pedido) + '</td><td><code>' + escaparHTML(o.op) + '</code></td><td>' + escaparHTML(o.cliente) + '</td>' +
+      h += '<tr><td>' + escaparHTML(o.pedido) + '</td><td><code>' + escaparHTML(o.linha) + '</code></td><td>' + escaparHTML(o.cliente) + '</td>' +
         '<td>' + escaparHTML(String(o.qtd).replace('.', ',')) + ' ' + escaparHTML(o.un) + '</td><td>' + escaparHTML(o.etapa) + '</td>' +
         '<td>' + (o.embarque ? logFmtData(o.embarque) + (o.embarque < logHoje ? ' <span class="log-venc">vencido</span>' : '') : '—') + '</td>' +
         '<td>' + (o.entrega ? logFmtData(o.entrega) : '—') + '</td><td>' + (o.nf ? escaparHTML(o.nf) : '—') + '</td></tr>';
@@ -1960,35 +1968,35 @@ function logItensHTML(rows) {
     (temGrupos && res.grupos.length > 1 ? '<button type="button" class="btn btn-contorno btn-sm" data-gruposall="abrir">Expandir tudo</button><button type="button" class="btn btn-contorno btn-sm" data-gruposall="fechar">Recolher tudo</button>' : '') +
     '</div>' +
     '<div class="log-itens-barra"><span class="rotulo">Impressão</span>' +
-    '<label class="ap-check"><input type="checkbox" id="logImpPedidos"' + (logImpOpcoes.pedidos ? ' checked' : '') + '> Mostrar os pedidos de cada item</label>' +
+    '<label class="ap-check"><input type="checkbox" id="logImpPedidos"' + (logImpOpcoes.pedidos ? ' checked' : '') + '> Mostrar as OPs de cada item</label>' +
     (temGrupos ? '<label class="ap-check"><input type="checkbox" id="logImpPagina"' + (logImpOpcoes.paginaPorGrupo ? ' checked' : '') + '> Uma página por grupo</label>' : '') +
     '<button type="button" class="btn btn-primario btn-sm" data-imprimir="1">Imprimir</button></div>';
   h += '<div class="log-kpis">' +
     logKpiHTML('', 'Itens diferentes', logNum(res.nItens), '') +
     logKpiHTML('', 'Quantidade total', logUnTexto(tot.qtd), 'soma dos itens abaixo') +
-    logKpiHTML('', 'OPs abertas', logNum(tot.nOps), '') +
-    logKpiHTML('', 'Pedidos', logNum(tot.nPeds), '') +
+    logKpiHTML('', 'OPs abertas', logNum(tot.nPeds), '') +
+    logKpiHTML('', 'Linhas de OP', logNum(tot.nOps), '') +
     logKpiHTML('', 'Qtd. com embarque vencido', logUnTexto(tot.venc), 'OP aberta, embarque antes de hoje') +
     '</div>';
   h += '<div class="log-tabela-cab"><h4>Itens (' + logNum(res.nItens) + ') <span class="muted" style="text-transform:none;font-weight:400;">— clique no item para ver as OPs' + (temGrupos ? ' e no grupo para abrir ou fechar' : '') + '</span></h4></div>' +
     '<div class="tabela-wrap"><table class="log-tabela"><thead><tr>' +
-    '<th>Cód.</th>' + logThItem('nome', 'Item') + '<th>Un.</th>' + logThItem('qtd', 'Qtd. total', 'num') + logThItem('ops', 'OPs', 'num') + logThItem('peds', 'Pedidos', 'num') +
+    '<th>Cód.</th>' + logThItem('nome', 'Item') + '<th>Un.</th>' + logThItem('qtd', 'Qtd. total', 'num') + logThItem('ops', 'OPs', 'num') + logThItem('linhas', 'Linhas', 'num') +
     logThItem('emb', '1º embarque') + '<th>Últ. embarque</th><th class="num">Qtd. vencida</th></tr></thead><tbody>';
   res.grupos.forEach(function (g) {
     var aberto = !temGrupos || logGrupoAberto(g.chave, res.grupos.length);
     if (temGrupos) {
       h += '<tr class="log-grupo" data-grupo="' + escaparHTML(g.chave) + '"><td colspan="9">' + (aberto ? '▾ ' : '▸ ') + escaparHTML(g.rotulo) +
-        ' <span class="muted">— ' + logNum(g.lista.length) + ' itens · ' + logUnTexto(g.acc.qtd) + ' · ' + logNum(g.acc.nOps) + ' OPs · ' + logNum(g.acc.nPeds) + ' pedidos</span></td></tr>';
+        ' <span class="muted">— ' + logNum(g.lista.length) + ' itens · ' + logUnTexto(g.acc.qtd) + ' · ' + logNum(g.acc.nPeds) + ' OPs · ' + logNum(g.acc.nOps) + ' linhas</span></td></tr>';
     }
     if (!aberto) return;
     logItensOrdenar(g.lista).forEach(function (l) { h += logItemLinhaHTML(g, l); });
     if (temGrupos) {
       h += '<tr class="log-subtotal"><td colspan="3">Subtotal — ' + escaparHTML(g.rotulo) + '</td><td class="num">' + escaparHTML(logUnTexto(g.acc.qtd)) + '</td>' +
-        '<td class="num">' + logNum(g.acc.nOps) + '</td><td class="num">' + logNum(g.acc.nPeds) + '</td><td colspan="3"></td></tr>';
+        '<td class="num">' + logNum(g.acc.nPeds) + '</td><td class="num">' + logNum(g.acc.nOps) + '</td><td colspan="3"></td></tr>';
     }
   });
   h += '<tr class="log-total"><td colspan="3">Total geral</td><td class="num">' + escaparHTML(logUnTexto(tot.qtd)) + '</td>' +
-    '<td class="num">' + logNum(tot.nOps) + '</td><td class="num">' + logNum(tot.nPeds) + '</td>' +
+    '<td class="num">' + logNum(tot.nPeds) + '</td><td class="num">' + logNum(tot.nOps) + '</td>' +
     '<td colspan="2"></td><td class="num">' + escaparHTML(logUnTexto(tot.venc)) + '</td></tr>';
   return h + '</tbody></table></div>' +
     '<p class="dica">Soma a quantidade de cada OP aberta. Peças (PC e UN) somam juntas; m² e outras unidades aparecem à parte. Os filtros do topo valem aqui: escolha o cliente e o tipo de produto e o total sai pronto.</p>';
@@ -2000,10 +2008,10 @@ function logAgrupRotulo() {
 }
 function logExportarItens() {
   var res = logItensAgrupar(logFiltrar(''), logAgrup);
-  var linhas = ['Grupo;Cód. Cosmos;Item;Un.;Qtd. total;OPs;Pedidos;1º embarque;Últ. embarque;Qtd. com embarque vencido;Números dos pedidos'];
+  var linhas = ['Grupo;Cód. Cosmos;Item;Un.;Qtd. total;OPs;Linhas;1º embarque;Últ. embarque;Qtd. com embarque vencido;Números das OPs'];
   res.grupos.forEach(function (g) {
     logItensOrdenar(g.lista).forEach(function (l) {
-      linhas.push([logAgrup === 'item' ? '' : g.rotulo, l.cod, l.nome, l.un, String(l.acc.qtdNum).replace('.', ','), l.acc.nOps, l.acc.nPeds,
+      linhas.push([logAgrup === 'item' ? '' : g.rotulo, l.cod, l.nome, l.un, String(l.acc.qtdNum).replace('.', ','), l.acc.nPeds, l.acc.nOps,
         logFmtData(l.acc.embMin).replace('—', ''), logFmtData(l.acc.embMax).replace('—', ''), String(logSomaVenc(l.acc)).replace('.', ','), logPedidosLista(l.acc).join(' ')].map(logCsvCel).join(';'));
     });
   });
@@ -2027,14 +2035,14 @@ function logImprimirItens() {
   var arquivo = logMeta.atualizadoEm ? new Date(logMeta.atualizadoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
   var filtros = logChipsLista().map(function (c) { return '<span>' + escaparHTML(c[1]) + '</span>'; }).join('') || '<span>Sem filtros: todas as OPs abertas</span>';
   var colgrupo = '<colgroup><col style="width:9%"><col><col style="width:5%"><col style="width:9%"><col style="width:6%"><col style="width:7%"><col style="width:9%"><col style="width:9%"><col style="width:9%"></colgroup>';
-  var thead = '<thead><tr><th>Cód.</th><th>Item</th><th>Un.</th><th class="n">Qtd. total</th><th class="n">OPs</th><th class="n">Pedidos</th><th>1º embarque</th><th>Últ. embarque</th><th class="n">Qtd. vencida</th></tr></thead>';
+  var thead = '<thead><tr><th>Cód.</th><th>Item</th><th>Un.</th><th class="n">Qtd. total</th><th class="n">OPs</th><th class="n">Linhas</th><th>1º embarque</th><th>Últ. embarque</th><th class="n">Qtd. vencida</th></tr></thead>';
   function linhaItem(l) {
     var v = logSomaVenc(l.acc);
     var t = '<tr><td>' + escaparHTML(l.cod) + '</td><td>' + escaparHTML(l.nome) + '</td><td>' + escaparHTML(l.un) + '</td>' +
-      '<td class="n"><b>' + logNum(l.acc.qtdNum) + '</b></td><td class="n">' + logNum(l.acc.nOps) + '</td><td class="n">' + logNum(l.acc.nPeds) + '</td>' +
+      '<td class="n"><b>' + logNum(l.acc.qtdNum) + '</b></td><td class="n">' + logNum(l.acc.nPeds) + '</td><td class="n">' + logNum(l.acc.nOps) + '</td>' +
       '<td>' + (l.acc.embMin ? logFmtData(l.acc.embMin) : '') + '</td><td>' + (l.acc.embMax ? logFmtData(l.acc.embMax) : '') + '</td>' +
       '<td class="n">' + (v ? logNum(v) : '') + '</td></tr>';
-    if (logImpOpcoes.pedidos) t += '<tr class="peds"><td></td><td colspan="8">Pedidos: ' + escaparHTML(logPedidosLista(l.acc).join(', ')) + '</td></tr>';
+    if (logImpOpcoes.pedidos) t += '<tr class="peds"><td></td><td colspan="8">OPs: ' + escaparHTML(logPedidosLista(l.acc).join(', ')) + '</td></tr>';
     return t;
   }
   var corpo = '';
@@ -2042,17 +2050,17 @@ function logImprimirItens() {
     var quebra = temGrupos && logImpOpcoes.paginaPorGrupo && i > 0;
     corpo += '<div class="grupo' + (quebra ? ' quebra' : '') + '">';
     if (temGrupos) {
-      corpo += '<div class="grupo-tit">' + escaparHTML(g.rotulo) + ' <span>' + logNum(g.lista.length) + ' itens · ' + escaparHTML(logUnTexto(g.acc.qtd)) + ' · ' + logNum(g.acc.nOps) + ' OPs · ' + logNum(g.acc.nPeds) + ' pedidos</span></div>';
+      corpo += '<div class="grupo-tit">' + escaparHTML(g.rotulo) + ' <span>' + logNum(g.lista.length) + ' itens · ' + escaparHTML(logUnTexto(g.acc.qtd)) + ' · ' + logNum(g.acc.nPeds) + ' OPs · ' + logNum(g.acc.nOps) + ' linhas</span></div>';
     }
     corpo += '<table>' + colgrupo + thead + '<tbody>' + logItensOrdenar(g.lista).map(linhaItem).join('');
     if (temGrupos) {
       corpo += '<tr class="sub"><td colspan="3">Subtotal — ' + escaparHTML(g.rotulo) + '</td><td class="n">' + escaparHTML(logUnTexto(g.acc.qtd)) + '</td>' +
-        '<td class="n">' + logNum(g.acc.nOps) + '</td><td class="n">' + logNum(g.acc.nPeds) + '</td><td colspan="3"></td></tr>';
+        '<td class="n">' + logNum(g.acc.nPeds) + '</td><td class="n">' + logNum(g.acc.nOps) + '</td><td colspan="3"></td></tr>';
     }
     corpo += '</tbody></table></div>';
   });
   corpo += '<table class="fim">' + colgrupo + '<tbody><tr class="tot"><td colspan="3">TOTAL GERAL — ' + logNum(res.nItens) + ' itens diferentes</td><td class="n">' + escaparHTML(logUnTexto(tot.qtd)) + '</td>' +
-    '<td class="n">' + logNum(tot.nOps) + '</td><td class="n">' + logNum(tot.nPeds) + '</td><td colspan="2"></td><td class="n">' + escaparHTML(logUnTexto(tot.venc)) + '</td></tr></tbody></table>';
+    '<td class="n">' + logNum(tot.nPeds) + '</td><td class="n">' + logNum(tot.nOps) + '</td><td colspan="2"></td><td class="n">' + escaparHTML(logUnTexto(tot.venc)) + '</td></tr></tbody></table>';
   var win = window.open('', '_blank');
   if (!win) { alert('O navegador bloqueou a janela de impressão. Libere pop-ups para este site e tente de novo.'); return; }
   win.document.write(
@@ -2080,7 +2088,7 @@ function logImprimirItens() {
     (arquivo ? '<br>Arquivo do Cosmos de ' + escaparHTML(arquivo) : '') + '<br>Embarque vencido = antes de ' + escaparHTML(logFmtData(logHoje)) + '</div></div>' +
     '<div class="filtros"><b>Filtros:</b>' + filtros + '</div>' +
     '<div class="resumo"><div>Itens diferentes<b>' + logNum(res.nItens) + '</b></div><div>Quantidade total<b>' + escaparHTML(logUnTexto(tot.qtd)) + '</b></div>' +
-    '<div>OPs abertas<b>' + logNum(tot.nOps) + '</b></div><div>Pedidos<b>' + logNum(tot.nPeds) + '</b></div></div>' +
+    '<div>OPs abertas<b>' + logNum(tot.nPeds) + '</b></div><div>Linhas de OP<b>' + logNum(tot.nOps) + '</b></div></div>' +
     corpo + '</body></html>'
   );
   win.document.close();
@@ -2100,7 +2108,7 @@ var AP_COLUNAS = [
   { k: 'pedido', r: 'Pedido', t: 'texto' }, { k: 'data', r: 'Data', t: 'data' }, { k: 'entrega', r: 'Entrega', t: 'data' }, { k: 'sitNome', r: 'Situação', t: 'texto' },
   { k: 'opSit', r: 'OP', t: 'texto' },
   { k: 'cliente', r: 'Cliente', t: 'texto' }, { k: 'cidade', r: 'Cidade', t: 'texto' }, { k: 'uf', r: 'UF', t: 'texto' }, { k: 'vendedor', r: 'Vendedor', t: 'texto' },
-  { k: 'nOps', r: 'OPs abertas', t: 'num', num: true }, { k: 'nConc', r: 'OPs concluídas', t: 'num', num: true }, { k: 'etapa', r: 'Etapa mais atrasada', t: 'texto' }, { k: 'embarque', r: 'Maior embarque', t: 'data' },
+  { k: 'nOps', r: 'Linhas abertas', t: 'num', num: true }, { k: 'nConc', r: 'Linhas concluídas', t: 'num', num: true }, { k: 'etapa', r: 'Etapa mais atrasada', t: 'texto' }, { k: 'embarque', r: 'Maior embarque', t: 'data' },
   { k: 'idade', r: 'Dias', t: 'num', num: true }, { k: 'alerta', r: 'Alerta', t: 'texto' }, { k: 'nfs', r: 'NF', t: 'texto' }, { k: 'faturamento', r: 'Faturamento', t: 'data' }
 ];
 
@@ -2641,15 +2649,15 @@ function apKpisHTML(rows) {
   if (inc.cf) subInc.push(logNum(inc.cf) + ' canc./faturado');
   if (inc.fora) subInc.push(logNum(inc.fora) + ' fora do relatório');
   if (inc.outras) subInc.push(logNum(inc.outras) + ' outras');
-  var opsTot = 0;
-  rows.forEach(function (p) { opsTot += p.nOps; });
+  var opsTot = 0, ordAb = 0;
+  rows.forEach(function (p) { opsTot += p.nOps; if (p.nOps) ordAb++; });
   var k = apFiltros.kpi;
   var faixaHist = apHist.tem && apHist.min ? ' O histórico de concluídas cobre ' + logFmtData(apHist.min) + ' a ' + logFmtData(apHist.max) + ': pedidos mais antigos que isso podem aparecer como "Sem OP".' : '';
   return '<div class="log-kpis">' +
-    logKpiHTML('', 'Pedidos na tela', logNum(rows.length), logNum(opsTot) + ' OPs abertas') +
+    logKpiHTML('', 'Pedidos na tela', logNum(rows.length), logNum(ordAb) + ' OPs abertas · ' + logNum(opsTot) + ' linhas') +
     (apHist.tem ? apKpiHTML('chegouPcp', logNum(n.chegouPcp), logNum(n.comOp) + ' com OP aberta · ' + logNum(n.soConc) + ' só concluída', k) : '') +
     apKpiHTML('semOp', logNum(n.semOp), logNum(semOp30) + ' há mais de 30 dias', k) +
-    apKpiHTML('comOp', logNum(n.comOp), logNum(opsLib) + ' OPs abertas', k) +
+    apKpiHTML('comOp', logNum(n.comOp), logNum(opsLib) + ' linhas abertas', k) +
     (apHist.tem ? apKpiHTML('soConc', logNum(n.soConc), 'provável pedido novo na NF', k) : '') +
     apKpiHTML('entregaVencida', logNum(n.entregaVencida), logNum(vencSemOp) + (apHist.tem ? ' sem nenhuma OP' : ' sem OP aberta'), k) +
     apKpiHTML('parcialComOp', logNum(n.parcialComOp), 'saldo em produção', k) +
@@ -2658,7 +2666,7 @@ function apKpisHTML(rows) {
     apKpiHTML('embAposEntrega', logNum(n.embAposEntrega), 'OP programada após a data prometida', k) +
     '</div>' +
     '<p class="dica">Os indicadores contam pedidos e respeitam os filtros, menos a situação: cada um já tem a sua. Clique num indicador para ver só aqueles pedidos. ' +
-    '<b>"Chegou ao PCP"</b> = o pedido tem OP, aberta ou já concluída. <b>"Só com OP concluída"</b> é pedido que continua Liberado mesmo com a produção pronta: em geral o faturamento gerou outro número de pedido.' + escaparHTML(faixaHist) + '</p>';
+    'A <b>OP</b> tem o mesmo número do pedido (5 dígitos); os 3 últimos dígitos do código completo são a <b>linha</b> dela. <b>"Chegou ao PCP"</b> = o pedido tem OP, aberta ou já concluída. <b>"Só com OP concluída"</b> é pedido que continua Liberado mesmo com a produção pronta: em geral o faturamento gerou outro número de pedido.' + escaparHTML(faixaHist) + '</p>';
 }
 function apKpiHTML(chave, valor, sub, ativo) {
   var rotulo = AP_KPIS[chave];
@@ -2755,7 +2763,7 @@ function apTabelaHTML(rows) {
   if (apPagina >= paginas) apPagina = paginas - 1;
   var ini = apPagina * LOG_POR_PAGINA;
   var fatia = ord.slice(ini, ini + LOG_POR_PAGINA);
-  var html = '<div class="log-tabela-cab"><h4>Pedidos (' + logNum(total) + ') <span class="muted" style="text-transform:none;font-weight:400;">— clique no pedido para ver as OPs</span></h4></div><div class="tabela-wrap"><table class="log-tabela"><thead><tr>';
+  var html = '<div class="log-tabela-cab"><h4>Pedidos (' + logNum(total) + ') <span class="muted" style="text-transform:none;font-weight:400;">— clique no pedido para ver a OP e as linhas</span></h4></div><div class="tabela-wrap"><table class="log-tabela"><thead><tr>';
   AP_COLUNAS.forEach(function (c) {
     var ativo = apFiltros.cols[c.k] !== undefined || (apOrdem.escolhida && apOrdem.k === c.k);
     html += '<th' + (c.num ? ' class="num"' : '') + '><span class="th-rotulo">' + c.r + '</span> ' +
@@ -2804,11 +2812,11 @@ function apOpsHTML(p) {
     return html + '<div class="ap-ops-info">' + (apHist.tem ? 'Nenhuma OP, aberta ou concluída, para este pedido: ele ainda não chegou ao PCP.' : 'Nenhuma OP aberta para este pedido no arquivo do robô (o histórico de concluídas não está disponível).') + '</div></td></tr>';
   }
   if (p.nOps) {
-    html += '<div class="ap-ops-info"><b>OPs abertas</b></div>' +
-      '<table class="ap-ops"><thead><tr><th>OP</th><th>Item</th><th>Qtd.</th><th>Tipo</th><th>Etapa atual</th><th>Abertura</th><th>Embarque</th><th>Entrega</th></tr></thead><tbody>';
+    html += '<div class="ap-ops-info"><b>OP ' + escaparHTML(p.pedido) + ' — aberta</b> · ' + logNum(p.nOps) + (p.nOps === 1 ? ' linha' : ' linhas') + '</div>' +
+      '<table class="ap-ops"><thead><tr><th>Linha</th><th>Item</th><th>Qtd.</th><th>Tipo</th><th>Etapa atual</th><th>Abertura</th><th>Embarque</th><th>Entrega</th></tr></thead><tbody>';
     p.ops.forEach(function (o) {
       var venc = o.embarque && o.embarque < apHoje;
-      html += '<tr><td title="' + escaparHTML(o.obs) + '"><code>' + escaparHTML(o.op) + '</code></td>' +
+      html += '<tr><td title="' + escaparHTML(o.obs) + '"><code>' + escaparHTML(o.linha) + '</code></td>' +
         '<td>' + escaparHTML(o.item) + '</td>' +
         '<td>' + escaparHTML(String(o.qtd).replace('.', ',')) + ' ' + escaparHTML(o.un) + '</td>' +
         '<td>' + escaparHTML(o.tipo) + '</td>' +
@@ -2820,11 +2828,11 @@ function apOpsHTML(p) {
     html += '</tbody></table>';
   }
   if (p.nConc) {
-    html += '<div class="ap-ops-info"' + (p.nOps ? ' style="margin-top:10px"' : '') + '><b>OPs concluídas</b>' +
+    html += '<div class="ap-ops-info"' + (p.nOps ? ' style="margin-top:10px"' : '') + '><b>OP ' + escaparHTML(p.pedido) + ' — concluída</b> · ' + logNum(p.nConc) + (p.nConc === 1 ? ' linha' : ' linhas') +
       (p.flags && p.flags.soConc ? ' — o pedido segue Liberado, mas toda a produção já terminou: provavelmente o faturamento gerou outro número de pedido.' : '') + '</div>' +
-      '<table class="ap-ops"><thead><tr><th>OP</th><th>Item</th><th>Qtd.</th><th>Tipo</th><th>Abertura</th><th>Conclusão</th><th>Embarque</th></tr></thead><tbody>';
+      '<table class="ap-ops"><thead><tr><th>Linha</th><th>Item</th><th>Qtd.</th><th>Tipo</th><th>Abertura</th><th>Conclusão</th><th>Embarque</th></tr></thead><tbody>';
     p.opsConc.forEach(function (o) {
-      html += '<tr><td><code>' + escaparHTML(o.op) + '</code></td>' +
+      html += '<tr><td><code>' + escaparHTML(opLinha(o.op)) + '</code></td>' +
         '<td>' + escaparHTML(o.item) + '</td>' +
         '<td>' + escaparHTML(String(o.qtd).replace('.', ',')) + ' ' + escaparHTML(o.un) + '</td>' +
         '<td>' + escaparHTML(o.tipo) + '</td>' +
@@ -2896,11 +2904,11 @@ function apExportarCsv() {
   if (!apDados) return;
   apGarantirHoje();
   var rows = apOrdenar(apFiltrar(''));
-  var linhas = [AP_COLUNAS.map(function (c) { return c.r; }).join(';') + ';Cond. pagamento;OPs abertas (números);OPs concluídas (números)'];
+  var linhas = [AP_COLUNAS.map(function (c) { return c.r; }).join(';') + ';Cond. pagamento;OP (ordem);Linhas abertas (nº);Linhas concluídas (nº)'];
   function d(v) { return v ? logFmtData(v) : ''; }
   rows.forEach(function (p) {
     linhas.push([p.pedido, d(p.data), d(p.entrega), p.sitNome, p.opSit, p.cliente, p.cidade, p.uf, p.vendedor, p.nOps, p.nConc, p.etapa, d(p.embarque),
-      p.idade === null ? '' : p.idade, p.alerta, p.nfs, d(p.faturamento), p.condPag, p.ops.map(function (o) { return o.op; }).join(' '), p.opsConc.map(function (o) { return o.op; }).join(' ')].map(logCsvCel).join(';'));
+      p.idade === null ? '' : p.idade, p.alerta, p.nfs, d(p.faturamento), p.condPag, (p.nOps || p.nConc) ? p.pedido : '', p.ops.map(function (o) { return o.linha; }).join(' '), p.opsConc.map(function (o) { return opLinha(o.op); }).join(' ')].map(logCsvCel).join(';'));
   });
   var blob = new Blob(['﻿' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   var a = document.createElement('a');

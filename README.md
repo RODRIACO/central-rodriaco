@@ -35,6 +35,14 @@ Cosmos ──(robo_coletor.py)──> bucket privado "dados-cosmos" do Supabase 
 - **Clientes com grafias diferentes viram um só** (S A, S.A., SA, S/A, LTDA, acento,
   hífen): fica o nome que mais aparece. Vale só aqui; a Análise de Pedidos não muda.
 
+### OP e linha
+
+O código da OP no Cosmos tem 8 dígitos: os **5 primeiros são a OP (ordem), igual ao
+número do pedido**, e os **3 últimos são a linha** dela (38421001 = OP 38421, linha
+001). A tela mostra a OP só com os 5 dígitos e a linha à parte; "OPs abertas" conta
+ordens (625 hoje) e "Linhas de OP" conta as linhas (3.187). Vale também na Análise de
+Pedidos do Comercial.
+
 ### Tela Itens (seletor **OPs | Itens** no topo)
 
 Soma os itens das **OPs abertas** com os mesmos filtros do painel (cliente, tipo de
@@ -44,7 +52,7 @@ produto, UF, datas, etapa, busca). Ex.: cliente Sodexo + tipo Balcões Neutros =
 - **Agrupar por:** Item, Cliente › Item, Tipo › Item ou Pedido › Item (subtotal por
   grupo e total geral). A coluna **Tipo** do Cosmos é a família do item; procurar
   "neutro" no nome perderia balcões como "UTE TAL" e "MIX".
-- Por item: código Cosmos, quantidade total, nº de OPs, nº de pedidos, primeiro e
+- Por item: código Cosmos, quantidade total, nº de OPs, nº de linhas, primeiro e
   último embarque e quantidade com embarque vencido. Clicar no item abre as OPs.
 - Peças (PC e UN) somam juntas; m² e outras unidades ficam à parte no total.
 - **Imprimir:** abre um relatório A4 paisagem (marca, data/hora, data do arquivo do
@@ -61,8 +69,9 @@ mesmo bucket `dados-cosmos`: o robô da fábrica (de hora em hora) grava o Relat
 Pedidos e as OPs abertas; o robô na nuvem (repositório privado `RODRIACO/ROBO-COSMOS`,
 GitHub Actions, 1x por dia às 20:00) acumula as OPs concluídas.
 
-- Uma linha por pedido (pedido com várias NFs vira uma linha só). Pedido = 5
-  primeiros dígitos da OP. OP de pedido que ainda não está no relatório aparece
+- Uma linha por pedido (pedido com várias NFs vira uma linha só). Pedido = OP = 5
+  primeiros dígitos do código; os 3 últimos são a linha. No detalhe aparece
+  "OP 38421 — aberta · 5 linhas" e a tabela de linhas (001, 002...). OP de pedido que ainda não está no relatório aparece
   como "Fora do relatório".
 - Situações: L Liberado, P Faturado Parcial, O Orçamento, B Bloqueado, E Expedido,
   F Faturado Total, C Cancelado, D Devolução. Padrão: Liberado + Faturado Parcial,
