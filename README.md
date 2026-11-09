@@ -108,7 +108,8 @@ Módulo **Apps de suporte**: apps da casa que ficam no mesmo site da Central. Ca
 uma página irmã em `apps/<nome>/` e **abre em uma aba própria** (o item do menu e o
 cartão do módulo abrem a nova aba). Hoje: **Estoque Livre** (`apps/estoque-livre/`) e
 **Controle de Ferramentas** (`apps/ferramentas/`), cópias dos apps que estão no
-Cloudflare; os dados continuam no mesmo Supabase.
+Cloudflare (dados no mesmo Supabase), e **Controle de Empréstimos**
+(`apps/emprestimos/`).
 
 - **Controle de Ferramentas — só o administrador altera.** Dentro da Central os demais
   níveis (`estoque`, `comercial`) só consultam: sem cadastro, edição, troca, importação,
@@ -117,6 +118,25 @@ Cloudflare; os dados continuam no mesmo Supabase.
   antigo do Cloudflare, que usa o mesmo banco), rode **uma vez** o
   `banco_ferramentas_admin.sql` no SQL Editor do Supabase. Depois dele, quem não é
   administrador recebe "Somente o administrador altera as ferramentas." ao tentar gravar.
+
+- **Controle de Empréstimos** (`apps/emprestimos/`, permissão `apps.emprestimos`):
+  empréstimos e adiantamentos de funcionários (parcelas, juros, baixas e descontos
+  parciais, dashboard, impressão, log). É o `controle de emprestimos.html` que usava
+  arquivo `.json` local, agora **com os dados no Supabase**. Dados pessoais (nome, folha,
+  dívida): o código do site **não leva nenhum nome nem valor**, e o banco só devolve linhas
+  a administrador ou a conta com a caixinha marcada em Contas. Passos, uma vez:
+  1. rodar o `banco_emprestimos.sql` no SQL Editor (tabelas `emp_*`, regras e log
+     imutável);
+  2. rodar a carga inicial (`dados-iniciais.sql`, gerado do `.json` do app antigo por
+     `gerar_dados.py`; fica **fora do GitHub**, na pasta `emprestimos-nuvem` do
+     computador; recusa-se a rodar se o banco já tiver empréstimos);
+  3. em Contas, marcar Apps de suporte › Controle de Empréstimos para quem lança.
+  O app guarda objetos JSON (`dados`) com `versao` por linha: só grava o que mudou e,
+  se outra pessoa mexeu na mesma linha, pergunta se recarrega ou sobrescreve. Atualiza a
+  tela sozinho a cada minuto (quando está parada), mostra "SEM CONEXÃO — NÃO ESTÁ
+  GRAVANDO" quando cai a rede e tenta de novo. O nome em cada lançamento e no log vem do
+  login (`perfis.nome`). Baixar cópia de segurança (.json) e Compartilhar dashboard
+  (arquivo de leitura) continuam.
 
 - **Login único:** Central e apps guardam o login na mesma chave do `localStorage`
   (`central_rodriaco_sb_v1`, mesmo site). Quem entrou em um abre o outro já logado;

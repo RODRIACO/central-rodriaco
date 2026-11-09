@@ -1,0 +1,2703 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Controle de Empréstimos — Rodriaço</title>
+<meta name="robots" content="noindex, nofollow">
+<script>/* link de e-mail do Supabase (recuperar senha) que caiu aqui: quem trata é a Central */if(/[#&](type=recovery|error_code=)/.test(location.hash))location.replace("../../"+location.hash);</script>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAAEACAMAAABrrFhUAAAAwFBMVEUKCQnsSAEAAAD7UwGyOwQoEgjSRwNMHAWWNQNsJgUeEAgKCQkNCgkKCQgKCQi5QQQKCQjCPQMKCgdZIQaHLgTbUAQgDwcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACyOLNiAAAAQHRSTlP+/wD//////////3Ay0LD/kv9E/////wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAjARTlgAABhVJREFUeNrt3YuWmyAQBuAR1OgCxrjbvv+jVpPY5rohWxgHfuac9pxu0wvfDiMiICnvmMzoHIkP50Yz+beKvD5lzZBA068YBmNDAdgxscb/RRhtAACTaOvPBub/AOxIyceLNPgOYBooiximHwHk8N33yIKnAIayCvMmgHWUWTj7DoChDMP4AwyUZQyeAJayDesDYCjjMK8Bsm7/AwHCav+9AIG1/06A0Np/K0Bw7b8RIIzr3/Or4SUAwcRjgAEHYHgEYAgozD2AJaiwdwAOC8DdAhgCC3MNYAku7BXAgAcwXAIAJsCaAoSaAGsKEGwCnFOAYBPgnAKEdRNwf0tAiGOAy7EA4Q0Cr4eDBFsCz2VwBhhxAcYjgMMFcAsAcA9Y+gDhXgNO1wFCHQWtYyFCLgFLESDoEjAXAZqwASYy2ACGRmyAkRw2gCsAJUqUKFGiRIkSJUqUeBnN5rExQF2120Zdf/W7DRX2utJesX6sWuP216cvXv/mvz98/NLxx/rTvw/P0bZ9sxmAkGjbroEGmBOjrXv+GiAG4GhQsROIAjgWkW4HDdBWmrceSgM4doR9Aw0wE7Q7bIA5CXpsAEYBoQB8AnUlNHS1wwbgqoRyAVrdNtAAcw7U6ABVjw0wlwFwAI5OIBygarABGFJAOoBusAEq3aEDxE4B6QCV3qEDdOgAke8Kpc4HXAh8ogP06AD1byEAOmC8NTGwkwHQduGiltMHvAHCXo6+EgSom40uv3kC7Fp/gC8ZNSAsQNNqGWPB7TIgOYCw/413AGohGUBbdQEhAN3HFhmgowNUsgEqQQDb1YAP9CL4gd4FGuAiWAByBWjSA9juXkDIVSAwwKESMhBK4GaoAMgYB2wDsGwzgQYQdC8QFqCXskhiqxrQ6Qp6SqyvtJRJ0YA3Q7veN955LBB7WjwgQH25e/BiP+KpmF+X9rwBUlo4nwBA5Iej8gHirpEJCqBzXiCxHcBnOgBxSkBDqQyE6iSXyYkH2BF0F4i+cUg8QE/QAPqXmOXymwDo6KvlhQ+EdPsbGoBj35zoLqD3RFJ2j2sPgEOK+6cFXwV4dtBLBugIGoDpKBWxADyb5+UC6F9MB8kIvQzyHaQT8tFYHa7+12xHKQUF0IEO06r6D5IHwDMUXrYRtJ9E8k6SYqsBzOcqSgNo943Q8wR5AOpG7ImSHABfGxwqGvJu8L8B+E8UlZUBHLf/sruA7tEBWnCALapASIBDAqfm0I9PluaZE4y7Ikx+BmyQAsIAmCYCf9AFfG7RDyk8Do+5PqANAsB8OxAUQCfxQDwewEEnmAJBAVJ6ICIZgHVOJOScYKiHo6wpIBKgbbABeE5UFg3AOBoK+WCk1SktDYkBEHBtxGeKAIe0DtUWDVCxpYBYAK5LoVSAStw7RriXy4t7xwj7fgGm6UHBGyaYXrIiF0DaOkH+LTMsK0UkA/C8ZUb0pqkeHEDScvlt9gswjIb2ojdNMdwT7YXvGuvQAaI/LBUP0GEDxJ8e9AeoNwLosAGiTw/upW+fj36GiHiAyNODAh+O8t4T7eUDxJ0e9APQvI/GOGeI31gkxQ+gGS6F4o/RiZ0C7bfvPVpO9FzfsfQ6A/4+HPV6k9Lrz1y8mGkfMwO8DrfTb22b04GeE6/n8UVMgWbnG03Av8s7Pufw/NdLlChRokSJEiVKlCgBHw69+fAAIzbASAYbwNCEDTCRxQawpKCroFOkBmSAYQaAroJmBoAuAnYGQC4CTi0AwEOh8QhgkXvAAoDbB+YecAQwuNeAE4BCBVArwIA6CloBLGwJPANgpsAxAc4AFjYBzgCIKXBKgBXAoibACoA3FjDqGgBtOOjULYCF7AAXAFidwKh7AKQrwaAeASism4AHABauANwAoJQBo54BYAhctf8GAEHguv23APkL3LT/DiB3gdv23wPkLXDX/gcAOV8NrfIByHZMODxq60OAPLuBUf4AymZ3d+ysegcguyQwz9r5FEDZjB6ajla9D6DUlEkxHKZvGvkdQB5Z8M13/zXAUguSLofOvGrfS4AlDRI1cC+++b4Ai4EZEkNwg7FeTfMDONVEM7oEGJwbzeTfqj8Y/4BvaKXcvwAAAABJRU5ErkJggg==">
+<style>
+:root{
+  --bg:#0B0A09; --surface:#151412; --surface-2:#1C1B18; --surface-3:#26241F;
+  --line:#2C2A26; --line-2:#3E3B35;
+  --ink:#F4F1EC; --ink-2:#ADA79E; --ink-3:#7C766D;
+  --accent:#F26A21; --accent-ink:#140700; --accent-soft:#2B1408; --accent-line:#5E2E10;
+  --ok:#46B87C; --ok-soft:#0F2418; --ok-line:#245C3D;
+  --warn:#F2C14E; --warn-soft:#2A2210; --warn-line:#5C4A1C;
+  --crit:#FF5247; --crit-soft:#2C1310; --crit-line:#63241E;
+  --info:#5BA8F5; --info-soft:#0F1E2E; --info-line:#255182;
+  --shadow:0 1px 2px rgba(0,0,0,.55), 0 6px 18px -8px rgba(0,0,0,.85);
+  --shadow-lg:0 2px 8px rgba(0,0,0,.6), 0 24px 52px -14px rgba(0,0,0,.95);
+  --r:10px;
+  --sans:"Archivo","Segoe UI",system-ui,-apple-system,sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"Cascadia Mono","Consolas",monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.45;-webkit-text-size-adjust:100%}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+/* ---------- shell ---------- */
+.app{max-width:1400px;margin:0 auto;padding:0 14px}
+
+/* ---------- tela cheia, feita para o PC ----------
+   A página não rola. Cada tela tem um cabeçalho congelado (.cab) e só a área
+   de baixo (.rola) rola — como o "Congelar Painéis" do Excel. Na tabela, a
+   própria .rola é quem rola, e por isso o thead sticky fica preso no topo. */
+html,body{height:100%}
+body{display:flex;flex-direction:column;overflow:hidden}
+.app{flex:1;min-height:0;width:100%;display:flex;flex-direction:column}
+.topbar{flex:none}
+#view{flex:1;min-height:0;display:flex;flex-direction:column}
+.cab{flex:none;padding-bottom:12px}
+.rola{flex:1;min-height:0;overflow:auto;margin-bottom:12px}
+.cab-tit{display:flex;align-items:flex-end;gap:12px 28px;flex-wrap:wrap;margin:16px 0 12px}
+.cab-tit h1{margin:0}
+.contadores{display:flex;gap:30px;margin-left:auto;align-items:baseline}
+.ct{display:flex;align-items:baseline;gap:7px;white-space:nowrap}
+.ct b{font:700 23px/1 var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--ink)}
+.ct.v b{color:var(--accent)}
+.ct span{font-size:12.5px;color:var(--ink-3)}
+.topbar{position:sticky;top:0;z-index:40;background:var(--bg);padding:10px 0 0;border-bottom:1px solid var(--line)}
+.topbar-in{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:11px;white-space:nowrap}
+.wm{display:flex;flex-direction:column;gap:3px;line-height:1}
+.wm-name{font-weight:700;font-size:18px;color:var(--accent)}
+.wm-tag{font:500 7.5px/1 var(--sans);letter-spacing:.185em;color:var(--ink-3)}
+.brand-div{width:1px;height:24px;background:var(--line-2);flex:none}
+.brand-app{font:600 10.5px/1 var(--sans);letter-spacing:.15em;text-transform:uppercase;color:var(--ink-2)}
+.whoami{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink-2);cursor:pointer;border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 11px 3px 3px}
+.whoami:hover{border-color:var(--ink-3)}
+.avatar{width:26px;height:26px;border-radius:50%;background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line);display:grid;place-items:center;font-weight:700;font-size:10.5px;flex:none}
+.nav{display:flex;gap:6px;overflow-x:auto;padding:9px 0 3px;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav button{white-space:nowrap;border:1px solid transparent;background:transparent;color:var(--ink-2);padding:6px 13px;border-radius:99px;cursor:pointer;font-weight:500;font-size:13px}
+.nav button:hover{background:var(--surface-3);color:var(--ink)}
+.nav button[aria-current="true"]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.nav .pip{display:inline-block;min-width:17px;padding:0 4px;margin-left:6px;border-radius:99px;background:var(--surface-3);color:var(--ink-2);font:600 10px/17px var(--mono);text-align:center}
+.nav button[aria-current="true"] .pip{background:var(--accent-ink);color:var(--accent)}
+.nav .pip.crit,.nav button[aria-current="true"] .pip.crit{background:var(--crit);color:#fff}
+
+h1{font-size:21px;font-weight:700;margin:20px 0 2px;letter-spacing:-.015em}
+h2{font-size:15px;font-weight:600;margin:0}
+h3{font-size:13px;font-weight:600;margin:0}
+.sec-head{display:flex;align-items:center;gap:9px;margin-bottom:10px;flex-wrap:wrap}
+.sec-head .count{font:600 11px/1 var(--mono);color:var(--ink-3);background:var(--surface-3);padding:4px 7px;border-radius:5px}
+.lead{color:var(--ink-2);font-size:13.5px;margin:0 0 2px;max-width:74ch}
+.eyebrow{font:600 10px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.spacer{flex:1}
+[hidden]{display:none!important}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:9px 14px;border-radius:var(--r);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);font-weight:500;font-size:13.5px;cursor:pointer;text-decoration:none}
+.btn:hover{background:var(--surface-2);border-color:var(--ink-3)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.pri:hover{filter:brightness(1.08)}
+.btn.dang{color:var(--crit);border-color:var(--crit-line)}
+.btn.dang:hover{background:var(--crit-soft)}
+.btn.sm{padding:6px 10px;font-size:12.5px;border-radius:8px}
+.btn.ghost{border-color:transparent;background:transparent;color:var(--ink-2)}
+.btn.ghost:hover{background:var(--surface-3);color:var(--ink)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:99px;font:600 11px/1.5 var(--sans);border:1px solid var(--line-2);background:var(--surface-2);color:var(--ink-2);white-space:nowrap}
+.chip.ok{background:var(--ok-soft);border-color:var(--ok-line);color:var(--ok)}
+.chip.warn{background:var(--warn-soft);border-color:var(--warn-line);color:var(--warn)}
+.chip.crit{background:var(--crit-soft);border-color:var(--crit-line);color:var(--crit)}
+.chip.acc{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent)}
+.chip.info{background:var(--info-soft);border-color:var(--info-line);color:var(--info)}
+.chip.ex{background:transparent;border-style:dashed;color:var(--ink-3)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
+.pad{padding:14px}
+
+label.f{display:block;margin-bottom:11px}
+label.f > span,.f > .flab{display:block;font:600 10.5px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin-bottom:5px}
+.inp{width:100%;padding:9px 11px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface)}
+.inp.num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+select.inp{cursor:pointer}
+textarea.inp{min-height:64px;resize:vertical;font-family:var(--sans)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 10px}
+.hint{font-size:11.5px;color:var(--ink-3);margin-top:4px}
+.hint.warn{color:var(--warn)}
+.hint.crit{color:var(--crit)}
+
+/* ---------- sugestões enquanto digita ---------- */
+/* Lista própria em vez do <datalist> do navegador (padrão da casa). */
+label.f.sugwrap,.fl.sugwrap{position:relative}
+.sugbox{position:absolute;left:0;right:0;top:100%;z-index:6;margin-top:3px;min-width:260px;
+  background:var(--surface-2);border:1px solid var(--line-2);border-radius:8px;
+  box-shadow:var(--shadow-lg);max-height:240px;overflow:auto;overscroll-behavior:contain}
+.sugit{display:block;width:100%;text-align:left;padding:9px 11px;background:transparent;
+  border:0;border-bottom:1px solid var(--line);color:var(--ink);font-size:13.5px;cursor:pointer}
+.sugit:last-child{border-bottom:0}
+.sugit:hover,.sugit.on{background:var(--accent-soft);color:var(--accent)}
+.sugit b{color:var(--accent);font-weight:700}
+.sugit .qtd{float:right;color:var(--ink-3);font:600 11px/1.5 var(--mono)}
+
+/* ---------- lançar ---------- */
+.lanc{display:grid;grid-template-columns:minmax(320px,410px) 1fr;gap:14px;align-items:start}
+.resumo{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.resumo .kpi .k-val{font-size:19px}
+
+/* ---------- KPIs ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:11px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:var(--r);padding:12px 13px;box-shadow:var(--shadow)}
+.kpi .k-lab{font:600 10px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.kpi .k-val{font:700 23px/1.15 var(--mono);font-variant-numeric:tabular-nums;margin-top:7px;letter-spacing:-.02em}
+.kpi .k-sub{font-size:11.5px;color:var(--ink-3);margin-top:4px}
+.kpi.a{border-left-color:var(--accent)} .kpi.a .k-val{color:var(--accent)}
+.kpi.o{border-left-color:var(--ok)} .kpi.o .k-val{color:var(--ok)}
+.kpi.w{border-left-color:var(--warn)} .kpi.w .k-val{color:var(--warn)}
+.kpi.c{border-left-color:var(--crit)} .kpi.c .k-val{color:var(--crit)}
+.kpi.i{border-left-color:var(--info)} .kpi.i .k-val{color:var(--info)}
+.kpi.clickable{cursor:pointer} .kpi.clickable:hover{border-color:var(--ink-3)}
+
+/* ---------- barras ---------- */
+.panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:12px;margin-top:12px}
+.panels.dois{grid-template-columns:1fr 1fr}
+.bars{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.bar{display:grid;grid-template-columns:minmax(70px,190px) 1fr auto;align-items:center;gap:10px}
+.bar .b-lab{font-size:12.5px;color:var(--ink-2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .b-track{display:block;height:16px;background:var(--surface-3);border-radius:4px;overflow:hidden}
+.bar .b-fill{display:block;height:100%;background:var(--accent);border-radius:4px;min-width:2px}
+.bar .b-val{font:600 12px/1 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+.bar .b-val small{color:var(--ink-3);font-weight:400;margin-left:5px}
+.b-fill.ok{background:var(--ok)} .b-fill.warn{background:var(--warn)}
+.b-fill.crit{background:var(--crit)} .b-fill.info{background:var(--info)}
+.b-fill.mut{background:var(--line-2)}
+.bar.atual .b-lab{color:var(--accent);font-weight:700}
+.bar.link{cursor:pointer;border-radius:6px}
+.bar.link:hover .b-lab{color:var(--accent);text-decoration:underline}
+
+/* ---------- tabela do dashboard e resumo da pessoa ---------- */
+.tablewrap.solta{overflow:visible}
+.lnk{background:none;border:0;padding:0;color:var(--ink);font-weight:600;cursor:pointer;text-align:left;font-size:13px}
+.lnk:hover{color:var(--accent);text-decoration:underline}
+.prog{display:inline-flex;align-items:center;gap:8px;justify-content:flex-end}
+.prog-t{display:block;width:54px;height:6px;background:var(--surface-3);border-radius:3px;overflow:hidden}
+.prog-f{display:block;height:100%;background:var(--ok);border-radius:3px}
+.rs-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:16px}
+.rs-kpis .kpi .k-val{font-size:18px}
+.rs-sec{margin-top:18px}
+.modal td.mono{white-space:nowrap}
+/* "+" na célula da parcela e as linhas dos descontos que abrem embaixo */
+.abre{display:inline-grid;place-items:center;width:18px;height:18px;margin-right:7px;padding:0;vertical-align:middle;
+  border:1px solid var(--accent-line);border-radius:4px;background:var(--accent-soft);color:var(--accent);
+  font:700 13px/1 var(--sans);cursor:pointer}
+.abre:hover{background:var(--accent);color:var(--accent-ink)}
+.qtd-pg{display:inline-block;margin-left:6px;min-width:16px;padding:0 4px;border-radius:99px;background:var(--surface-3);
+  color:var(--ink-2);font:600 10px/16px var(--mono);text-align:center;vertical-align:middle}
+tr.sub td{background:var(--surface-2);font-size:12px;color:var(--ink-2);padding-top:5px;padding-bottom:5px;border-bottom:1px dashed var(--line)}
+tr.sub td:first-child{padding-left:26px}
+tr.sub.falta td{color:var(--warn)}
+.obs-pg{color:var(--info);font-style:italic;margin-top:2px}
+span.obs-pg{margin:0}
+tbody tr.sub:hover td{background:var(--surface-2)}
+/* caixa de seleção na frente de cada empréstimo */
+th.sel,td.sel{width:34px;text-align:center;padding-left:6px;padding-right:2px}
+td.sel{cursor:default}
+th.sel input,td.sel input{width:16px;height:16px;accent-color:var(--accent);cursor:pointer;vertical-align:middle}
+
+/* ---------- cópia compartilhada (somente leitura) ---------- */
+body.leitura .kpi.clickable{cursor:default}
+body.leitura .kpi.clickable:hover{border-color:var(--line)}
+body.leitura .topbar{padding-bottom:10px}
+/* aberta no celular: uma coluna */
+@media (max-width:760px){
+  .panels.dois{grid-template-columns:1fr}
+  .filters input.busca{min-width:0;width:100%}
+  .cab-tit .sec-head{margin-left:0!important}
+}
+
+/* ---------- tabela ---------- */
+.tablewrap{overflow:auto;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+thead th{position:sticky;top:0;z-index:2;background:var(--surface-2);text-align:left;font:600 10px/1 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:10px 9px;border-bottom:1px solid var(--line-2);white-space:nowrap;user-select:none}
+thead th[data-ord]{cursor:pointer}
+thead th[data-ord]:hover{color:var(--ink)}
+thead th.r{text-align:right}
+thead th .ar{color:var(--accent);font-size:9px}
+tbody td{padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody tr[data-id]{cursor:pointer}
+tbody tr[data-id]:hover td{background:var(--surface-2)}
+tfoot td{position:sticky;bottom:0;background:var(--surface-2);padding:9px;border-top:1px solid var(--line-2);font-weight:700}
+td.num,tfoot td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+td.nome{min-width:220px;font-weight:500}
+td.dim{color:var(--ink-3)}
+td.folha{font-family:var(--mono);font-size:11.5px;color:var(--ink-3);white-space:nowrap}
+tr.futuro td{color:var(--ink-2)}
+tr.quit td{font-style:italic}
+
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:11px}
+.filters .fl{display:flex;flex-direction:column;gap:4px}
+.filters .fl > span{font:600 9.5px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3)}
+.filters select,.filters input{padding:7px 10px;border:1px solid var(--line-2);border-radius:8px;background:var(--surface);font-size:13px;min-width:128px}
+.filters input.busca{min-width:260px}
+.togs{display:flex;gap:6px;flex-wrap:wrap}
+.tog{border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);padding:6px 11px;border-radius:99px;font-size:12.5px;cursor:pointer;font-weight:500}
+.tog[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:600}
+
+/* ---------- modal ---------- */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.66);z-index:60;display:grid;place-items:center;padding:16px}
+.modal{background:var(--surface);border:1px solid var(--line-2);border-radius:14px;box-shadow:var(--shadow-lg);width:100%;max-width:620px;max-height:90vh;overflow:auto}
+.modal.wide{max-width:900px}
+.modal-head{position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line);padding:14px 16px;display:flex;align-items:center;gap:10px;z-index:3}
+.modal-body{padding:16px}
+.modal-foot{position:sticky;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding:12px 16px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;z-index:3}
+.modal .tablewrap{overflow:visible}
+.modal thead th{position:static}
+.x{margin-left:auto;background:transparent;border:0;color:var(--ink-3);cursor:pointer;font-size:20px;line-height:1;padding:4px 8px;border-radius:6px}
+.x:hover{background:var(--surface-3);color:var(--ink)}
+
+.dl{display:grid;grid-template-columns:150px 1fr;gap:7px 12px;font-size:13.5px}
+.dl dt{color:var(--ink-3);font-size:11.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;padding-top:2px}
+.dl dd{margin:0}
+
+.empty{border:1px dashed var(--line-2);border-radius:var(--r);padding:26px 18px;text-align:center;color:var(--ink-2);background:var(--surface-2)}
+.empty h3{margin:0 0 6px;font-size:15px;color:var(--ink)}
+.empty p{margin:0 0 14px;font-size:13px;max-width:52ch;margin-inline:auto}
+
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--surface-3);border:1px solid var(--line-2);color:var(--ink);padding:10px 16px;border-radius:99px;box-shadow:var(--shadow-lg);z-index:90;font-size:13.5px;max-width:92vw}
+.toast.ok{border-color:var(--ok-line);color:var(--ok)}
+.toast.err{border-color:var(--crit-line);color:var(--crit)}
+
+.savebar{position:static;flex:none;background:var(--surface-2);border-top:1px solid var(--line-2);padding:8px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;z-index:50;font-size:12.5px}
+.savebar .st{display:flex;align-items:center;gap:7px;color:var(--ink-2)}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--ink-3);flex:none}
+.dot.on{background:var(--ok)} .dot.off{background:var(--warn)} .dot.bad{background:var(--crit)}
+
+.alertbox{border:1px solid var(--warn-line);background:var(--warn-soft);border-radius:var(--r);padding:11px 13px;font-size:13px;color:var(--warn);display:flex;gap:10px;align-items:flex-start;margin-bottom:12px}
+.alertbox b{color:var(--ink)}
+
+/* ---------- impressão ---------- */
+#printarea{display:none}
+@media print{
+  html,body{height:auto!important;overflow:visible!important;display:block!important}
+  body{background:#fff;color:#000}
+  .app,.savebar,.topbar,.scrim,.toast{display:none!important}
+  #printarea{display:block!important;font-family:Arial,sans-serif;color:#000;font-size:11pt}
+  #printarea h1{font-size:16pt;margin:0 0 2mm}
+  #printarea table{width:100%;border-collapse:collapse;font-size:8.5pt}
+  #printarea th,#printarea td{border:1px solid #666;padding:1.5mm 2mm;text-align:left}
+  #printarea th{background:#eee}
+  #printarea thead th{position:static;color:#000;font:bold 7.5pt Arial,sans-serif;letter-spacing:0;text-transform:none}
+  #printarea td.nm{white-space:nowrap}
+  #printarea td.fo{font:7pt Consolas,monospace;white-space:nowrap}
+  #printarea td.n,#printarea th.n{text-align:right;font-family:Consolas,monospace;white-space:nowrap}
+  #printarea tr.tot th{background:#c9c9c9}
+  #printarea tr{page-break-inside:avoid}
+  /* várias pessoas no mesmo "Imprimir selecionados": cada uma na sua folha */
+  #printarea .pr-pagina{break-after:page}
+  #printarea .pr-pagina:last-child{break-after:auto}
+  #printarea .pr-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #000;padding-bottom:2mm;margin-bottom:4mm}
+  @page{size:A4;margin:12mm}
+
+  /* ---------- impressão do DASHBOARD: A4 paisagem, 1 folha ----------
+     Página nomeada: só o dashboard vira paisagem; a relação de descontos segue em
+     retrato. Tudo com #printarea .pp na frente para vencer as regras acima. */
+  @page painel{size:A4 landscape;margin:9mm 10mm}
+  #printarea .pp{font-family:Arial,"Segoe UI",sans-serif;color:#161412}
+  /* sem isto o navegador não imprime o fundo das barras e os gráficos somem */
+  #printarea .pp *{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}
+  #printarea .pp-pg{page:painel;width:277mm;height:192mm;display:flex;flex-direction:column;overflow:hidden}
+  #printarea .pp-ph{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #161412;padding-bottom:2mm;margin-bottom:3mm}
+  #printarea .pp-ph h1{font-size:15pt;margin:0;letter-spacing:-.01em}
+  #printarea .pp-ph h1 span{color:#E0601A}
+  #printarea .pp-sub{font-size:8.5pt;color:#555;margin-top:1mm}
+  #printarea .pp-emi{font-size:8pt;text-align:right;color:#444;line-height:1.35}
+  #printarea .pp-emi b{color:#161412}
+  #printarea .pp-kpis{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:2.5mm;margin-bottom:3mm}
+  #printarea .pp-kpi.c{border-left-color:#D8322A} #printarea .pp-kpi.c .v{color:#D8322A}
+  #printarea .pp-kpi{border:1px solid #d6d1c9;border-left:3px solid #b9b4ab;border-radius:2mm;padding:2mm 2.5mm}
+  #printarea .pp-kpi .l{font-size:6.5pt;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#6b665e}
+  #printarea .pp-kpi .v{font:700 12pt/1.1 Consolas,"Courier New",monospace;margin-top:1.2mm}
+  #printarea .pp-kpi .s{font-size:6.8pt;color:#6b665e;margin-top:.8mm}
+  #printarea .pp-kpi.a{border-left-color:#E0601A} #printarea .pp-kpi.a .v{color:#E0601A}
+  #printarea .pp-kpi.o{border-left-color:#2E9E62} #printarea .pp-kpi.o .v{color:#2E9E62}
+  #printarea .pp-kpi.w{border-left-color:#C9920E} #printarea .pp-kpi.w .v{color:#B07F0A}
+  #printarea .pp-kpi.i{border-left-color:#2F7FD1} #printarea .pp-kpi.i .v{color:#2F7FD1}
+  #printarea .pp-grid{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:3mm;flex:1;min-height:0}
+  #printarea .pp-pn{border:1px solid #d6d1c9;border-radius:2mm;padding:2.5mm 3mm;overflow:hidden}
+  #printarea .pp-pn h2{font-size:9.5pt;margin:0 0 1.5mm;display:flex;justify-content:space-between;align-items:baseline}
+  #printarea .pp-pn h2 small{font:600 7pt Consolas,monospace;color:#6b665e;background:#f1eee9;padding:.5mm 1.5mm;border-radius:1mm}
+  #printarea .pp-bars{display:flex;flex-direction:column;gap:1.1mm}
+  #printarea .pp-bar{display:grid;grid-template-columns:32mm 1fr auto;align-items:center;gap:2mm}
+  #printarea .pp-bar .k{font-size:7pt;color:#333;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border:0;padding:0}
+  #printarea .pp-bar .t{display:block;height:3mm;background:#efece7;border-radius:.8mm;overflow:hidden}
+  #printarea .pp-bar .f{display:block;height:100%;background:#E0601A;border-radius:.8mm;min-width:.4mm}
+  #printarea .pp-bar .f.ok{background:#2E9E62} #printarea .pp-bar .f.info{background:#2F7FD1}
+  #printarea .pp-bar .n{font:700 7pt Consolas,monospace;white-space:nowrap;text-align:right}
+  #printarea .pp-bar .n small{font-weight:400;color:#777;margin-left:1mm}
+  #printarea .pp-vazio{font-size:7.5pt;color:#777;margin:2mm 0}
+  #printarea .pp-rod{font-size:6.8pt;color:#777;margin-top:1.5mm}
+  #printarea .pp-doc{page:painel}
+  #printarea .pp-tt{font-size:10.5pt;margin:2mm 0 1.5mm;display:flex;gap:3mm;align-items:baseline}
+  #printarea .pp-tt small{font:600 7.5pt Arial,sans-serif;color:#6b665e}
+  #printarea .pp table.pp-tab{font-size:7.5pt}
+  #printarea .pp .pp-tab th{background:#f1eee9;border-bottom:1px solid #b9b4ab;font-size:6.5pt;padding:1.4mm 1.2mm}
+  #printarea .pp .pp-tab td{padding:1.3mm 1.2mm;vertical-align:top}
+  #printarea .pp .pp-tab th.n,#printarea .pp .pp-tab td.n{text-align:right;font-family:Consolas,monospace;white-space:nowrap}
+  #printarea .pp .pp-tab td.fo{font:6.5pt Consolas,monospace;white-space:nowrap;color:#555}
+  #printarea .pp .pp-tab small{color:#6b665e;font-size:6.5pt}
+  #printarea .pp .pp-tab tr.pp-tot td{font-weight:700;border-top:1.5px solid #161412;background:#f1eee9}
+}
+/* tela de entrada (login da Central) */
+#acesso{position:fixed;inset:0;z-index:9000;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:16px;overflow-y:auto}
+.acesso-card{width:100%;max-width:380px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px 24px;box-shadow:var(--shadow-lg)}
+.acesso-card .wm{margin-bottom:16px}
+.acesso-card h2{margin:0 0 6px;font-size:19px}
+.acesso-card .lab{display:block;margin:12px 0 4px;font-size:12px;color:var(--ink-2);font-weight:600}
+.acesso-card .inp{width:100%}
+.acesso-card .btnrow{margin-top:14px}
+.acesso-erro{color:var(--crit);font-size:12.5px;min-height:18px;margin:8px 0 0}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="brand">
+        <div class="wm"><span class="wm-name">RODRIAÇO</span><span class="wm-tag">MR INOX</span></div>
+        <div class="brand-div"></div>
+        <span class="brand-app">Controle de Empréstimos</span>
+      </div>
+      <button class="whoami" id="btnUser" title="Conta e dados"><span class="avatar" id="userIni">—</span><span id="userNome">entrando…</span></button>
+    </div>
+    <nav class="nav" id="nav"></nav>
+  </header>
+
+  <main id="view"></main>
+</div>
+
+<div class="savebar">
+  <span class="st"><span class="dot" id="stDot"></span><span id="stTxt">carregando…</span></span>
+  <span class="spacer"></span>
+  <div class="btnrow">
+    <button class="btn sm pri" id="btnReconectar" hidden>Tentar de novo</button>
+    <button class="btn sm pri" id="btnSalvar">Salvar</button>
+  </div>
+</div>
+
+<div id="printarea"></div>
+
+<script>
+"use strict";
+/* ============================================================
+   CONTROLE DE EMPRÉSTIMOS — Rodriaço / MR Inox
+   Substitui a planilha "RELATORIO DE DIVIDAS" (aba juros 2%).
+   Arquivo único, roda em file://, sem internet.
+   Dados: no Supabase (tabelas emp_*), com login e permissão da Central.
+
+   O cronograma de parcelas NÃO é gravado: é sempre recalculado a partir do
+   lançamento, com a mesma regra da planilha. O que é gravado é a BAIXA de cada
+   parcela (e.baixas). A chave config.baixa vale para o app inteiro:
+     MANUAL — só conta como descontada a parcela que alguém marcou (padrão);
+     AUTO   — parcela com data de desconto até hoje conta como descontada.
+   Trocar de modo não apaga as baixas: elas voltam a valer no manual.
+
+   MODO LEITURA: o botão Compartilhar do dashboard gera uma cópia deste
+   arquivo com window.__LEITURA__ = {hoje, dados, ...}. Nela só existe o
+   dashboard, nada grava (nem a cópia local, que é comum a todo file://) e
+   "hoje" fica congelado na data em que foi gerada.
+   ============================================================ */
+const LEITURA = window.__LEITURA__ || null;
+
+/* ---------- constantes ---------- */
+const ARQ_PADRAO = 'emprestimos.json'; // nome da cópia de segurança baixada
+
+/* Tipos de empréstimo: cadastráveis, gravados em config.tipos no arquivo.
+   juros = sugestão de % a.m. ao escolher o tipo (a planilha se chamava "juros 2%") */
+const TIPOS_PADRAO = [
+  {id:'EMP',   rot:'Empréstimo',       juros:2},
+  {id:'ADI13', rot:'Adiantamento 13º', juros:0},
+  {id:'OUT',   rot:'Outro',            juros:0}
+];
+let TIPOS = {};   // id → {rot, juros}; espelho de state.config.tipos, refeito por syncTipos()
+function syncTipos(){
+  if(!Array.isArray(state.config.tipos)||!state.config.tipos.length)
+    state.config.tipos=TIPOS_PADRAO.map(t=>Object.assign({},t));
+  TIPOS={};
+  state.config.tipos.forEach(t=>{ TIPOS[t.id]={rot:t.rot,juros:Number(t.juros)||0}; });
+}
+const SIT = {
+  ATIVO:{rot:'Ativo',     cls:'ok'},
+  INSS :{rot:'INSS',      cls:'warn'},
+  DESL :{rot:'Desligado', cls:'ex'}
+};
+const MAX_PARCELAS = 120;
+
+/* ---------- utilitários ---------- */
+const $  = (s,r)=>(r||document).querySelector(s);
+const $$ = (s,r)=>Array.from((r||document).querySelectorAll(s));
+const uid = ()=>Date.now().toString(36)+Math.random().toString(36).slice(2,8);
+const esc = s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const up  = s=>String(s==null?'':s).trim().toUpperCase().replace(/\s+/g,' ');
+const pad2= n=>String(n).padStart(2,'0');
+const r2  = n=>Math.round(((Number(n)||0)+Number.EPSILON)*100)/100;
+const soma= (a,k)=>r2(a.reduce((s,x)=>s+(Number(x[k])||0),0));
+function hoje(){if(LEITURA&&LEITURA.hoje)return LEITURA.hoje; const d=new Date();return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
+function dBR(iso){if(!iso)return '—';const p=String(iso).slice(0,10).split('-');return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:iso;}
+function brl(n){n=Number(n)||0;return 'R$ '+n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function brlC(n){ // compacto para KPI
+  n=Number(n)||0;
+  if(Math.abs(n)>=1000000) return 'R$ '+(n/1000000).toLocaleString('pt-BR',{maximumFractionDigits:2})+' mi';
+  if(Math.abs(n)>=10000)   return 'R$ '+(n/1000).toLocaleString('pt-BR',{maximumFractionDigits:1})+' mil';
+  return brl(n);
+}
+const num2 = n=>(Number(n)||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+const pct  = n=>(Number(n)||0).toLocaleString('pt-BR',{maximumFractionDigits:4})+'%';
+function numBR(v){ // aceita "1.234,56" ou "1234.56"
+  if(v==null||v==='')return 0;
+  let s=String(v).replace(/[^\d,.-]/g,'');
+  if(s.indexOf(',')>-1){s=s.replace(/\./g,'').replace(',','.');}
+  const n=parseFloat(s);return isNaN(n)?0:n;
+}
+const semAcento = s=>String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
+function toast(msg,tipo){
+  const el=document.createElement('div');
+  el.className='toast'+(tipo?' '+tipo:'');el.textContent=msg;
+  el.style.bottom=(22+document.querySelectorAll('.toast').length*44)+'px';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3200);
+}
+const plural=(n,um,varios)=>n+' '+(n===1?um:varios);
+/* localStorage pode estar bloqueado (janela anônima, política de site) — nunca derrubar o app */
+function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+function lsSet(k,v){ try{localStorage.setItem(k,v);return true;}catch(e){return false;} }
+
+/* ---------- meses ---------- */
+const MESES=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const MESES_L=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+const mesDe = iso=>String(iso||'').slice(0,7);
+const rotMes = ym=>ym?MESES[Number(ym.slice(5,7))-1]+'/'+ym.slice(2,4):'—';
+const rotMesL = ym=>ym?MESES_L[Number(ym.slice(5,7))-1]+' de '+ym.slice(0,4):'';
+function addMes(ym,k){
+  let y=Number(ym.slice(0,4)), m=Number(ym.slice(5,7))-1+k;
+  y+=Math.floor(m/12); m=((m%12)+12)%12;
+  return y+'-'+pad2(m+1);
+}
+/* =EOMONTH(data;0)+5 da planilha: dia 5 do mês seguinte */
+const dia5Seguinte = iso=>addMes(mesDe(iso),1)+'-05';
+const dataValida = iso=>/^\d{4}-\d{2}-\d{2}$/.test(iso||'') && !isNaN(new Date(iso+'T00:00:00'));
+
+/* ---------- estado ---------- */
+let state = {versao:1, config:{baixa:'MANUAL'}, funcionarios:[], emprestimos:[], log:[]};
+syncTipos();
+let operador = '';        // quem está lançando (vem do login)
+let aba = 'lancar';
+
+/* Sem dados iniciais no código: funcionários, folhas e empréstimos moram só no banco. */
+
+/* ============================================================
+   LOG DE ALTERAÇÕES — quem, quando e o quê. Só cresce: ninguém edita nem
+   apaga. Fica no emprestimos.json junto com os dados.
+   ============================================================ */
+const LOG_ACOES = {
+  EMP_NOVO  :{rot:'Lançamento',          grupo:'EMP',  cls:'acc'},
+  EMP_EDIT  :{rot:'Lançamento alterado', grupo:'EMP',  cls:'warn'},
+  EMP_DEL   :{rot:'Lançamento excluído', grupo:'EMP',  cls:'crit'},
+  QUIT      :{rot:'Quitação antecipada', grupo:'QUIT', cls:'info'},
+  QUIT_DESF :{rot:'Quitação desfeita',   grupo:'QUIT', cls:'warn'},
+  BAIXA     :{rot:'Baixa',               grupo:'BAIXA',cls:'ok'},
+  BAIXA_DESF:{rot:'Baixa desfeita',      grupo:'BAIXA',cls:'warn'},
+  BAIXA_LOTE:{rot:'Baixa em lote',       grupo:'BAIXA',cls:'ok'},
+  OBS_EDIT  :{rot:'Observação alterada', grupo:'BAIXA',cls:''},
+  FUNC_NOVO :{rot:'Funcionário novo',    grupo:'FUNC', cls:''},
+  FUNC_EDIT :{rot:'Funcionário alterado',grupo:'FUNC', cls:'warn'},
+  FUNC_DEL  :{rot:'Funcionário excluído',grupo:'FUNC', cls:'crit'},
+  TIPO_NOVO :{rot:'Tipo novo',           grupo:'TIPO', cls:''},
+  TIPO_EDIT :{rot:'Tipo alterado',       grupo:'TIPO', cls:'warn'},
+  TIPO_DEL  :{rot:'Tipo excluído',       grupo:'TIPO', cls:'crit'},
+  MODO      :{rot:'Modo de baixa',       grupo:'CONF', cls:'warn'},
+  RESET     :{rot:'Dados restaurados',   grupo:'CONF', cls:'crit'}
+};
+const LOG_GRUPOS = {EMP:'Lançamentos',QUIT:'Quitações',BAIXA:'Baixas',FUNC:'Funcionários',TIPO:'Tipos',CONF:'Configuração'};
+/* info: {func:'NOME', emp:id, txt:'detalhe', por, ts, rec} */
+function registra(acao,info){
+  info=info||{};
+  if(!Array.isArray(state.log)) state.log=[];
+  state.log.push({id:uid(), ts:info.ts||new Date().toISOString(), por:info.por!=null?info.por:operador,
+    acao, func:info.func||'', emp:info.emp||'', txt:info.txt||'', rec:!!info.rec});
+}
+/* Arquivo de antes do log: o que tem data e autor gravados (lançamentos e
+   baixas) entra no log marcado como reconstruído. Edições antigas não têm
+   registro e não aparecem. */
+function reconstruirLog(){
+  state.log=[];
+  state.emprestimos.forEach(e=>{
+    const f=funcPorId(e.func), nome=f?f.nome:'';
+    registra('EMP_NOVO',{ts:e.criadoEm||e.data, por:e.criadoPor||'', func:nome, emp:e.id, txt:descEmp(e), rec:true});
+    Object.keys(e.baixas||{}).forEach(k=>{ const b=e.baixas[k];
+      registra('BAIXA',{ts:b.em, por:b.por||'', func:nome, emp:e.id, rec:true,
+        txt:(k==='Q'?'Quitação':'Parcela '+k+'/'+e.parcelas)+' — '+TIPOS[e.tipo].rot+' de '+dBR(e.data)}); });
+  });
+  state.log.sort((a,b)=>String(a.ts).localeCompare(String(b.ts)));
+}
+/* resumo de um lançamento numa linha, para o log */
+function descEmp(e){
+  return (TIPOS[e.tipo]?TIPOS[e.tipo].rot:'')+' '+brl(e.valor)+' em '+e.parcelas+'x a '+pct(e.juros)+' a.m.'+
+    ' · 1º desconto '+dBR(e.primeiro)+(e.descricao?' · '+e.descricao:'');
+}
+/* Sem nome do operador o log perde o "quem": pede antes da primeira alteração. */
+function garanteOperador(){
+  if(LEITURA)return false;
+  if(operador)return true;
+  toast('Entre com a sua conta para alterar','err'); return false;
+}
+
+/* ============================================================
+   CÁLCULO — mesma regra da aba "juros 2%"
+     parcela    = valor / nº de parcelas                     (B6)
+     juros k    = (valor − (k−1) × parcela) × taxa           (coluna E)
+     desconto k = parcela + juros k                          (coluna F)
+     data 1     = 1º desconto; data k = dia 5 do mês seguinte (coluna G)
+   Diferença única: aqui cada valor é arredondado no centavo e a última
+   parcela absorve a sobra, para a soma bater exatamente com o valor.
+   ============================================================ */
+function cronograma(e){
+  const n=Math.max(1,Math.min(MAX_PARCELAS,Math.floor(Number(e.parcelas))||1));
+  const V=r2(e.valor), tx=(Number(e.juros)||0)/100, P=r2(V/n);
+  const out=[]; let saldo=V, data=e.primeiro;
+  for(let k=1;k<=n;k++){
+    const amort = k===n ? saldo : P;
+    const juros = r2(saldo*tx);
+    saldo = r2(saldo-amort);
+    out.push({n:k,de:n,data,amort,juros,desconto:r2(amort+juros),saldo});
+    data=dia5Seguinte(data);
+  }
+  return out;
+}
+/* O que de fato é (ou será) descontado. Quitação antecipada: as parcelas até a
+   data da quitação seguem normais; o saldo que faltava vira um desconto único
+   naquela data, sem os juros dos meses que não vão mais correr. */
+function parcelasDe(e){
+  const c=cronograma(e);
+  if(!e.quitadoEm) return c;
+  const antes=c.filter(p=>p.data<=e.quitadoEm);
+  const saldo=antes.length?antes[antes.length-1].saldo:r2(e.valor);
+  if(saldo>0) antes.push({n:0,de:c.length,data:e.quitadoEm,amort:saldo,juros:0,desconto:saldo,saldo:0,quit:true});
+  return antes;
+}
+const modoManual = ()=>state.config.baixa!=='AUTO';
+const chaveP = p=>p.quit?'Q':String(p.n);
+const baixaDe = (e,p)=>(e.baixas||{})[chaveP(p)]||null;
+/* Quanto da parcela já foi descontado. Baixa sem "valor" = parcela inteira
+   (é como eram todas antes do desconto parcial). Baixa com "valor" = parcial,
+   acumulado de todos os descontos daquela parcela. */
+function pagoDe(e,p){
+  if(!modoManual()) return p.data<=hoje()?p.desconto:0;
+  const b=baixaDe(e,p); if(!b) return 0;
+  return b.valor!=null ? r2(Math.min(Number(b.valor)||0,p.desconto)) : p.desconto;
+}
+const faltaDe = (e,p)=>r2(p.desconto-pagoDe(e,p));
+function descontada(e,p){ return faltaDe(e,p)<=0.004; }
+const parcial = (e,p)=>!descontada(e,p) && pagoDe(e,p)>0;
+/* só existe no manual: no automático, data passada já é descontada */
+const atrasada = (e,p)=>!descontada(e,p) && p.data<hoje();
+/* o que já entrou abate primeiro os juros da parcela, depois o principal */
+const jurosPagoDe = (e,p)=>r2(Math.min(pagoDe(e,p),p.juros));
+function resumo(e){
+  const ps=parcelasDe(e);
+  const desc=ps.filter(p=>descontada(e,p)), pend=ps.filter(p=>!descontada(e,p));
+  const atr=pend.filter(p=>p.data<hoje());
+  const sm=(a,f)=>r2(a.reduce((s,p)=>s+f(p),0));
+  return {ps, desc, pend, atr, nAtr:atr.length, vAtr:sm(atr,p=>faltaDe(e,p)),
+    nDesc:desc.filter(p=>!p.quit).length, n:Number(e.parcelas)||1,
+    nParcial:pend.filter(p=>parcial(e,p)).length,
+    parcela:cronograma(e)[0].amort,
+    totJuros:soma(ps,'juros'), totDesc:soma(ps,'desconto'),
+    descontado:sm(ps,p=>pagoDe(e,p)),
+    saldo:sm(pend,p=>p.amort-Math.max(0,pagoDe(e,p)-p.juros)),
+    jurosAReceber:sm(pend,p=>p.juros-jurosPagoDe(e,p)),
+    aDescontar:sm(pend,p=>faltaDe(e,p)),
+    prox:pend[0]||null, ultimo:ps[ps.length-1], quitado:!pend.length};
+}
+const rotParcela = p=>p.quit?'Quitação':(p.n+'/'+p.de);
+/* tudo o que as telas precisam saber de uma parcela, num objeto só */
+function estadoParcela(e,p){
+  const pago=pagoDe(e,p);
+  return {desc:descontada(e,p), atr:atrasada(e,p), bx:baixaDe(e,p),
+    pago, falta:r2(p.desconto-pago), parc:parcial(e,p), jurosPago:r2(Math.min(pago,p.juros))};
+}
+
+/* ---------- consultas ---------- */
+const funcPorId = id=>state.funcionarios.find(f=>f.id===id);
+const funcPorNome = nome=>{const n=up(nome);return state.funcionarios.find(f=>up(f.nome)===n);};
+const empPorId = id=>state.emprestimos.find(e=>e.id===id);
+const nomeDe = e=>{const f=funcPorId(e.func);return f?f.nome:'(funcionário removido)';};
+const folhaDe = e=>{const f=funcPorId(e.func);return f?f.folha:'';};
+const empsDe = fid=>state.emprestimos.filter(e=>e.func===fid);
+/* todas as parcelas de todos os lançamentos, já com funcionário e situação */
+function todasParcelas(lista){
+  const out=[];
+  (lista||state.emprestimos).forEach(e=>{
+    const nome=nomeDe(e), folha=folhaDe(e);
+    parcelasDe(e).forEach(p=>out.push(Object.assign({e,p,nome,folha,mes:mesDe(p.data)},estadoParcela(e,p))));
+  });
+  return out;
+}
+
+/* ============================================================
+   NUVEM (Supabase) — os dados ficam no banco da Rodriaço, protegidos por login
+   e pela permissão "Apps de suporte › Controle de Empréstimos" (Contas, na
+   Central). O app continua trabalhando com o mesmo "state" de antes e grava só
+   o que mudou: cada funcionário, empréstimo e linha do log é uma linha da
+   tabela (coluna dados = o objeto em JSON, coluna versao = controle de edição
+   simultânea). O login é o mesmo da Central e dos outros apps.
+   ============================================================ */
+const SUPABASE_URL  = "https://vgcwzfeucfkaawwwhvjo.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnY3d6ZmV1Y2ZrYWF3d3dodmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMDMyNzEsImV4cCI6MjEwNDY3OTI3MX0.ej6C2X0If1wLBRa4DoX_P2Z8-32IwZoN-AlcWKpM6RY";
+const CHAVE_SESSAO  = 'central_rodriaco_sb_v1';
+const TAB = {func:'emp_funcionarios', emp:'emp_emprestimos', log:'emp_log', cfg:'emp_config'};
+const agoraS = ()=>Math.floor(Date.now()/1000);
+
+let nuvem   = {func:{},emp:{},log:{},cfg:{}}; // o que a nuvem tem: id → {j: JSON, v: versão}
+let sujo        = false;  // há alteração ainda não gravada
+let gravando    = false;
+let regravar    = false;  // mudou de novo durante a gravação
+let carregado   = false;  // o que está na tela veio MESMO da nuvem (protege contra gravar por cima)
+let semConexao  = false;
+let conflito    = false;
+let ultimaGravacao = '';
+let tmrSalva = null, tmrTenta = null;
+let emailLogado = '';
+
+/* ---------- sessão compartilhada com a Central ---------- */
+function sessaoLer(){ try{ const r=localStorage.getItem(CHAVE_SESSAO); return r?JSON.parse(r):null; }catch(e){ return null; } }
+function sessaoGuardar(g){ try{ if(g)localStorage.setItem(CHAVE_SESSAO,JSON.stringify(g)); else localStorage.removeItem(CHAVE_SESSAO); }catch(e){} }
+function sessaoDeToken(j,antiga){
+  return {access_token:j.access_token, refresh_token:j.refresh_token, expira:agoraS()+(j.expires_in||3600),
+    email:(j.user&&j.user.email)||(antiga&&antiga.email)||''};
+}
+async function authToken(grant,corpo){
+  const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type='+grant,{method:'POST',
+    headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify(corpo)});
+  return {ok:r.ok,status:r.status,j:await r.json().catch(()=>({}))};
+}
+/* renova o acesso; uma aba/app de cada vez (navigator.locks), como a Central */
+async function sessaoRenovar(){
+  const trabalho=async()=>{
+    const g=sessaoLer();
+    if(!g||!g.refresh_token)return null;
+    if(g.expira-300>agoraS())return g;              // outra aba já renovou
+    let r;
+    try{ r=await authToken('refresh_token',{refresh_token:g.refresh_token}); }catch(e){ return g; }
+    if(!r.ok){ if(r.status>=500||r.status===429)return g; sessaoGuardar(null); return null; }
+    const nova=sessaoDeToken(r.j,g); sessaoGuardar(nova); return nova;
+  };
+  return (navigator.locks&&navigator.locks.request)
+    ?navigator.locks.request('central_rodriaco_sessao',trabalho):trabalho();
+}
+async function sessaoValida(){
+  const g=sessaoLer();
+  if(!g)return null;
+  return g.expira-120<agoraS()?sessaoRenovar():g;
+}
+function idDoToken(t){
+  try{ const p=String(t).split('.')[1].replace(/-/g,'+').replace(/_/g,'/');
+    return JSON.parse(atob(p+'='.repeat((4-p.length%4)%4))).sub||''; }catch(e){ return ''; }
+}
+async function api(metodo,caminho,corpo,extra,jaRenovou){
+  const g=await sessaoValida();
+  if(!g)throw Object.assign(new Error('sem sessão'),{semSessao:true});
+  const h={apikey:SUPABASE_ANON,Authorization:'Bearer '+g.access_token};
+  if(corpo!==undefined)h['Content-Type']='application/json';
+  Object.assign(h,extra||{});
+  const r=await fetch(SUPABASE_URL+caminho,{method:metodo,headers:h,body:corpo===undefined?undefined:JSON.stringify(corpo)});
+  if(r.status===401&&!jaRenovou){
+    const g0=sessaoLer(); if(g0){ g0.expira=0; sessaoGuardar(g0); }
+    await sessaoRenovar();
+    return api(metodo,caminho,corpo,extra,true);
+  }
+  return r;
+}
+
+/* ---------- serialização (cópia de segurança e modo leitura) ---------- */
+function serializa(stamp){
+  return JSON.stringify({
+    app:'controle-de-emprestimos', versao:1, gravadoEm:stamp||new Date().toISOString(),
+    gravadoPor:operador, config:state.config,
+    funcionarios:state.funcionarios, emprestimos:state.emprestimos, log:state.log
+  },null,1);
+}
+function aplicaJSON(o){
+  if(!o||!Array.isArray(o.funcionarios)||!Array.isArray(o.emprestimos))
+    throw new Error('Arquivo não é um controle de empréstimos.');
+  state={versao:o.versao||1,funcionarios:o.funcionarios,emprestimos:o.emprestimos,
+    config:Object.assign({baixa:'MANUAL'},o.config||{})};
+  // A baixa automática saiu do app: dado que ainda estiver nela passa para manual.
+  const veioAuto=state.config.baixa==='AUTO';
+  state.config.baixa='MANUAL';
+  syncTipos();
+  state.funcionarios.forEach(f=>{ if(!SIT[f.situacao])f.situacao='ATIVO'; f.folha=f.folha||''; });
+  state.emprestimos.forEach(e=>{
+    e.valor=Number(e.valor)||0; e.juros=Number(e.juros)||0; e.parcelas=Number(e.parcelas)||1;
+    // tipo que não está na lista (excluído por alguém, dado antigo): volta para a lista
+    if(!TIPOS[e.tipo]){ state.config.tipos.push({id:e.tipo||('T'+uid()),rot:e.tipo||'Outro',juros:0}); syncTipos(); }
+    e.quitadoEm=e.quitadoEm||'';
+    if(!e.baixas||typeof e.baixas!=='object') e.baixas={};
+  });
+  if(Array.isArray(o.log)) state.log=o.log; else reconstruirLog();
+  if(veioAuto&&!LEITURA) registra('MODO',{por:'SISTEMA',txt:'Automática pela data → Manual (a opção automática foi retirada do app)'});
+}
+function baixar(nome,conteudo,tipo){
+  const b=new Blob([conteudo],{type:tipo});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nome;a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+}
+function baixarJSON(){ baixar('emprestimos-'+hoje()+'.json',serializa(),'application/json'); }
+
+/* ---------- ler da nuvem ---------- */
+async function lerTabela(t){
+  const out=[], PAG=1000;
+  for(let off=0;;off+=PAG){
+    const r=await api('GET','/rest/v1/'+t+'?select=id,dados,versao&order=id.asc&limit='+PAG+'&offset='+off);
+    if(!r.ok){ throw Object.assign(new Error('Leitura de '+t+' falhou (erro '+r.status+').'),{status:r.status}); }
+    const a=await r.json(); out.push(...a);
+    if(a.length<PAG)break;
+  }
+  return out;
+}
+async function carregaNuvem(){
+  const [f,e,l,c]=await Promise.all([lerTabela(TAB.func),lerTabela(TAB.emp),lerTabela(TAB.log),lerTabela(TAB.cfg)]);
+  const linhaCfg=c.find(x=>x.id==='main');
+  const log=l.map(x=>x.dados).sort((a,b)=>String(a.ts).localeCompare(String(b.ts))||String(a.id).localeCompare(String(b.id)));
+  aplicaJSON({versao:1,config:(linhaCfg&&linhaCfg.dados)||{},funcionarios:f.map(x=>x.dados),
+    emprestimos:e.map(x=>x.dados),log});
+  // retrato do que a nuvem tem (depois da normalização do aplicaJSON): serve para saber o que mudou
+  const ver=(rows)=>{ const m={}; rows.forEach(x=>{ m[x.id]=x.versao; }); return m; };
+  const vf=ver(f), ve=ver(e), vl=ver(l);
+  nuvem={func:{},emp:{},log:{},cfg:{}};
+  state.funcionarios.forEach(x=>{ nuvem.func[x.id]={j:JSON.stringify(x),v:vf[x.id]}; });
+  state.emprestimos.forEach(x=>{ nuvem.emp[x.id]={j:JSON.stringify(x),v:ve[x.id]}; });
+  state.log.forEach(x=>{ nuvem.log[x.id]={j:'',v:vl[x.id]}; });
+  if(linhaCfg) nuvem.cfg.main={j:JSON.stringify(state.config),v:linhaCfg.versao};
+  carregado=true;
+}
+
+/* ---------- gravar na nuvem: só o que mudou ---------- */
+/* [id, objeto] de cada grupo; a configuração é uma linha só (id 'main') */
+function itensDe(k){
+  if(k==='cfg')return [['main',state.config]];
+  const lista=k==='func'?state.funcionarios:(k==='emp'?state.emprestimos:state.log);
+  return lista.map(x=>[x.id,x]);
+}
+async function flush(){
+  if(LEITURA||!carregado||conflito)return;
+  if(gravando){ regravar=true; return; }
+  gravando=true; regravar=false; pintaStatus();
+  const prefer='return=representation';
+  try{
+    const novos=[], mudados=[], apagados=[];
+    ['cfg','func','emp','log'].forEach(k=>{
+      const atuais=itensDe(k), vistos={};
+      atuais.forEach(([id,obj])=>{
+        vistos[id]=1;
+        const n=nuvem[k][id], j=JSON.stringify(obj);
+        if(!n) novos.push({k,id,obj,j});
+        else if(k!=='log'&&n.j!==j) mudados.push({k,id,obj,j,v:n.v});
+      });
+      if(k==='func'||k==='emp') Object.keys(nuvem[k]).forEach(id=>{ if(!vistos[id]) apagados.push({k,id}); });
+    });
+    // novos, por tabela
+    for(const k of ['cfg','func','emp','log']){
+      const L=novos.filter(x=>x.k===k);
+      for(let i=0;i<L.length;i+=200){
+        const lote=L.slice(i,i+200);
+        const r=await api('POST','/rest/v1/'+TAB[k],lote.map(x=>({id:x.id,dados:x.obj})),{Prefer:prefer});
+        if(r.status===409){ throw Object.assign(new Error('conflito'),{conflito:true}); }
+        if(!r.ok)throw Object.assign(new Error('Gravação recusada (erro '+r.status+').'),{status:r.status});
+        const ret=await r.json(); const vv={}; ret.forEach(x=>{ vv[x.id]=x.versao; });
+        lote.forEach(x=>{ nuvem[k][x.id]={j:k==='log'?'':x.j,v:vv[x.id]||1}; });
+      }
+    }
+    // alterados: só grava se ninguém mexeu na linha depois que a tela carregou
+    for(const m of mudados){
+      const r=await api('PATCH','/rest/v1/'+TAB[m.k]+'?id=eq.'+encodeURIComponent(m.id)+'&versao=eq.'+m.v,{dados:m.obj},{Prefer:prefer});
+      if(!r.ok)throw Object.assign(new Error('Gravação recusada (erro '+r.status+').'),{status:r.status});
+      const ret=await r.json();
+      if(!ret.length)throw Object.assign(new Error('conflito'),{conflito:true});
+      nuvem[m.k][m.id]={j:m.j,v:ret[0].versao};
+    }
+    for(const a of apagados){
+      const r=await api('DELETE','/rest/v1/'+TAB[a.k]+'?id=eq.'+encodeURIComponent(a.id));
+      if(!r.ok)throw Object.assign(new Error('Exclusão recusada (erro '+r.status+').'),{status:r.status});
+      delete nuvem[a.k][a.id];
+    }
+    semConexao=false; ultimaGravacao=new Date().toISOString();
+    sujo=false;
+  }catch(e){
+    sujo=true;
+    if(e&&e.conflito){ gravando=false; await resolveConflito(); return; }
+    if(e&&e.semSessao){ gravando=false; telaLogin('Sua sessão expirou. Entre de novo para continuar gravando.'); pintaStatus(); return; }
+    if(e&&(e.status===401||e.status===403)){ toast('Sem permissão para gravar. Peça ao administrador.','err'); }
+    else { semConexao=true; clearTimeout(tmrTenta); tmrTenta=setTimeout(()=>flush(),10000); }
+  }
+  gravando=false; pintaStatus();
+  if(regravar&&!semConexao&&!conflito){ regravar=false; setTimeout(flush,50); }
+}
+function mudou(){ if(LEITURA)return; sujo=true; pintaStatus();
+  clearTimeout(tmrSalva); tmrSalva=setTimeout(()=>flush(),700);
+}
+async function resolveConflito(){
+  conflito=true; pintaStatus();
+  const aviso='OUTRA PESSOA ALTEROU OS MESMOS DADOS\n\n'+
+    'Alguém gravou uma alteração depois que você abriu esta tela.\n\n'+
+    'OK = RECARREGAR da nuvem (recomendado — o que você lançou agora nesta tela se perde)\n'+
+    'Cancelar = continuar com a sua tela e gravar por cima (o que a outra pessoa lançou se perde)';
+  try{
+    if(confirm(aviso)){
+      await carregaNuvem(); sujo=false; toast('Recarregado da nuvem','ok'); render();
+    }else{
+      // mantém a tela e passa a valer a versão que está na nuvem
+      const [f,e]=await Promise.all([lerTabela(TAB.func),lerTabela(TAB.emp)]);
+      [[ 'func',f ],[ 'emp',e ]].forEach(([k,rows])=>{
+        const vv={}; rows.forEach(x=>{ vv[x.id]=x.versao; });
+        Object.keys(nuvem[k]).forEach(id=>{ if(vv[id]===undefined) delete nuvem[k][id]; else nuvem[k][id].v=vv[id]; });
+        rows.forEach(x=>{ if(!nuvem[k][x.id]) nuvem[k][x.id]={j:'',v:x.versao}; });
+      });
+      const c=await lerTabela(TAB.cfg); const cm=c.find(x=>x.id==='main');
+      if(cm) nuvem.cfg.main={j:(nuvem.cfg.main&&nuvem.cfg.main.j)||'',v:cm.versao}; else delete nuvem.cfg.main;
+    }
+  }catch(e){ semConexao=true; }
+  conflito=false; pintaStatus();
+  if(sujo) flush();
+}
+function campoAtivo(){ const a=document.activeElement; return !!(a&&/^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)); }
+/* puxa o que os outros lançaram; só mexe na tela quando está parada */
+async function puxar(manual){
+  if(LEITURA||!carregado)return;
+  if(!manual&&(sujo||gravando||conflito||$('#scrim')||campoAtivo()||$('#acesso')))return;
+  if(manual&&sujo&&!confirm('Você tem alterações ainda não gravadas. Descartar e recarregar da nuvem?'))return;
+  try{
+    const antes=JSON.stringify(state);
+    await carregaNuvem(); sujo=false; semConexao=false;
+    if(JSON.stringify(state)!==antes) render();
+    if(manual) toast('Atualizado da nuvem','ok');
+    pintaStatus();
+  }catch(e){
+    if(e&&e.semSessao)telaLogin('Sua sessão expirou. Entre de novo.');
+    else if(manual)toast('Não consegui falar com a nuvem: '+e.message,'err');
+  }
+}
+
+function pintaStatus(){
+  const d=$('#stDot'),t=$('#stTxt'),rb=$('#btnReconectar'),sb=$('#btnSalvar');
+  if(LEITURA){
+    d.className='dot on'; rb.hidden=true; sb.hidden=true;
+    t.innerHTML='<b>SOMENTE LEITURA</b> — posição de '+dBR(LEITURA.hoje)+
+      (LEITURA.geradoPor?' · gerado por '+esc(LEITURA.geradoPor):'')+' · '+esc(LEITURA.filtro||'');
+    return;
+  }
+  rb.hidden=!semConexao; rb.textContent='Tentar de novo';
+  if(!carregado){ d.className='dot off'; t.textContent='conectando à nuvem…'; sb.hidden=true; return; }
+  sb.hidden=false; sb.textContent='Salvar agora';
+  if(semConexao){
+    d.className='dot bad';
+    t.innerHTML='<b style="color:var(--crit)">SEM CONEXÃO — NÃO ESTÁ GRAVANDO</b> — as alterações ficam nesta tela e são enviadas quando a conexão voltar. Não feche esta janela.';
+    return;
+  }
+  if(conflito){ d.className='dot bad'; t.innerHTML='<b style="color:var(--crit)">ALTERADO POR OUTRA PESSOA</b> — decida na janela que abriu'; return; }
+  if(gravando||sujo){ d.className='dot off'; t.textContent=gravando?'gravando na nuvem…':'alterações pendentes…'; return; }
+  d.className='dot on';
+  t.textContent='gravado na nuvem'+(ultimaGravacao?' · '+new Date(ultimaGravacao).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'')+
+    (emailLogado?' · '+emailLogado:'');
+}
+
+/* ---------- entrar ---------- */
+function tela(html){
+  let el=$('#acesso');
+  if(!html){ if(el)el.remove(); return; }
+  if(!el){ el=document.createElement('div'); el.id='acesso'; document.body.appendChild(el); }
+  el.innerHTML='<div class="acesso-card"><div class="wm"><span class="wm-name">RODRIAÇO</span><span class="wm-tag">MR INOX</span></div>'+html+'</div>';
+}
+function telaMensagem(titulo,texto,botoes){
+  tela('<h2>'+esc(titulo)+'</h2><p class="lead">'+texto+'</p><div class="btnrow">'+(botoes||'')+'</div>');
+  const s=$('#acSair'); if(s)s.onclick=sairDoApp;
+  const n=$('#acNovo'); if(n)n.onclick=()=>iniciar();
+}
+function sairDoApp(){
+  const g=sessaoLer();
+  if(g&&g.access_token){
+    try{ fetch(SUPABASE_URL+'/auth/v1/logout?scope=local',{method:'POST',keepalive:true,
+      headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+g.access_token}}).catch(()=>{}); }catch(e){}
+  }
+  sessaoGuardar(null); location.reload();
+}
+function telaLogin(msg){
+  tela('<h2>Controle de Empréstimos</h2><p class="lead">Entre com o mesmo e-mail e a mesma senha da Central Rodriaço.</p>'+
+    '<label class="lab">E-mail</label><input class="inp" id="acEmail" type="email" autocomplete="username">'+
+    '<label class="lab">Senha</label><input class="inp" id="acSenha" type="password" autocomplete="current-password">'+
+    '<p class="acesso-erro" id="acErro">'+esc(msg||'')+'</p>'+
+    '<div class="btnrow"><button class="btn pri" id="acEntrar">Entrar</button></div>'+
+    '<p class="hint" style="margin-top:12px">Esqueceu a senha? Abra a <a href="../../" style="color:var(--accent)">Central</a> e use “Esqueci minha senha”.</p>');
+  const entrar=async()=>{
+    const email=$('#acEmail').value.trim(), senha=$('#acSenha').value;
+    if(!email||!senha){ $('#acErro').textContent='Preencha e-mail e senha.'; return; }
+    $('#acEntrar').disabled=true;
+    try{
+      const r=await authToken('password',{email,password:senha});
+      if(!r.ok){ $('#acErro').textContent=r.status===400?'E-mail ou senha incorretos.':'Não foi possível entrar (erro '+r.status+').'; $('#acEntrar').disabled=false; return; }
+      sessaoGuardar(sessaoDeToken(r.j)); iniciar();
+    }catch(e){ $('#acErro').textContent='Sem conexão com o servidor.'; $('#acEntrar').disabled=false; }
+  };
+  $('#acEntrar').onclick=entrar;
+  $('#acSenha').onkeydown=ev=>{ if(ev.key==='Enter')entrar(); };
+  $('#acEmail').focus();
+}
+async function iniciar(){
+  const g=await sessaoValida();
+  if(!g){ telaLogin(''); return; }
+  emailLogado=g.email||'';
+  tela('<h2>Controle de Empréstimos</h2><p class="lead">Conferindo o acesso…</p>');
+  try{
+    const ra=await api('POST','/rest/v1/rpc/meus_acessos',{});
+    if(!ra.ok)throw Object.assign(new Error('Não consegui conferir o acesso (erro '+ra.status+').'),{status:ra.status});
+    const a=await ra.json();
+    if(!a||a.status!=='ativo'){
+      telaMensagem('Aguardando liberação','A conta <b>'+esc(emailLogado)+'</b> ainda não foi liberada. Peça ao administrador da Central.',
+        '<button class="btn pri" id="acNovo">Verificar de novo</button><button class="btn" id="acSair">Sair</button>'); return;
+    }
+    const m=a.modulos||{}, nivel=a.admin?'editar':(m['apps.emprestimos']||m['apps']||'');
+    if(nivel!=='editar'){
+      telaMensagem('Sem permissão','A conta <b>'+esc(emailLogado)+'</b> não tem acesso ao Controle de Empréstimos. '+
+        'O administrador libera em <b>Central › Contas › Permissões › Apps de suporte › Controle de Empréstimos</b>.',
+        '<button class="btn pri" id="acNovo">Verificar de novo</button><button class="btn" id="acSair">Sair</button>'); return;
+    }
+    // nome de quem está lançando: sai do cadastro da conta e fica gravado no log
+    operador=up((emailLogado||'').split('@')[0]);
+    try{
+      const rp=await api('GET','/rest/v1/perfis?select=nome,email&id=eq.'+encodeURIComponent(idDoToken(g.access_token)));
+      const p=rp.ok?(await rp.json())[0]:null;
+      if(p&&up(p.nome))operador=up(p.nome);
+    }catch(e){}
+    await carregaNuvem();
+    tela(''); sujo=false; semConexao=false;
+    render();
+    if(!iniciar.ligado){
+      iniciar.ligado=true;
+      setInterval(()=>puxar(false),60000);
+      document.addEventListener('visibilitychange',()=>{ if(!document.hidden){ puxar(false); if(sujo&&!gravando)flush(); } });
+      window.addEventListener('online',()=>{ if(sujo)flush(); });
+      window.addEventListener('storage',ev=>{ if((ev.key===CHAVE_SESSAO||ev.key===null)&&!sessaoLer())location.reload(); });
+    }
+  }catch(e){
+    if(e&&e.semSessao){ telaLogin(''); return; }
+    telaMensagem('Não consegui carregar os dados',esc(e.message||'Erro desconhecido')+
+      '<br><br>Confira se o <b>banco_emprestimos.sql</b> foi rodado no Supabase e se a sua conta está liberada.',
+      '<button class="btn pri" id="acNovo">Tentar de novo</button><button class="btn" id="acSair">Sair</button>');
+  }
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+const ABAS=[
+  {id:'lancar',      rot:'Lançar'},
+  {id:'emprestimos', rot:'Empréstimos'},
+  {id:'funcionarios',rot:'Funcionários'},
+  {id:'painel',      rot:'Dashboard'},
+  {id:'log',         rot:'Log'},
+  {id:'dados',       rot:'Dados'}
+];
+function pintaNav(){
+  const rs=state.emprestimos.map(resumo);
+  const abertos=rs.filter(r=>!r.quitado).length, nAtr=rs.reduce((s,r)=>s+r.nAtr,0);
+  $('#nav').innerHTML=ABAS.map(a=>{
+    let pip='';
+    if(a.id==='emprestimos'&&abertos) pip='<span class="pip" title="em aberto">'+abertos+'</span>';
+    if(a.id==='emprestimos'&&nAtr) pip+='<span class="pip crit" title="parcelas atrasadas (vencidas sem baixa)">'+nAtr+'</span>';
+    if(a.id==='funcionarios') pip='<span class="pip" title="cadastrados">'+state.funcionarios.length+'</span>';
+    return '<button data-aba="'+a.id+'" aria-current="'+(aba===a.id)+'">'+a.rot+pip+'</button>';
+  }).join('');
+}
+let abaDesenhada=null;
+function render(){
+  pintaNav(); pintaUser(); pintaStatus();
+  const v=$('#view');
+  // A área que rola é recriada a cada desenho: guardar a posição na mesma aba.
+  const r0=v.querySelector('.rola');
+  const pos=(r0&&abaDesenhada===aba)?{t:r0.scrollTop,l:r0.scrollLeft}:null;
+  if(aba==='lancar')            v.innerHTML=viewLancar();
+  else if(aba==='emprestimos')  v.innerHTML=viewEmprestimos();
+  else if(aba==='log')          v.innerHTML=viewLog();
+  else if(aba==='funcionarios') v.innerHTML=viewFuncionarios();
+  else if(aba==='painel')       v.innerHTML=viewPainel();
+  else                          v.innerHTML=viewDados();
+  const r1=v.querySelector('.rola');
+  if(r1&&pos){ r1.scrollTop=pos.t; r1.scrollLeft=pos.l; }
+  abaDesenhada=aba;
+  posRender();
+}
+function pintaUser(){
+  $('#userNome').textContent=operador||'entrando…';
+  $('#userIni').textContent=operador?operador.trim().slice(0,2).toUpperCase():'—';
+}
+
+/* ---------- helpers de UI ---------- */
+const chipSit = s=>{const t=SIT[s]||SIT.ATIVO;return '<span class="chip '+t.cls+'">'+t.rot+'</span>';};
+function chipEmp(r,e){
+  if(e.quitadoEm && r.quitado) return '<span class="chip ex">Quitado antecipado</span>';
+  if(r.quitado) return '<span class="chip ok">Quitado</span>';
+  if(r.nAtr) return '<span class="chip crit">'+plural(r.nAtr,'atrasada','atrasadas')+'</span>';
+  if(r.nParcial) return '<span class="chip warn">'+plural(r.nParcial,'parcial','parciais')+'</span>';
+  if(!r.nDesc && !r.descontado) return '<span class="chip info">A iniciar</span>';
+  return '<span class="chip acc">Em aberto</span>';
+}
+function chipParc(x){
+  if(x.desc) return '<span class="chip ok"'+(x.bx&&modoManual()?' title="Baixa em '+dBR(x.bx.em)+(x.bx.por?' por '+esc(x.bx.por):'')+'"':'')+'>Descontada</span>';
+  if(x.parc) return '<span class="chip '+(x.atr?'crit':'warn')+'" title="Descontado '+brl(x.pago)+' — falta '+brl(x.falta)+'">Parcial · falta '+num2(x.falta)+'</span>';
+  if(x.atr) return '<span class="chip crit">Atrasada</span>';
+  return '<span class="chip">A descontar</span>';
+}
+const rotSit = x=>x.desc?'Descontada':x.parc?'Parcial (descontado '+num2(x.pago)+', falta '+num2(x.falta)+')':(x.atr?'Atrasada':'A descontar');
+/* botão de baixa: só existe no modo manual */
+const podeBaixar = ()=>modoManual()&&!LEITURA;
+function btnBaixa(e,p){
+  if(!podeBaixar()) return '';
+  const k=chaveP(p), b=baixaDe(e,p), x=estadoParcela(e,p);
+  const desf=`<button class="btn sm ghost" data-bx="${e.id}|${k}|0" title="Apagar a baixa desta parcela${x.parc?' (todos os descontos parciais)':''}">Desfazer</button>`;
+  if(x.desc) return desf;
+  return `<button class="btn sm" data-bx="${e.id}|${k}|1">${x.parc?'Descontar resto':'Descontar'}</button>`+(b?' '+desf:'');
+}
+/* "Parcela 3/5 — Empréstimo de 20/07/2026 · R$ 424,00 de 05/10/2026" para o log */
+function descParcela(e,k){
+  const p=parcelasDe(e).find(x=>chaveP(x)===k);
+  return (k==='Q'?'Quitação':'Parcela '+k+'/'+e.parcelas)+' — '+TIPOS[e.tipo].rot+' de '+dBR(e.data)+
+    (p?' · '+brl(p.desconto)+' de '+dBR(p.data):'');
+}
+/* Os descontos de uma parcela, do mais antigo ao mais novo. Baixa antiga, de
+   antes do desconto parcial, não tem a lista: vira um desconto único.
+   "i" é a posição gravada (identifica o desconto para excluir/editar). */
+function pagamentosDe(e,p){
+  const b=baixaDe(e,p); if(!b) return [];
+  const L=b.pagamentos&&b.pagamentos.length ? b.pagamentos : [{em:b.em,por:b.por,valor:pagoDe(e,p)}];
+  return L.map((g,i)=>Object.assign({i},g)).sort((a,b2)=>String(a.em).localeCompare(String(b2.em))||a.i-b2.i);
+}
+/* o que se grava de um desconto (sem o "i" de tela) */
+const limpaPg = g=>{ const o={em:g.em,por:g.por,valor:g.valor,lancadoEm:g.lancadoEm}; if(g.obs) o.obs=g.obs; return o; };
+const OBS_MAX = 200;
+const limpaObs = s=>String(s==null?'':s).replace(/\s+/g,' ').trim().slice(0,OBS_MAX);
+/* Remonta a baixa da parcela a partir da lista de descontos: fechou o valor =
+   inteira (sem "valor"); não fechou = parcial; lista vazia = sem baixa.
+   "em" da baixa = data do desconto mais recente. */
+function remontaBaixa(e,p,pags){
+  const k=chaveP(p);
+  if(!pags.length){ delete e.baixas[k]; return; }
+  const total=r2(pags.reduce((s,g)=>s+(Number(g.valor)||0),0));
+  const ult=pags.slice().sort((a,b)=>String(a.em).localeCompare(String(b.em))).pop();
+  e.baixas[k]=total>=p.desconto-0.004 ? {em:ult.em,por:ult.por,pagamentos:pags}
+                                      : {em:ult.em,por:ult.por,valor:total,pagamentos:pags};
+}
+/* Registra um desconto de "v" reais na parcela k, com a data em que ele foi
+   descontado de fato (pode ser retroativa). lancadoEm guarda quando foi lançado. */
+function aplicaDesconto(e,k,v,data,obs){
+  const p=parcelasDe(e).find(x=>chaveP(x)===k); if(!p)return;
+  if(!e.baixas) e.baixas={};
+  data=dataValida(data)?data:p.data;
+  obs=limpaObs(obs);
+  const jaPago=pagoDe(e,p);
+  const pags=pagamentosDe(e,p).map(limpaPg);
+  pags.push(limpaPg({em:data,por:operador,valor:r2(v),lancadoEm:new Date().toISOString(),obs}));
+  remontaBaixa(e,p,pags);
+  const total=r2(jaPago+v), fecha_=total>=p.desconto-0.004;
+  registra('BAIXA',{func:nomeDe(e),emp:e.id,txt:descParcela(e,k)+' · descontado '+brl(v)+' em '+dBR(data)+
+    (fecha_?(jaPago>0?' (completou a parcela)':''):' — PARCIAL, falta '+brl(r2(p.desconto-total)))+
+    (obs?' — obs.: '+obs:'')});
+}
+/* Apaga um desconto só da parcela (os outros continuam) */
+function excluiPagamento(e,k,i){
+  const p=parcelasDe(e).find(x=>chaveP(x)===k); if(!p)return;
+  const todos=pagamentosDe(e,p), sai=todos.find(g=>g.i===i); if(!sai)return;
+  remontaBaixa(e,p,todos.filter(g=>g.i!==i).map(limpaPg));
+  registra('BAIXA_DESF',{func:nomeDe(e),emp:e.id,txt:descParcela(e,k)+' · excluído o desconto de '+brl(sai.valor)+' de '+dBR(sai.em)+
+    (sai.obs?' (obs.: '+sai.obs+')':'')});
+}
+/* Troca só a observação de um desconto já lançado (valor e data não mudam) */
+function editaObsPagamento(e,k,i,obs){
+  const p=parcelasDe(e).find(x=>chaveP(x)===k); if(!p)return false;
+  const todos=pagamentosDe(e,p), g=todos.find(x=>x.i===i); if(!g)return false;
+  obs=limpaObs(obs); const antes=g.obs||'';
+  if(obs===antes) return false;
+  remontaBaixa(e,p,todos.map(x=>limpaPg(x.i===i?Object.assign({},x,{obs}):x)));
+  registra('OBS_EDIT',{func:nomeDe(e),emp:e.id,txt:descParcela(e,k)+' · desconto de '+brl(g.valor)+' de '+dBR(g.em)+
+    ' · obs.: "'+(antes||'—')+'" → "'+(obs||'—')+'"'});
+  return true;
+}
+function janelaObs(e,k,i,depois){
+  const p=parcelasDe(e).find(x=>chaveP(x)===k); if(!p)return;
+  const g=pagamentosDe(e,p).find(x=>x.i===i); if(!g)return;
+  modal(`<h2>Observação do desconto</h2>`,
+    `<p class="lead" style="margin-bottom:12px">${esc(nomeDe(e))} · ${rotParcela(p)} · <b class="mono">${brl(g.valor)}</b> em ${dBR(g.em)}</p>
+     <label class="f"><span>Observação</span><input class="inp" id="obsTxt" maxlength="${OBS_MAX}" value="${esc(g.obs||'')}" placeholder="Ex.: pago em dinheiro no caixa"></label>
+     <p class="hint">Valor e data do desconto não mudam. A troca fica registrada no Log.</p>`,
+    [{rot:'Cancelar',fn:()=>{fecha(); depois();}},
+     {rot:'Gravar',cls:'pri',fn:()=>grava()}]);
+  function grava(){
+    if(!garanteOperador())return;
+    if(editaObsPagamento(e,k,i,$('#obsTxt').value)){ mudou(); toast('Observação gravada','ok'); }
+    fecha(); depois();
+  }
+  $('#obsTxt').onkeydown=ev=>{ if(ev.key==='Enter'){ev.preventDefault(); grava();} };
+}
+function desfazBaixa(e,k){
+  const p=parcelasDe(e).find(x=>chaveP(x)===k), pago=p?pagoDe(e,p):0;
+  delete e.baixas[k];
+  registra('BAIXA_DESF',{func:nomeDe(e),emp:e.id,txt:descParcela(e,k)+(pago?' · estornado '+brl(pago):'')});
+}
+/* Descontar: mostra o valor que falta para dar OK, mas deixa trocar.
+   Valor menor que o que falta = desconto parcial. */
+function janelaBaixa(e,k,depois){
+  const p=parcelasDe(e).find(x=>chaveP(x)===k); if(!p)return;
+  const x=estadoParcela(e,p);
+  modal(`<h2>Descontar — ${esc(nomeDe(e))}</h2>`,
+    `<dl class="dl" style="margin-bottom:14px">
+       <dt>Parcela</dt><dd class="mono">${rotParcela(p)} · ${dBR(p.data)} · ${TIPOS[e.tipo].rot} de ${dBR(e.data)}</dd>
+       <dt>Valor da parcela</dt><dd class="mono">${brl(p.desconto)}</dd>
+       ${x.pago?`<dt>Já descontado</dt><dd class="mono">${brl(x.pago)}</dd>`:''}
+       <dt>Falta</dt><dd class="mono"><b style="color:var(--accent)">${brl(x.falta)}</b></dd>
+     </dl>
+     <div class="grid2">
+       <label class="f"><span>Valor descontado (R$)</span>
+         <input class="inp num" id="bxValor" inputmode="decimal" value="${num2(x.falta)}" style="font-size:18px"></label>
+       <label class="f"><span>Data do desconto</span>
+         <input class="inp" id="bxData" type="date" value="${p.data}" min="${e.data}" style="font-size:16px"></label>
+     </div>
+     <p class="hint" id="bxInfo">Valor cheio: a parcela fica descontada. Valor menor: fica <b>parcial</b> e o resto continua a descontar.</p>
+     <p class="hint" id="bxDataInfo">A data vem com a data da parcela. Troque se o desconto foi feito em outro dia (retroativo).</p>
+     <label class="f" style="margin-top:12px"><span>Observação (opcional)</span>
+       <input class="inp" id="bxObs" maxlength="${OBS_MAX}" placeholder="Ex.: pago em dinheiro no caixa, descontado na rescisão…"></label>`,
+    [{rot:'Cancelar',fn:()=>{fecha(); depois();}},
+     {rot:'OK — descontar',cls:'pri',fn:()=>confirma()}]);
+  const inp=$('#bxValor');
+  const info=()=>{const v=numBR(inp.value);
+    $('#bxInfo').innerHTML=!(v>0)?'<span style="color:var(--crit)">Informe um valor maior que zero.</span>'
+      :v>x.falta+0.004?'<span style="color:var(--crit)">Maior que o que falta ('+brl(x.falta)+').</span>'
+      :v<x.falta-0.004?'<b style="color:var(--warn)">Parcial:</b> depois deste desconto ainda faltam <b>'+brl(r2(x.falta-v))+'</b>.'
+      :'Valor cheio: a parcela fica <b style="color:var(--ok)">descontada</b>.';};
+  const dt=$('#bxData');
+  const infoData=()=>{ $('#bxDataInfo').innerHTML=!dataValida(dt.value)?'<span style="color:var(--crit)">Informe a data do desconto.</span>'
+      :dt.value>hoje()?'<b style="color:var(--warn)">Atenção:</b> data depois de hoje ('+dBR(hoje())+').'
+      :dt.value!==p.data?'Desconto retroativo/fora da data da parcela ('+dBR(p.data)+').'
+      :'A data vem com a data da parcela. Troque se o desconto foi feito em outro dia (retroativo).'; };
+  dt.oninput=infoData;
+  function confirma(){
+    const v=r2(numBR(inp.value));
+    if(!(v>0)){toast('Informe um valor maior que zero','err');return;}
+    if(v>x.falta+0.004){toast('O valor passa do que falta nesta parcela ('+brl(x.falta)+')','err');return;}
+    if(!dataValida(dt.value)){toast('Informe a data do desconto','err');return;}
+    if(dt.value<e.data){toast('A data não pode ser antes do lançamento ('+dBR(e.data)+')','err');return;}
+    aplicaDesconto(e,k,v,dt.value,$('#bxObs').value); mudou(); fecha();
+    toast(v<x.falta-0.004?'Desconto parcial de '+brl(v)+' — falta '+brl(r2(x.falta-v)):'Desconto registrado','ok');
+    depois();
+  }
+  inp.oninput=info;
+  inp.onkeydown=ev=>{ if(ev.key==='Enter'){ev.preventDefault(); confirma();} };
+  $('#bxObs').onkeydown=ev=>{ if(ev.key==='Enter'){ev.preventDefault(); confirma();} };
+  setTimeout(()=>{inp.focus(); inp.select();},60);
+}
+/* ---------- descontos dentro da parcela (o "+") ---------- */
+const abertas=new Set();          // "idEmprestimo|parcela" com os descontos abertos (só na tela)
+const chaveAb=(e,p)=>e.id+'|'+chaveP(p);
+/* célula "Parcela": com desconto lançado ganha o + (ou −) e a quantidade */
+function celParcela(e,p,rot){
+  rot=rot||rotParcela(p);
+  const n=modoManual()?pagamentosDe(e,p).length:0;
+  if(!n) return rot;
+  const ab=abertas.has(chaveAb(e,p));
+  return `<button class="abre" data-abre="${chaveAb(e,p)}" title="${ab?'Fechar':'Ver'} os descontos desta parcela">${ab?'−':'+'}</button>${rot}`+
+    `<span class="qtd-pg" title="${plural(n,'desconto lançado','descontos lançados')}">${n}</span>`;
+}
+const lancadoTxt = g=>g.lancadoEm?'lançado '+quandoLog(g.lancadoEm):'';
+function btnExcluiPg(e,p,g){
+  return podeBaixar()?`<button class="btn sm ghost" data-pgdel="${e.id}|${chaveP(p)}|${g.i}" title="Apaga só este desconto">Excluir</button>`:'';
+}
+/* linhas da ficha: alinhadas com as colunas da parcela */
+function subFicha(e,p,x){
+  if(!abertas.has(chaveAb(e,p))) return '';
+  const pags=pagamentosDe(e,p);
+  return pags.map((g,j)=>`<tr class="sub"><td class="mono">↳ desconto ${j+1}</td><td class="mono">${dBR(g.em)}</td>
+      <td></td><td></td><td class="num">${num2(g.valor)}</td><td></td>
+      <td class="dim">${esc(g.por||'—')}${lancadoTxt(g)?' · '+lancadoTxt(g):''}${obsTxt(g)}</td>
+      ${podeBaixar()?'<td style="white-space:nowrap">'+btnObsPg(e,p,g)+btnExcluiPg(e,p,g)+'</td>':''}</tr>`).join('')+
+    (x.parc?`<tr class="sub falta"><td class="mono">↳ falta</td><td></td><td></td><td></td><td class="num"><b>${num2(x.falta)}</b></td>
+      <td colspan="${podeBaixar()?3:2}"></td></tr>`:'');
+}
+/* linhas da lista do mês: uma faixa por desconto, embaixo do lançamento */
+function subLista(x,cols){
+  return x.pm.filter(y=>abertas.has(chaveAb(x.e,y.p))).map(y=>{
+    const pags=pagamentosDe(x.e,y.p);
+    return pags.map((g,j)=>`<tr class="sub"><td></td><td colspan="${cols-1}">↳ ${rotParcela(y.p)} · desconto ${j+1} ·
+        <b class="mono">${brl(g.valor)}</b> em <span class="mono">${dBR(g.em)}</span> · ${esc(g.por||'—')}${lancadoTxt(g)?' · '+lancadoTxt(g):''}
+        ${g.obs?' · <span class="obs-pg">obs.: '+esc(g.obs)+'</span>':''}
+        ${btnObsPg(x.e,y.p,g)}${btnExcluiPg(x.e,y.p,g)}</td></tr>`).join('')+
+      (y.parc?`<tr class="sub falta"><td></td><td colspan="${cols-1}">↳ ${rotParcela(y.p)} · falta <b class="mono">${brl(y.falta)}</b></td></tr>`:'');
+  }).join('');
+}
+const obsTxt = g=>g.obs?'<div class="obs-pg">obs.: '+esc(g.obs)+'</div>':'';
+function btnObsPg(e,p,g){
+  return podeBaixar()?`<button class="btn sm ghost" data-pgobs="${e.id}|${chaveP(p)}|${g.i}" title="Escrever ou trocar a observação deste desconto">${g.obs?'Editar obs.':'+ obs.'}</button>`:'';
+}
+function ligaParcelas(raiz,depois){
+  $$('[data-pgobs]',raiz).forEach(b=>b.onclick=ev=>{
+    ev.stopPropagation();
+    const [eid,k,i]=b.dataset.pgobs.split('|'); const e=empPorId(eid); if(!e)return;
+    janelaObs(e,k,Number(i),depois);
+  });
+  $$('[data-abre]',raiz).forEach(b=>b.onclick=ev=>{
+    ev.stopPropagation();
+    const k=b.dataset.abre; if(abertas.has(k)) abertas.delete(k); else abertas.add(k);
+    depois();
+  });
+  $$('[data-pgdel]',raiz).forEach(b=>b.onclick=ev=>{
+    ev.stopPropagation();
+    const [eid,k,i]=b.dataset.pgdel.split('|'); const e=empPorId(eid); if(!e)return;
+    const p=parcelasDe(e).find(x=>chaveP(x)===k); if(!p)return;
+    const g=pagamentosDe(e,p).find(x=>x.i===Number(i)); if(!g)return;
+    if(!confirm('Excluir este desconto?\n\n'+brl(g.valor)+' de '+dBR(g.em)+' — '+nomeDe(e)+', '+rotParcela(p)+'\n\nOs outros descontos da parcela continuam.'))return;
+    if(!garanteOperador())return;
+    excluiPagamento(e,k,Number(i)); mudou(); toast('Desconto excluído','ok'); depois();
+  });
+}
+/* liga os botões data-bx dentro de raiz; depois chama 'depois' para redesenhar */
+function ligaBaixas(raiz,depois){
+  $$('[data-bx]',raiz).forEach(b=>b.onclick=ev=>{
+    ev.stopPropagation();   // na tabela de empréstimos, a linha abriria a ficha
+    if(!garanteOperador())return;
+    const [eid,k,on]=b.dataset.bx.split('|');
+    const e=empPorId(eid); if(!e)return;
+    if(on==='1') return janelaBaixa(e,k,depois);
+    const p=parcelasDe(e).find(x=>chaveP(x)===k);
+    if(p&&parcial(e,p)&&!confirm('Desfazer a baixa desta parcela?\n\nOs descontos parciais ('+brl(pagoDe(e,p))+') são apagados juntos.'))return;
+    desfazBaixa(e,k); mudou();
+    toast('Baixa desfeita','ok');
+    depois();
+  });
+}
+function barras(dados,opt){
+  opt=opt||{};
+  const max=Math.max(1,...dados.map(d=>d.v));
+  if(!dados.length) return '<p class="hint" style="margin-top:12px">'+(opt.vazio||'Sem dados no período.')+'</p>';
+  return '<div class="bars">'+dados.map(d=>
+    '<div class="bar'+(d.atual?' atual':'')+(d.fid?' link" data-func="'+esc(d.fid)+'" title="Ver o resumo de '+esc(d.k):'')+'">'+
+    '<span class="b-lab" title="'+esc(d.k)+'">'+esc(d.k)+'</span>'+
+    '<span class="b-track"><span class="b-fill '+(d.cls||opt.cls||'')+'" style="width:'+(d.v/max*100).toFixed(1)+'%"></span></span>'+
+    '<span class="b-val">'+(opt.fmt?opt.fmt(d.v):d.v)+(d.sub?'<small>'+esc(d.sub)+'</small>':'')+'</span></div>'
+  ).join('')+'</div>';
+}
+function thOrd(k,rot,ord,cls){
+  const ar=ord.k===k?' <span class="ar">'+(ord.asc?'▲':'▼')+'</span>':'';
+  return '<th data-ord="'+k+'"'+(cls?' class="'+cls+'"':'')+'>'+rot+ar+'</th>';
+}
+function ordena(arr,ord,val){
+  const s=ord.asc?1:-1;
+  return arr.sort((a,b)=>{
+    const x=val(a,ord.k), y=val(b,ord.k);
+    if(typeof x==='number'&&typeof y==='number') return (x-y)*s;
+    return String(x==null?'':x).localeCompare(String(y==null?'':y),'pt-BR')*s;
+  });
+}
+
+/* ============================================================
+   LANÇAR
+   ============================================================ */
+let form=formNovo();
+function formNovo(tipo){
+  tipo=tipo||'EMP';
+  return {editId:'', func:'', tipo, descricao:'', data:hoje(), valor:'',
+    juros:String(TIPOS[tipo].juros).replace('.',','), parcelas:'1',
+    primeiro:sugestaoPrimeiro(tipo), jurosTocado:false, primeiroTocado:false};
+}
+/* 1º desconto sugerido: dia 5 do mês que vem. No adiantamento de 13º, 20/12 —
+   a data do lançamento que estava na planilha. */
+function sugestaoPrimeiro(tipo){
+  if(tipo==='ADI13'){ const y=hoje().slice(0,4); const d=y+'-12-20'; return d>=hoje()?d:(Number(y)+1)+'-12-20'; }
+  return dia5Seguinte(hoje());
+}
+/* o formulário como um lançamento (para a prévia e para gravar) */
+function formComoEmp(){
+  return {valor:r2(numBR(form.valor)), juros:numBR(form.juros),
+    parcelas:Math.floor(numBR(form.parcelas))||0, primeiro:form.primeiro, quitadoEm:''};
+}
+function errosForm(){
+  const e=formComoEmp(), err=[];
+  if(!up(form.func)) err.push('Informe o funcionário.');
+  if(!(e.valor>0)) err.push('Informe o valor.');
+  if(!(e.parcelas>=1&&e.parcelas<=MAX_PARCELAS)) err.push('Parcelas: de 1 a '+MAX_PARCELAS+'.');
+  if(e.juros<0||e.juros>100) err.push('Juros fora do intervalo (0 a 100% a.m.).');
+  if(!dataValida(form.primeiro)) err.push('Informe a data do 1º desconto.');
+  if(!dataValida(form.data)) err.push('Informe a data do lançamento.');
+  return err;
+}
+
+function viewLancar(){
+  const ed=form.editId?empPorId(form.editId):null;
+  const f=funcPorNome(form.func);
+  return `
+  <div class="cab">
+    <div class="cab-tit">
+      <h1>${ed?'Editando lançamento':'Lançar empréstimo'}</h1>
+      ${ed?`<span class="chip warn">alterando o lançamento de ${esc(nomeDe(ed))}</span>`:''}
+    </div>
+  </div>
+  <div class="rola">
+  <div class="lanc">
+    <div class="card pad">
+      <label class="f"><span>Funcionário</span>
+        <input class="inp" id="lFunc" data-sug="func" value="${esc(form.func)}" placeholder="Digite parte do nome ou nº da folha"></label>
+      <div class="hint" id="lFuncInfo" style="margin:-6px 0 11px">${infoFunc(f)}</div>
+      <div class="grid2">
+        <label class="f"><span>Tipo</span>
+          <select class="inp" id="lTipo">${Object.keys(TIPOS).map(k=>
+            `<option value="${k}"${form.tipo===k?' selected':''}>${TIPOS[k].rot}</option>`).join('')}</select></label>
+        <label class="f"><span>Data do lançamento</span>
+          <input class="inp" id="lData" type="date" value="${esc(form.data)}"></label>
+      </div>
+      <label class="f"><span>Descrição (opcional)</span>
+        <input class="inp" id="lDesc" value="${esc(form.descricao)}" placeholder="Ex.: adiantamento 13º total"></label>
+      <div class="grid3">
+        <label class="f"><span>Valor (R$)</span>
+          <input class="inp num" id="lValor" inputmode="decimal" value="${esc(form.valor)}" placeholder="0,00"></label>
+        <label class="f"><span>Juros % a.m.</span>
+          <input class="inp num" id="lJuros" inputmode="decimal" value="${esc(form.juros)}"></label>
+        <label class="f"><span>Parcelas</span>
+          <input class="inp num" id="lParc" inputmode="numeric" value="${esc(form.parcelas)}"></label>
+      </div>
+      <label class="f"><span>Data do 1º desconto</span>
+        <input class="inp" id="lPrim" type="date" value="${esc(form.primeiro)}"></label>
+      <div class="hint" style="margin:-6px 0 14px">As parcelas seguintes caem no dia 5 de cada mês, como na planilha.</div>
+      <div id="lErros"></div>
+      <div class="btnrow">
+        <button class="btn pri" id="lSalvar">${ed?'Gravar alteração':'Lançar empréstimo'}</button>
+        ${ed?'<button class="btn" id="lCancelar">Cancelar edição</button>':'<button class="btn ghost" id="lLimpar">Limpar</button>'}
+      </div>
+    </div>
+    <div id="previa">${htmlPrevia()}</div>
+  </div>
+  </div>`;
+}
+function infoFunc(f){
+  if(f) return 'Nº folha '+(f.folha?'<span class="mono">'+esc(f.folha)+'</span>':'não informado')+' · '+chipSit(f.situacao)+
+    (empsDe(f.id).filter(e=>!resumo(e).quitado).length?' · <b style="color:var(--warn)">já tem empréstimo em aberto</b>':'');
+  if(up(form.func)) return '<span style="color:var(--warn)">Não cadastrado — será cadastrado ao lançar.</span>';
+  return '';
+}
+function htmlPrevia(){
+  const e=formComoEmp();
+  if(!(e.valor>0) || !(e.parcelas>=1&&e.parcelas<=MAX_PARCELAS) || !dataValida(e.primeiro))
+    return `<div class="empty"><h3>Prévia das parcelas</h3><p>Preencha valor, parcelas e data do 1º desconto
+      para ver o cronograma — o mesmo da aba "juros 2%" da planilha.</p></div>`;
+  const c=cronograma(e);
+  const passadas=c.filter(p=>p.data<=hoje()).length;
+  return `
+    <div class="resumo">
+      <div class="kpi"><div class="k-lab">Parcela</div><div class="k-val">${brl(c[0].amort)}</div>
+        <div class="k-sub">${plural(c.length,'parcela','parcelas')} sem juros</div></div>
+      <div class="kpi w"><div class="k-lab">Total de juros</div><div class="k-val">${brl(soma(c,'juros'))}</div>
+        <div class="k-sub">${pct(e.juros)} a.m. sobre o saldo</div></div>
+      <div class="kpi a"><div class="k-lab">Total a descontar</div><div class="k-val">${brl(soma(c,'desconto'))}</div>
+        <div class="k-sub">valor + juros</div></div>
+      <div class="kpi"><div class="k-lab">Último desconto</div><div class="k-val">${dBR(c[c.length-1].data)}</div>
+        <div class="k-sub">1º em ${dBR(c[0].data)}</div></div>
+    </div>
+    ${passadas?`<div class="alertbox">⚠ <span><b>${plural(passadas,'parcela tem','parcelas têm')} data de desconto até hoje</b>
+      ${modoManual()
+        ? `— ${passadas===1?'fica':'ficam'} como atrasada${passadas===1?'':'s'} até você dar baixa.`
+        : `e já ${passadas===1?'entra':'entram'} como descontada${passadas===1?'':'s'}.`}</span></div>`:''}
+    <div class="tablewrap"><table>
+      <thead><tr><th>Parcela</th><th>Data</th><th class="r">Parcela</th><th class="r">Juros</th>
+        <th class="r">Desconto</th><th class="r">Saldo após</th></tr></thead>
+      <tbody>${c.map(p=>`<tr><td class="mono">${p.n}/${p.de}</td><td class="mono">${dBR(p.data)}</td>
+        <td class="num">${num2(p.amort)}</td><td class="num">${num2(p.juros)}</td>
+        <td class="num"><b>${num2(p.desconto)}</b></td><td class="num dim">${num2(p.saldo)}</td></tr>`).join('')}</tbody>
+      <tfoot><tr><td colspan="2">TOTAL</td><td class="num">${num2(soma(c,'amort'))}</td>
+        <td class="num">${num2(soma(c,'juros'))}</td><td class="num">${num2(soma(c,'desconto'))}</td><td></td></tr></tfoot>
+    </table></div>`;
+}
+function leForm(){
+  form.func=$('#lFunc').value; form.tipo=$('#lTipo').value; form.data=$('#lData').value;
+  form.descricao=$('#lDesc').value; form.valor=$('#lValor').value; form.juros=$('#lJuros').value;
+  form.parcelas=$('#lParc').value; form.primeiro=$('#lPrim').value;
+}
+function atualizaPrevia(){
+  leForm();
+  $('#previa').innerHTML=htmlPrevia();
+  $('#lFuncInfo').innerHTML=infoFunc(funcPorNome(form.func));
+}
+function salvarLancamento(){
+  leForm();
+  const err=errosForm();
+  if(err.length){ $('#lErros').innerHTML='<div class="alertbox" style="color:var(--crit);border-color:var(--crit-line);background:var(--crit-soft)">'+
+    err.map(esc).join('<br>')+'</div>'; return; }
+  $('#lErros').innerHTML='';
+  if(!garanteOperador())return;
+  let f=funcPorNome(form.func);
+  if(!f){
+    if(!confirm('"'+up(form.func)+'" não está cadastrado.\n\nCadastrar como funcionário novo (sem nº de folha) e lançar?'))return;
+    f={id:uid(),folha:'',nome:up(form.func),situacao:'ATIVO',criadoEm:hoje()};
+    state.funcionarios.push(f);
+    registra('FUNC_NOVO',{func:f.nome,txt:'Cadastrado pelo Lançar, sem nº de folha'});
+  }
+  const base=formComoEmp();
+  const dados={func:f.id,tipo:form.tipo,descricao:up(form.descricao),data:form.data,
+    valor:base.valor,juros:base.juros,parcelas:base.parcelas,primeiro:form.primeiro};
+  if(form.editId){
+    const e=empPorId(form.editId);
+    if(!e){ toast('Lançamento não existe mais','err'); form=formNovo(); render(); return; }
+    // o que mudou, campo a campo: "Valor 1.500,00 → 1.800,00"
+    const CAMPOS=[['func','Funcionário',v=>{const x=funcPorId(v);return x?x.nome:'';}],['tipo','Tipo',v=>TIPOS[v]?TIPOS[v].rot:v],
+      ['descricao','Descrição',v=>v||'—'],['data','Data do lançamento',dBR],['valor','Valor',num2],['juros','Juros',pct],
+      ['parcelas','Parcelas',v=>String(v)],['primeiro','1º desconto',dBR]];
+    const mud=CAMPOS.filter(c=>String(e[c[0]])!==String(dados[c[0]])).map(c=>c[1]+' '+c[2](e[c[0]])+' → '+c[2](dados[c[0]]));
+    const nomeAntes=nomeDe(e);
+    Object.assign(e,dados,{alteradoEm:new Date().toISOString(),alteradoPor:operador});
+    registra('EMP_EDIT',{func:f.nome,emp:e.id,txt:mud.length?mud.join(' · '):'Gravado sem mudança'+(nomeAntes!==f.nome?'':'')});
+    // quitação anterior ao novo 1º desconto não faz sentido: desfaz
+    if(e.quitadoEm && e.quitadoEm<e.primeiro){ e.quitadoEm=''; delete e.baixas.Q; }
+    // menos parcelas: a baixa das que deixaram de existir não pode voltar sozinha
+    Object.keys(e.baixas||{}).forEach(k=>{ if(k!=='Q'&&Number(k)>e.parcelas) delete e.baixas[k]; });
+    toast('Lançamento de '+f.nome+' alterado','ok');
+    form=formNovo(); mudou(); aba='emprestimos'; render(); return;
+  }
+  const novo=Object.assign({id:uid(),quitadoEm:'',baixas:{},criadoEm:new Date().toISOString(),criadoPor:operador},dados);
+  state.emprestimos.push(novo);
+  registra('EMP_NOVO',{func:f.nome,emp:novo.id,txt:descEmp(novo)});
+  toast(TIPOS[form.tipo].rot+' de '+brl(base.valor)+' lançado para '+f.nome,'ok');
+  form=formNovo(form.tipo); mudou(); render();
+}
+/* ---------- tipos de empréstimo ---------- */
+/* nome vai direto para o HTML das telas: sem caracteres de marcação */
+const limpaTipo = s=>String(s==null?'':s).trim().replace(/\s+/g,' ').replace(/[<>&"'`]/g,'');
+const usoTipo = id=>state.emprestimos.filter(e=>e.tipo===id).length;
+function tipoDuplicado(rot,id){ return state.config.tipos.find(t=>t.id!==id&&semAcento(t.rot)===semAcento(rot)); }
+/* Janela única dos tipos: lista todos, renomeia, muda o juros sugerido, exclui
+   (só sem lançamento) e adiciona. Aberta pelo + do Lançar, escolher(id) põe o
+   tipo no formulário; aberta pela aba Dados, escolher é null. */
+function janelaTipos(escolher){
+  const tipos=state.config.tipos;
+  modal('<h2>Tipos de empréstimo</h2> <span class="count mono" style="font-size:11px;color:var(--ink-3)">'+tipos.length+'</span>',
+    `<p class="hint" style="margin:0 0 10px">Nome e juros se alteram direto na linha. O juros é só a sugestão ao escolher o tipo.
+       Excluir só aparece em tipo sem lançamento.</p>
+     <div class="tablewrap"><table>
+      <thead><tr><th>Nome</th><th>Juros % a.m.</th><th class="r">Lançamentos</th><th></th></tr></thead>
+      <tbody>${tipos.map(t=>{const n=usoTipo(t.id); return `<tr>
+        <td><input class="inp" data-tnome="${t.id}" value="${esc(t.rot)}"></td>
+        <td><input class="inp num" data-tjuros="${t.id}" inputmode="decimal" value="${esc(String(t.juros).replace('.',','))}" style="width:90px"></td>
+        <td class="num">${n||'<span class="dim">—</span>'}</td>
+        <td style="white-space:nowrap;text-align:right">
+          ${escolher?`<button class="btn sm${form.tipo===t.id?' pri':''}" data-tusar="${t.id}">${form.tipo===t.id?'Em uso aqui':'Usar'}</button> `:''}
+          ${n?`<span class="chip ex" title="Tem lançamento usando este tipo — não pode ser excluído">em uso (${n})</span>`
+             :(tipos.length<2?'':`<button class="btn sm dang" data-tdel="${t.id}">Excluir</button>`)}</td></tr>`;}).join('')}</tbody>
+     </table></div>
+     <div class="sec-head" style="margin:16px 0 8px"><h3>Adicionar tipo</h3></div>
+     <div style="display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap">
+       <label class="f" style="flex:1;min-width:200px;margin:0"><span>Nome</span><input class="inp" id="ntNome" placeholder="Ex.: Adiantamento salarial"></label>
+       <label class="f" style="width:120px;margin:0"><span>Juros % a.m.</span><input class="inp num" id="ntJuros" inputmode="decimal" value="0"></label>
+       <button class="btn pri" id="ntAdd">Adicionar</button>
+     </div>`,
+    [{rot:'Fechar',fn:fecha}],'wide');
+  const reabre=()=>{render(); janelaTipos(escolher);};
+  $$('#modalBody [data-tnome]').forEach(i=>i.onchange=()=>{
+    const t=tipos.find(x=>x.id===i.dataset.tnome), rot=limpaTipo(i.value);
+    if(!rot){toast('O nome não pode ficar vazio','err');i.value=t.rot;return;}
+    if(tipoDuplicado(rot,t.id)){toast(rot+' já existe','err');i.value=t.rot;return;}
+    if(rot===t.rot)return;
+    if(!garanteOperador()){i.value=t.rot;return;}
+    registra('TIPO_EDIT',{txt:'Renomeado: '+t.rot+' → '+rot});
+    t.rot=rot; syncTipos(); mudou(); toast('Tipo renomeado','ok'); reabre();});
+  $$('#modalBody [data-tjuros]').forEach(i=>i.onchange=()=>{
+    const t=tipos.find(x=>x.id===i.dataset.tjuros), j=numBR(i.value);
+    if(j<0||j>100){toast('Juros fora do intervalo (0 a 100)','err');i.value=String(t.juros).replace('.',',');return;}
+    if(j===t.juros)return;
+    if(!garanteOperador()){i.value=String(t.juros).replace('.',',');return;}
+    registra('TIPO_EDIT',{txt:t.rot+': juros sugerido '+pct(t.juros)+' → '+pct(j)});
+    t.juros=j; syncTipos(); mudou(); toast('Juros sugerido de '+t.rot+': '+pct(j),'ok');});
+  $$('#modalBody [data-tdel]').forEach(b=>b.onclick=()=>{
+    const t=tipos.find(x=>x.id===b.dataset.tdel);
+    if(usoTipo(t.id)){toast('Tem lançamento usando '+t.rot,'err');return;}
+    if(!confirm('Excluir o tipo '+t.rot+'?'))return;
+    if(!garanteOperador())return;
+    registra('TIPO_DEL',{txt:t.rot+' (juros sugerido '+pct(t.juros)+')'});
+    state.config.tipos=state.config.tipos.filter(x=>x.id!==t.id); syncTipos();
+    if(fEmp.tipo===t.id)fEmp.tipo=''; if(fDash.tipo===t.id)fDash.tipo='';
+    if(form.tipo===t.id)form.tipo=Object.keys(TIPOS)[0];
+    mudou(); toast('Tipo '+t.rot+' excluído','ok'); reabre();});
+  $$('#modalBody [data-tusar]').forEach(b=>b.onclick=()=>{ fecha(); escolher(b.dataset.tusar); });
+  const add=()=>{
+    const rot=limpaTipo($('#ntNome').value), juros=numBR($('#ntJuros').value);
+    if(!rot){toast('Informe o nome do tipo','err');$('#ntNome').focus();return;}
+    if(tipoDuplicado(rot,'')){toast(rot+' já existe','err');return;}
+    if(juros<0||juros>100){toast('Juros fora do intervalo (0 a 100)','err');return;}
+    if(!garanteOperador())return;
+    const id='T'+uid();
+    state.config.tipos.push({id,rot,juros}); syncTipos();
+    registra('TIPO_NOVO',{txt:rot+' (juros sugerido '+pct(juros)+')'}); mudou();
+    toast('Tipo '+rot+' cadastrado','ok');
+    // do Lançar: o tipo novo já vai para o formulário
+    if(escolher){ fecha(); escolher(id); } else reabre();
+  };
+  $('#ntAdd').onclick=add;
+  $('#ntNome').onkeydown=e=>{ if(e.key==='Enter') add(); };
+  setTimeout(()=>{ const n=$('#ntNome'); if(n)n.focus(); },60);   // depois do foco automático do modal()
+}
+
+function editarEmprestimo(id){
+  const e=empPorId(id); if(!e)return;
+  form={editId:id,func:nomeDe(e),tipo:e.tipo,descricao:e.descricao||'',data:e.data||hoje(),
+    valor:num2(e.valor),juros:String(e.juros).replace('.',','),parcelas:String(e.parcelas),
+    primeiro:e.primeiro,jurosTocado:true,primeiroTocado:true};
+  fecha(); aba='lancar'; render();
+}
+
+/* ============================================================
+   EMPRÉSTIMOS
+   ============================================================ */
+let oEmp={k:'data',asc:false};
+/* Uma aba só para lançamentos e descontos (o antigo Histórico entrou aqui).
+   Sem mês: uma linha por lançamento, situação do LANÇAMENTO.
+   Com mês: só quem tem desconto naquele mês, com a parcela do mês, o botão de
+   baixa e a situação do DESCONTO — é a tela de fechar a folha. */
+let fEmp={q:'',sit:'ABERTO',tipo:'',mes:'',sitMes:''};
+function listaEmp(){
+  const q=semAcento(fEmp.q), mes=fEmp.mes;
+  const out=[];
+  state.emprestimos.forEach(e=>{
+    const x={e,r:resumo(e),nome:nomeDe(e),folha:folhaDe(e)};
+    if(fEmp.tipo&&e.tipo!==fEmp.tipo)return;
+    if(q&&semAcento(x.nome+' '+x.folha+' '+(e.descricao||'')).indexOf(q)<0)return;
+    if(!mes){
+      if(fEmp.sit==='ABERTO'&&x.r.quitado)return;
+      if(fEmp.sit==='QUITADO'&&!x.r.quitado)return;
+      if(fEmp.sit==='ATR'&&!x.r.nAtr)return;
+      if(fEmp.sit==='PARC'&&!x.r.nParcial)return;
+    } else {
+      // parcelas deste lançamento no mês (a quitação pode cair no mesmo mês de uma parcela)
+      x.pm=parcelasDe(e).filter(p=>mesDe(p.data)===mes)
+        .map(p=>Object.assign({e,p},estadoParcela(e,p)));
+      if(!x.pm.length)return;
+      if(fEmp.sitMes==='DESC'&&!x.pm.every(y=>y.desc))return;
+      if(fEmp.sitMes==='PEND'&&x.pm.every(y=>y.desc))return;
+      if(fEmp.sitMes==='ATR'&&!x.pm.some(y=>y.atr))return;
+      if(fEmp.sitMes==='PARC'&&!x.pm.some(y=>y.parc))return;
+      x.descMes=soma(x.pm.map(y=>y.p),'desconto');
+    }
+    out.push(x);
+  });
+  return ordena(out,oEmp,valEmp);
+}
+/* valor de ordenação de uma linha {e,r,nome,folha} — Empréstimos e Dashboard */
+const valEmp=(x,k)=>({
+  data:x.e.data, nome:x.nome, folha:x.folha, tipo:TIPOS[x.e.tipo].rot, valor:x.e.valor, juros:x.e.juros,
+  parc:x.r.n, totDesc:x.r.totDesc, descontado:x.r.descontado, aDescontar:x.r.aDescontar,
+  prox:x.r.prox?x.r.prox.data:'9999', descMes:x.descMes||0})[k];
+/* as parcelas por trás da lista: com mês, as do mês (já filtradas pela situação
+   do desconto); sem mês, todas as parcelas dos lançamentos listados */
+function parcelasDaLista(){
+  const L=listaEmp();
+  const P=fEmp.mes ? [].concat(...L.map(x=>x.pm.map(y=>Object.assign({nome:x.nome,folha:x.folha,mes:fEmp.mes},y))))
+                   : todasParcelas(L.map(x=>x.e));
+  const P2=!fEmp.mes?P:P.filter(y=>fEmp.sitMes==='DESC'?y.desc:fEmp.sitMes==='PEND'?!y.desc:fEmp.sitMes==='ATR'?y.atr:fEmp.sitMes==='PARC'?y.parc:true);
+  return P2.sort((a,b)=>a.p.data.localeCompare(b.p.data)||a.nome.localeCompare(b.nome,'pt-BR'));
+}
+const SIT_EMP=()=>[['ABERTO','Em aberto']].concat(modoManual()?[['ATR','Atrasados'],['PARC','Parciais']]:[]).concat([['QUITADO','Quitados'],['','Todos']]);
+const SIT_MES=()=>[['','Todos'],['DESC','Descontados'],['PEND','A descontar']].concat(modoManual()?[['ATR','Atrasados'],['PARC','Parciais']]:[]);
+/* ---------- descontos feitos: cada desconto lançado é uma linha ---------- */
+/* natureza: Cheio (parcela inteira de uma vez), Parcial, ou Completou (fechou
+   uma parcela que já tinha parcial) */
+function pagamentosDosEmps(emps){
+  const out=[];
+  emps.forEach(e=>{ const nome=nomeDe(e), folha=folhaDe(e);
+    parcelasDe(e).forEach(p=>{ let acum=0; const pags=pagamentosDe(e,p);
+      pags.forEach((g,j)=>{ acum=r2(acum+(Number(g.valor)||0));
+        const nat=acum>=p.desconto-0.004?(j===0?'Cheio':'Completou'):'Parcial';
+        out.push({e,p,g,nome,folha,nat,mes:mesDe(g.em)}); }); }); });
+  return out.sort((a,b)=>String(a.g.em).localeCompare(String(b.g.em))||a.nome.localeCompare(b.nome,'pt-BR'));
+}
+/* da aba Empréstimos: busca e tipo valem; com mês, é o mês da DATA DO DESCONTO */
+function listaDescontosFeitos(){
+  const q=semAcento(fEmp.q);
+  const emps=state.emprestimos.filter(e=>(!fEmp.tipo||e.tipo===fEmp.tipo)&&
+    (!q||semAcento(nomeDe(e)+' '+folhaDe(e)+' '+(e.descricao||'')).indexOf(q)>=0));
+  return pagamentosDosEmps(emps).filter(x=>!fEmp.mes||x.mes===fEmp.mes);
+}
+function descrDescFeitos(){
+  const p=[fEmp.mes?'Descontos feitos em '+rotMesL(fEmp.mes):'Todos os descontos feitos'];
+  if(fEmp.tipo) p.push(TIPOS[fEmp.tipo].rot);
+  if(fEmp.q) p.push('busca "'+fEmp.q+'"');
+  return p.join(' · ');
+}
+const chipNat = n=>'<span class="chip '+({Cheio:'ok',Completou:'ok',Parcial:'warn'})[n]+'">'+n+'</span>';
+function janelaDescontosFeitos(){
+  const L=listaDescontosFeitos(), tot=r2(L.reduce((s,x)=>s+(Number(x.g.valor)||0),0));
+  const nPar=L.filter(x=>x.nat==='Parcial').length;
+  modal(`<h2>Descontos feitos</h2> <span class="hint" style="margin:0">${esc(descrDescFeitos())}</span>`,
+    `<div class="rs-kpis">
+       <div class="kpi o"><div class="k-lab">Descontado</div><div class="k-val">${brl(tot)}</div><div class="k-sub">${plural(L.length,'desconto','descontos')}</div></div>
+       <div class="kpi w"><div class="k-lab">Parciais</div><div class="k-val">${nPar}</div><div class="k-sub">${brl(r2(L.filter(x=>x.nat==='Parcial').reduce((s,x)=>s+x.g.valor,0)))}</div></div>
+       <div class="kpi"><div class="k-lab">Funcionários</div><div class="k-val">${new Set(L.map(x=>x.e.func)).size}</div><div class="k-sub">com desconto no período</div></div>
+     </div>
+     ${L.length?`<div class="tablewrap"><table><thead><tr><th>Data do desconto</th><th>Funcionário</th><th>Nº folha</th><th>Empréstimo</th>
+       <th>Parcela</th><th class="r">Valor</th><th>Desconto</th><th>Lançado por</th><th>Observação</th></tr></thead>
+       <tbody>${L.map(x=>`<tr data-emp="${x.e.id}" style="cursor:pointer"><td class="mono">${dBR(x.g.em)}</td><td class="nome">${esc(x.nome)}</td>
+         <td class="folha">${esc(x.folha)||'—'}</td><td>${TIPOS[x.e.tipo].rot} de ${dBR(x.e.data)}</td>
+         <td class="mono">${rotParcela(x.p)} · ${dBR(x.p.data)}</td><td class="num"><b>${num2(x.g.valor)}</b></td><td>${chipNat(x.nat)}</td>
+         <td class="dim">${esc(x.g.por||'—')}${x.g.lancadoEm?'<div class="hint" style="margin:0">'+quandoLog(x.g.lancadoEm)+'</div>':''}</td>
+         <td class="obs-pg" style="font-size:12px">${esc(x.g.obs||'')}</td></tr>`).join('')}</tbody>
+       <tfoot><tr><td colspan="5">TOTAL</td><td class="num">${num2(tot)}</td><td colspan="3"></td></tr></tfoot></table></div>`
+      :'<div class="empty"><h3>Nenhum desconto feito neste filtro</h3><p>Com mês escolhido, vale a data em que o desconto foi feito.</p></div>'}`,
+    [{rot:'Imprimir',fn:()=>imprimeDescontosFeitos()},
+     {rot:'Exportar para Excel',fn:()=>exportaDescFeitosCSV()},
+     {rot:'Fechar',cls:'pri',fn:fecha}],'wide');
+  $$('#modalBody tr[data-emp]').forEach(tr=>tr.onclick=()=>abreEmprestimo(tr.dataset.emp,janelaDescontosFeitos));
+}
+function imprimeDescontosFeitos(){
+  const L=listaDescontosFeitos(), tot=r2(L.reduce((s,x)=>s+(Number(x.g.valor)||0),0));
+  imprime(cabecalhoPR('Descontos feitos — empréstimos',descrDescFeitos())+
+    `<table><thead><tr><th>Data</th><th>Funcionário</th><th>Nº folha</th><th>Empréstimo</th><th>Parcela</th>
+      <th class="n">Valor</th><th>Desconto</th><th>Lançado por</th><th>Observação</th></tr></thead><tbody>
+      ${L.map(x=>`<tr><td>${dBR(x.g.em)}</td><td class="nm">${esc(x.nome)}</td><td class="fo">${esc(x.folha)}</td>
+        <td>${TIPOS[x.e.tipo].rot} de ${dBR(x.e.data)}</td><td>${rotParcela(x.p)} · ${dBR(x.p.data)}</td>
+        <td class="n"><b>${num2(x.g.valor)}</b></td><td>${x.nat}</td><td>${esc(x.g.por||'')}</td><td>${esc(x.g.obs||'')}</td></tr>`).join('')}
+      <tr class="tot"><th colspan="5" style="text-align:right">TOTAL — ${plural(L.length,'desconto','descontos')}</th>
+        <th class="n">${num2(tot)}</th><th colspan="3"></th></tr></tbody></table>`);
+}
+function exportaDescFeitosCSV(){
+  const L=listaDescontosFeitos();
+  const cab=['DATA DO DESCONTO','MÊS','FUNCIONÁRIO','Nº FOLHA','TIPO','LANÇADO EM','PARCELA','DATA DA PARCELA',
+    'VALOR DA PARCELA','VALOR DESCONTADO','DESCONTO','LANÇADO POR','REGISTRADO EM','OBSERVAÇÃO'];
+  const linhas=L.map(x=>[dBR(x.g.em),rotMes(x.mes),x.nome,x.folha?'="'+x.folha+'"':'',TIPOS[x.e.tipo].rot,dBR(x.e.data),
+    rotParcela(x.p),dBR(x.p.data),num2(x.p.desconto),num2(x.g.valor),x.nat,x.g.por||'',x.g.lancadoEm?quandoLog(x.g.lancadoEm):'',x.g.obs||'']);
+  const cel=c=>{c=String(c==null?'':c); return c.charAt(0)==='='?c:'"'+c.replace(/"/g,'""')+'"';};
+  const csv='﻿'+[cab].concat(linhas).map(l=>l.map(cel).join(';')).join('\r\n');
+  baixar('descontos-feitos-'+(fEmp.mes||hoje())+'.csv',csv,'text/csv;charset=utf-8');
+  toast(L.length+' linhas exportadas','ok');
+}
+function descrEmp(){
+  const p=[];
+  if(fEmp.mes){ p.push('Descontos de '+rotMesL(fEmp.mes));
+    if(fEmp.sitMes) p.push('só '+(SIT_MES().find(s=>s[0]===fEmp.sitMes)||['',''])[1].toLowerCase()); }
+  else { p.push('Todos os meses');
+    if(fEmp.sit) p.push((SIT_EMP().find(s=>s[0]===fEmp.sit)||['',''])[1].toLowerCase()); }
+  if(fEmp.tipo) p.push(TIPOS[fEmp.tipo].rot);
+  if(fEmp.q) p.push('busca "'+fEmp.q+'"');
+  return p.join(' · ');
+}
+function viewEmprestimos(){
+  const L=listaEmp(), mes=fEmp.mes, m0=mesDe(hoje());
+  return mes?viewEmpMes(L,m0):viewEmpLista(L,m0);
+}
+/* Duas linhas, para os dois "Todos" não se confundirem: em cima o mês (e busca
+   e tipo), embaixo a situação, com os botões da tela à direita. */
+function filtrosEmp(m0,botoes){
+  const mes=fEmp.mes, SITS=mes?SIT_MES():SIT_EMP(), cur=mes?fEmp.sitMes:fEmp.sit;
+  return `
+    <div class="filters" style="margin-bottom:8px">
+      <div class="fl"><span>Buscar</span><input class="busca" id="eQ" type="search" value="${esc(fEmp.q)}" placeholder="Nome, nº da folha ou descrição"></div>
+      <div class="fl"><span>Mês do desconto</span><input id="eMes" type="month" value="${esc(mes)}"></div>
+      <div class="fl"><span>&nbsp;</span><div class="togs" id="eMesAt">
+        <button class="tog" data-v="${m0}" aria-pressed="${mes===m0}">Este mês</button>
+        <button class="tog" data-v="${addMes(m0,1)}" aria-pressed="${mes===addMes(m0,1)}">Próximo</button>
+        <button class="tog" data-v="" aria-pressed="${!mes}">Todos</button></div></div>
+      <div class="fl"><span>Tipo</span><select id="eTipo"><option value="">Todos</option>${Object.keys(TIPOS).map(k=>
+        `<option value="${k}"${fEmp.tipo===k?' selected':''}>${TIPOS[k].rot}</option>`).join('')}</select></div>
+    </div>
+    <div class="filters">
+      <div class="fl"><span>${mes?'Situação do desconto':'Situação'}</span><div class="togs" id="eSit">${SITS.map(s=>
+        `<button class="tog" data-v="${s[0]}" aria-pressed="${cur===s[0]}">${s[1]}</button>`).join('')}</div></div>
+      <span class="spacer"></span>
+      ${botoes}
+    </div>`;
+}
+const vazioEmp = ()=>`<div class="rola"><div class="empty"><h3>Nenhum lançamento aqui</h3>
+    <p>${state.emprestimos.length?'Mude os filtros acima para ver os outros lançamentos.':'Comece pela aba Lançar.'}</p></div></div>`;
+/* com mês escolhido: fechamento da folha */
+function viewEmpMes(L,m0){
+  const P=parcelasDaLista(), semBaixa=P.filter(y=>!y.desc).length;
+  const tot=k=>num2(L.reduce((s,x)=>s+(typeof k==='function'?k(x):x.r[k]),0));
+  const sitMes=x=>x.pm.map(y=>chipParc(y)).join(' ');
+  return `
+  <div class="cab">
+    <div class="cab-tit">
+      <h1>Empréstimos <span style="color:var(--ink-3);font-weight:500">· descontos de ${rotMesL(fEmp.mes)}</span></h1>
+      <div class="contadores">
+        <div class="ct"><b>${L.length}</b><span>${L.length===1?'lançamento':'lançamentos'}</span></div>
+        <div class="ct"><b>${brl(soma(P.map(y=>y.p),'desconto'))}</b><span>descontos do mês</span></div>
+        <div class="ct v"><b>${brl(soma(P,'falta'))}</b><span>falta descontar</span></div>
+      </div>
+    </div>
+    ${filtrosEmp(m0,`${botoesSel()}
+      <button class="btn" id="eDescFeitos" title="Cada desconto lançado, um por linha — com mês, pela data em que o desconto foi feito">Descontos feitos</button>
+      ${podeBaixar()?`<button class="btn" id="eBaixaTodos" ${semBaixa?'':'disabled'} title="Marca como descontadas as parcelas da lista que ainda não têm baixa">Dar baixa em todos do mês${semBaixa?' ('+semBaixa+')':''}</button>`:''}
+      <button class="btn" id="eImp" ${P.length?'':'disabled'}>Imprimir</button>
+      <button class="btn pri" id="eCSV" ${P.length?'':'disabled'}>Exportar para Excel</button>`)}
+  </div>
+  ${L.length?`<div class="tablewrap rola"><table>
+    <thead><tr>${thSel(L)}${thOrd('nome','Funcionário',oEmp)}${thOrd('folha','Nº folha',oEmp)}${thOrd('tipo','Tipo',oEmp)}
+      ${thOrd('data','Lançado',oEmp)}${thOrd('valor','Valor',oEmp,'r')}<th>Parcela do mês</th>
+      ${thOrd('descMes','Desconto do mês',oEmp,'r')}${thOrd('aDescontar','Falta descontar',oEmp,'r')}
+      <th>Situação do desconto</th>${podeBaixar()?'<th>Baixa</th>':''}</tr></thead>
+    <tbody>${L.map(x=>`<tr data-id="${x.e.id}" class="${x.pm.every(y=>y.desc)?'':'futuro'}">${celSel(x.e.id)}
+      <td class="nome">${esc(x.nome)}${x.e.descricao?'<div class="hint" style="margin:0">'+esc(x.e.descricao)+'</div>':''}</td>
+      <td class="folha">${esc(x.folha)||'—'}</td>
+      <td>${TIPOS[x.e.tipo].rot}</td>
+      <td class="mono">${dBR(x.e.data)}</td>
+      <td class="num">${num2(x.e.valor)}</td>
+      <td class="mono" style="white-space:nowrap">${x.pm.map(y=>celParcela(x.e,y.p,rotParcela(y.p)+' · '+dBR(y.p.data))).join('<br>')}</td>
+      <td class="num"><b>${num2(x.descMes)}</b></td>
+      <td class="num">${num2(x.r.aDescontar)}</td>
+      <td>${sitMes(x)}</td>
+      ${podeBaixar()?'<td style="white-space:nowrap">'+x.pm.map(y=>btnBaixa(x.e,y.p)).join(' ')+'</td>':''}</tr>${subLista(x,podeBaixar()?11:10)}`).join('')}</tbody>
+    <tfoot><tr><td colspan="5">TOTAL · ${plural(new Set(L.map(x=>x.e.func)).size,'funcionário','funcionários')}</td>
+      <td class="num">${tot(x=>x.e.valor)}</td><td></td><td class="num">${tot(x=>x.descMes)}</td>
+      <td class="num">${tot('aDescontar')}</td><td colspan="${podeBaixar()?2:1}"></td></tr></tfoot>
+  </table></div>`:vazioEmp()}`;
+}
+/* sem mês: uma linha por lançamento */
+function viewEmpLista(L,m0){
+  return `
+  <div class="cab">
+    <div class="cab-tit">
+      <h1>Empréstimos</h1>
+      <div class="contadores">
+        <div class="ct"><b>${L.length}</b><span>${L.length===1?'lançamento':'lançamentos'}</span></div>
+        <div class="ct v"><b>${brl(L.reduce((s,x)=>s+x.r.aDescontar,0))}</b><span>a descontar</span></div>
+      </div>
+    </div>
+    ${filtrosEmp(m0,`${botoesSel()}
+      <button class="btn" id="eDescFeitos" title="Cada desconto lançado, um por linha — com mês, pela data em que o desconto foi feito">Descontos feitos</button>
+      <button class="btn" id="eCSV" ${L.length?'':'disabled'} title="Todas as parcelas dos lançamentos da lista">Exportar parcelas (Excel)</button>`)}
+  </div>
+  ${L.length?`<div class="tablewrap rola"><table>
+    <thead><tr>${thSel(L)}${thOrd('data','Lançado',oEmp)}${thOrd('nome','Funcionário',oEmp)}${thOrd('tipo','Tipo',oEmp)}
+      ${thOrd('valor','Valor',oEmp,'r')}${thOrd('juros','Juros',oEmp,'r')}${thOrd('parc','Parcelas',oEmp,'r')}
+      ${thOrd('totDesc','Total a descontar',oEmp,'r')}${thOrd('descontado','Já descontado',oEmp,'r')}
+      ${thOrd('aDescontar','Falta descontar',oEmp,'r')}${thOrd('prox','Próximo desconto',oEmp)}<th>Situação</th></tr></thead>
+    <tbody>${L.map(x=>`<tr data-id="${x.e.id}">${celSel(x.e.id)}
+      <td class="mono">${dBR(x.e.data)}</td>
+      <td class="nome">${esc(x.nome)}${x.e.descricao?'<div class="hint" style="margin:0">'+esc(x.e.descricao)+'</div>':''}</td>
+      <td>${TIPOS[x.e.tipo].rot}</td>
+      <td class="num">${num2(x.e.valor)}</td>
+      <td class="num">${pct(x.e.juros)}</td>
+      <td class="num">${x.r.nDesc}/${x.r.n}</td>
+      <td class="num">${num2(x.r.totDesc)}</td>
+      <td class="num">${num2(x.r.descontado)}</td>
+      <td class="num"><b>${num2(x.r.aDescontar)}</b></td>
+      <td class="mono">${x.r.prox?dBR(x.r.prox.data)+' · '+num2(x.r.prox.desconto):'<span class="dim">—</span>'}</td>
+      <td>${chipEmp(x.r,x.e)}</td></tr>`).join('')}</tbody>
+    <tfoot><tr><td colspan="4">TOTAL</td><td class="num">${num2(L.reduce((s,x)=>s+x.e.valor,0))}</td><td></td><td></td>
+      <td class="num">${num2(L.reduce((s,x)=>s+x.r.totDesc,0))}</td><td class="num">${num2(L.reduce((s,x)=>s+x.r.descontado,0))}</td>
+      <td class="num">${num2(L.reduce((s,x)=>s+x.r.aDescontar,0))}</td><td colspan="2"></td></tr></tfoot>
+  </table></div>`:vazioEmp()}`;
+}
+
+/* ficha do lançamento */
+/* voltar: aberta a partir do resumo da pessoa, "Fechar" volta para o resumo */
+function abreEmprestimo(id,voltar){
+  const e=empPorId(id); if(!e)return;
+  const r=resumo(e), f=funcPorId(e.func);
+  modal(`<h2>${esc(nomeDe(e))}</h2> ${chipEmp(r,e)}`,
+    `<dl class="dl">
+      <dt>Nº folha</dt><dd class="mono">${f&&f.folha?esc(f.folha):'—'}</dd>
+      <dt>Tipo</dt><dd>${TIPOS[e.tipo].rot}${e.descricao?' — '+esc(e.descricao):''}</dd>
+      <dt>Lançado em</dt><dd>${dBR(e.data)}${e.criadoPor?' <span class="dim">· por '+esc(e.criadoPor)+'</span>':''}</dd>
+      <dt>Valor</dt><dd class="mono">${brl(e.valor)}</dd>
+      <dt>Juros</dt><dd class="mono">${pct(e.juros)} a.m. · total ${brl(r.totJuros)}</dd>
+      <dt>Parcelas</dt><dd class="mono">${r.nDesc}/${r.n} descontadas · parcela ${brl(r.parcela)}</dd>
+      <dt>Total a descontar</dt><dd class="mono"><b>${brl(r.totDesc)}</b></dd>
+      <dt>Já descontado</dt><dd class="mono">${brl(r.descontado)}</dd>
+      <dt>Falta descontar</dt><dd class="mono"><b style="color:var(--accent)">${brl(r.aDescontar)}</b>${r.jurosAReceber?' <span class="dim">(juros '+brl(r.jurosAReceber)+')</span>':''}</dd>
+      ${e.quitadoEm?`<dt>Quitado em</dt><dd>${dBR(e.quitadoEm)} — antecipado</dd>`:''}
+    </dl>
+    <div class="tablewrap" style="margin-top:14px"><table>
+      <thead><tr><th>Parcela</th><th>Data</th><th class="r">Parcela</th><th class="r">Juros</th>
+        <th class="r">Desconto</th><th class="r">Saldo após</th><th>Situação</th>${podeBaixar()?'<th>Baixa</th>':''}</tr></thead>
+      <tbody>${r.ps.map(p=>{const x=estadoParcela(e,p);
+        return `<tr class="${p.quit?'quit':''}${x.desc?'':' futuro'}">
+        <td class="mono" style="white-space:nowrap">${celParcela(e,p)}</td><td class="mono">${dBR(p.data)}</td>
+        <td class="num">${num2(p.amort)}</td><td class="num">${num2(p.juros)}</td>
+        <td class="num"><b>${num2(p.desconto)}</b></td><td class="num dim">${num2(p.saldo)}</td>
+        <td>${chipParc(x)}${x.bx&&modoManual()?'<div class="hint" style="margin:2px 0 0">em '+dBR(x.bx.em)+(x.bx.por?' · '+esc(x.bx.por):'')+'</div>':''}</td>
+        ${podeBaixar()?'<td>'+btnBaixa(e,p)+'</td>':''}</tr>${subFicha(e,p,x)}`;}).join('')}</tbody>
+    </table></div>`,
+    (LEITURA?[]:[{rot:'Excluir',cls:'dang',fn:()=>excluirEmprestimo(id)},
+     e.quitadoEm?{rot:'Desfazer quitação',fn:()=>{
+       if(!garanteOperador())return;
+       registra('QUIT_DESF',{func:nomeDe(e),emp:e.id,txt:'Quitação de '+dBR(e.quitadoEm)+' desfeita — '+TIPOS[e.tipo].rot+' de '+dBR(e.data)});
+       e.quitadoEm='';delete e.baixas.Q;mudou();render();abreEmprestimo(id);toast('Quitação desfeita','ok');}}
+                :(r.quitado?null:{rot:'Quitar antecipado',fn:()=>quitar(id)}),
+     {rot:'Editar',fn:()=>editarEmprestimo(id)}]).concat(
+     [{rot:voltar?'Voltar ao resumo':'Fechar',cls:'pri',fn:voltar||fecha}]).filter(Boolean),'wide');
+  ligaBaixas($('#modalBody'),()=>{render();abreEmprestimo(id,voltar);});
+  ligaParcelas($('#modalBody'),()=>{render();abreEmprestimo(id,voltar);});
+}
+
+/* ============================================================
+   RESUMO DA PESSOA — abre por cima de qualquer tela
+   ============================================================ */
+function calcPessoa(fid,ids){
+  const f=funcPorId(fid);
+  const E=empsDe(fid).filter(e=>!ids||ids.has(e.id)).map(e=>({e,r:resumo(e)})).sort((a,b)=>b.e.data.localeCompare(a.e.data));
+  const T=todasParcelas(E.map(x=>x.e));
+  const s=k=>r2(E.reduce((a,x)=>a+x.r[k],0));
+  // "já feitos" inclui os parciais; "o que falta" usa só o que falta de cada parcela
+  const desc=T.filter(x=>x.pago>0), pend=T.filter(x=>!x.desc);
+  // o que ainda sai da folha, mês a mês (atrasadas ficam no mês delas, em vermelho)
+  const pm=new Map();
+  pend.forEach(x=>{const o=pm.get(x.mes)||{v:0,n:0,atr:0}; o.v+=x.falta; o.n++; if(x.atr)o.atr++; pm.set(x.mes,o);});
+  const m0=mesDe(hoje());
+  return {f,E,
+    valor:r2(E.reduce((a,x)=>a+x.e.valor,0)), nAb:E.filter(x=>!x.r.quitado).length,
+    descontado:s('descontado'), aDescontar:s('aDescontar'), saldo:s('saldo'),
+    jurosPagos:soma(desc,'jurosPago'), jurosAPagar:s('jurosAReceber'),
+    nAtr:s('nAtr'), vAtr:s('vAtr'),
+    meses:[...pm].sort((a,b)=>a[0].localeCompare(b[0])).map(([m,o])=>({k:rotMes(m),v:r2(o.v),
+      sub:plural(o.n,'desc.','desc.')+(o.atr?' · '+o.atr+' atras.':''),cls:o.atr?'crit':(m===m0?'':'info'),atual:m===m0})),
+    baixas:desc.sort((a,b)=>b.p.data.localeCompare(a.p.data)),
+    // cada desconto lançado (inteiro ou parcial), do mais novo ao mais antigo
+    // cada parcela que ainda falta, pela data dela (o papel mostra a data completa)
+    prox:pend.slice().sort((a,b)=>a.p.data.localeCompare(b.p.data)||a.e.data.localeCompare(b.e.data)),
+    // cada desconto lançado, na ordem das parcelas (empréstimo, nº da parcela, data do desconto)
+    pags:pagamentosDosEmps(E.map(x=>x.e)).sort((a,b)=>
+      a.e.data.localeCompare(b.e.data)||a.e.id.localeCompare(b.e.id)||
+      (a.p.quit?1e9:a.p.n)-(b.p.quit?1e9:b.p.n)||String(a.g.em).localeCompare(String(b.g.em)))};
+}
+function abreResumo(fid){
+  const c=calcPessoa(fid); if(!c.f)return;
+  const f=c.f, man=modoManual();
+  const k=(cls,lab,val,sub)=>`<div class="kpi ${cls}"><div class="k-lab">${lab}</div><div class="k-val">${val}</div><div class="k-sub">${sub}</div></div>`;
+  modal(`<h2>${esc(f.nome)}</h2> ${chipSit(f.situacao)} <span class="folha mono" style="font-size:12px;color:var(--ink-3)">${f.folha?'folha '+esc(f.folha):'sem nº de folha'}</span>`,
+    `<div class="rs-kpis">
+      ${k('','Total emprestado',brl(c.valor),plural(c.E.length,'lançamento','lançamentos')+' · '+c.nAb+' em aberto')}
+      ${k('o','Já descontado',brl(c.descontado),'juros pagos '+brl(c.jurosPagos))}
+      ${k('a','Falta descontar',brl(c.aDescontar),'saldo '+brl(c.saldo)+' + juros '+brl(c.jurosAPagar))}
+      ${man?k(c.nAtr?'c':'','Atrasadas',c.nAtr,c.nAtr?brl(c.vAtr):'nenhuma'):''}
+    </div>
+    <div class="sec-head"><h3>Empréstimos</h3><span class="count">${c.E.length}</span>
+      <span class="hint" style="margin:0">clique para abrir a ficha${podeBaixar()?' e dar baixa':''}</span></div>
+    ${c.E.length?`<div class="tablewrap"><table><thead><tr><th>Lançado</th><th>Tipo</th><th class="r">Valor</th><th class="r">Juros</th>
+      <th class="r">Parcelas</th><th class="r">Já descontado</th><th class="r">Falta descontar</th><th>Próximo</th><th>Situação</th></tr></thead>
+      <tbody>${c.E.map(x=>`<tr data-emp="${x.e.id}" style="cursor:pointer"><td class="mono">${dBR(x.e.data)}</td>
+        <td>${TIPOS[x.e.tipo].rot}${x.e.descricao?'<div class="hint" style="margin:0">'+esc(x.e.descricao)+'</div>':''}</td>
+        <td class="num">${num2(x.e.valor)}</td><td class="num">${pct(x.e.juros)}</td><td class="num">${progresso(x.r)}</td>
+        <td class="num">${num2(x.r.descontado)}</td><td class="num"><b>${num2(x.r.aDescontar)}</b></td>
+        <td class="mono">${x.r.prox?dBR(x.r.prox.data)+' · '+num2(x.r.prox.desconto):'—'}</td><td>${chipEmp(x.r,x.e)}</td></tr>`).join('')}</tbody>
+    </table></div>`:'<p class="hint">Nenhum empréstimo lançado.</p>'}
+    <div class="rs-sec"><div class="sec-head" style="margin:0"><h3>Próximos descontos, mês a mês</h3>
+      <span class="hint" style="margin:0">soma de todos os empréstimos — o que sai da folha em cada mês</span></div>
+      ${barras(c.meses,{fmt:num2,vazio:'Nada a descontar.'})}</div>
+    <div class="rs-sec"><div class="sec-head"><h3>Descontos já feitos</h3><span class="count">${c.pags.length}</span>
+      <span class="hint" style="margin:0">cada desconto numa linha — os parciais aparecem um a um</span></div>
+      ${c.pags.length?`<div class="tablewrap"><table><thead><tr><th>Data do desconto</th><th>Empréstimo</th><th>Parcela</th>
+        <th class="r">Valor da parcela</th><th class="r">Descontado</th><th>Desconto</th><th>Por</th><th>Observação</th></tr></thead>
+        <tbody>${c.pags.map(x=>`<tr><td class="mono">${dBR(x.g.em)}</td><td>${TIPOS[x.e.tipo].rot} de ${dBR(x.e.data)}</td>
+          <td class="mono">${rotParcela(x.p)} · ${dBR(x.p.data)}</td><td class="num">${num2(x.p.desconto)}</td>
+          <td class="num"><b>${num2(x.g.valor)}</b></td><td>${chipNat(x.nat)}</td>
+          <td class="dim">${esc(x.g.por||'—')}</td><td class="obs-pg" style="font-size:12px">${esc(x.g.obs||'')}</td></tr>`).join('')}</tbody>
+        <tfoot><tr><td colspan="4">TOTAL · juros pagos ${num2(c.jurosPagos)}</td>
+          <td class="num">${num2(c.descontado)}</td><td colspan="3"></td></tr></tfoot>
+      </table></div>`:'<p class="hint">Nenhum desconto feito ainda.</p>'}</div>`,
+    (LEITURA?[]:[{rot:'Editar cadastro',fn:()=>formFuncionario(fid)},
+     {rot:'Lançar empréstimo',fn:()=>{form=formNovo(); form.func=f.nome; fecha(); aba='lancar'; render();}}]).concat([
+     {rot:'Imprimir',fn:()=>imprimeResumo(fid)},
+     {rot:'Fechar',cls:'pri',fn:fecha}]),'wide');
+  $$('#modalBody tr[data-emp]').forEach(tr=>tr.onclick=()=>abreEmprestimo(tr.dataset.emp,()=>abreResumo(fid)));
+}
+function imprimeResumo(fid){ imprime(htmlResumo(fid)); }
+/* Folhas de resumo, uma por pessoa (cada uma com a sua assinatura), só com os
+   empréstimos escolhidos. Usada pelo "Imprimir selecionados" de Empréstimos. */
+function imprimeSelecionados(ids){
+  const por=new Map();
+  state.emprestimos.filter(e=>ids.has(e.id)).forEach(e=>{ if(!por.has(e.func))por.set(e.func,new Set()); por.get(e.func).add(e.id); });
+  const fids=[...por.keys()].sort((a,b)=>nomeDe({func:a}).localeCompare(nomeDe({func:b}),'pt-BR'));
+  if(!fids.length){toast('Nenhum empréstimo selecionado','err');return;}
+  imprime(fids.map(fid=>'<div class="pr-pagina">'+htmlResumo(fid,por.get(fid))+'</div>').join(''));
+}
+/* ids: só estes lançamentos da pessoa (sem ids = todos, como no Dashboard) */
+function htmlResumo(fid,ids){
+  const c=calcPessoa(fid,ids), f=c.f, man=modoManual();
+  return (cabecalhoPR('Resumo de empréstimos — '+f.nome,
+      (f.folha?'Nº folha '+f.folha:'Sem nº de folha')+' · '+SIT[f.situacao].rot+(man?' · baixa manual':' · baixa automática pela data'))+
+    `<table><tbody><tr><th>Total emprestado</th><td class="n">${brl(c.valor)}</td><th>Já descontado</th><td class="n">${brl(c.descontado)}</td>
+      <th>Falta descontar</th><td class="n"><b>${brl(c.aDescontar)}</b></td></tr>
+      <tr><th>Lançamentos</th><td class="n">${c.E.length} (${c.nAb} em aberto)</td><th>Juros pagos</th><td class="n">${brl(c.jurosPagos)}</td>
+      <th>Juros a pagar</th><td class="n">${brl(c.jurosAPagar)}</td></tr>
+      ${man?`<tr><th>Atrasadas</th><td class="n" colspan="5">${c.nAtr?c.nAtr+' — '+brl(c.vAtr):'nenhuma'}</td></tr>`:''}</tbody></table>
+    <h2 style="font-size:12pt;margin:6mm 0 2mm">Empréstimos</h2>
+    <table><thead><tr><th>Lançado</th><th>Tipo</th><th class="n">Valor</th><th class="n">Juros</th><th class="n">Parcelas</th>
+      <th class="n">Já descontado</th><th class="n">Falta descontar</th></tr></thead><tbody>
+      ${c.E.map(x=>`<tr><td>${dBR(x.e.data)}</td><td>${TIPOS[x.e.tipo].rot}${x.e.descricao?' — '+esc(x.e.descricao):''}</td>
+        <td class="n">${num2(x.e.valor)}</td><td class="n">${pct(x.e.juros)}</td><td class="n">${x.r.nDesc}/${x.r.n}</td>
+        <td class="n">${num2(x.r.descontado)}</td><td class="n"><b>${num2(x.r.aDescontar)}</b></td></tr>`).join('')}</tbody></table>
+    ${c.prox.length?`<h2 style="font-size:12pt;margin:6mm 0 2mm">Próximos descontos</h2>
+    <table><thead><tr><th>Data</th><th>Parcela</th>${c.E.length>1?'<th>Empréstimo</th>':''}<th>Situação</th><th class="n">Valor</th></tr></thead><tbody>
+      ${c.prox.map(x=>`<tr><td>${dBR(x.p.data)}</td><td>${rotParcela(x.p)}</td>
+        ${c.E.length>1?`<td>${TIPOS[x.e.tipo].rot} de ${dBR(x.e.data)}</td>`:''}
+        <td>${x.parc?'Parcial — já descontado '+num2(x.pago):(x.atr?'Atrasada':'A descontar')}</td>
+        <td class="n"><b>${num2(x.falta)}</b></td></tr>`).join('')}
+      <tr class="tot"><th colspan="${c.E.length>1?4:3}" style="text-align:right">TOTAL</th><th class="n">${num2(c.aDescontar)}</th></tr></tbody></table>`:''}
+    ${c.pags.length?`<h2 style="font-size:12pt;margin:6mm 0 2mm">Descontos já feitos</h2>
+    <table><thead><tr><th>Data do desconto</th><th>Empréstimo</th><th>Parcela</th><th class="n">Valor da parcela</th>
+      <th class="n">Descontado</th><th>Desconto</th><th>Por</th><th>Observação</th></tr></thead><tbody>
+      ${c.pags.map(x=>`<tr><td>${dBR(x.g.em)}</td><td>${TIPOS[x.e.tipo].rot} de ${dBR(x.e.data)}</td><td>${rotParcela(x.p)} · ${dBR(x.p.data)}</td>
+        <td class="n">${num2(x.p.desconto)}</td><td class="n"><b>${num2(x.g.valor)}</b></td><td>${x.nat}</td><td>${esc(x.g.por||'')}</td><td>${esc(x.g.obs||'')}</td></tr>`).join('')}
+      <tr class="tot"><th colspan="4" style="text-align:right">TOTAL</th><th class="n">${num2(c.descontado)}</th><th colspan="3"></th></tr></tbody></table>`:''}
+    <div style="margin-top:16mm;display:flex;gap:14mm"><div style="flex:1;border-top:1px solid #000;padding-top:1.5mm;font-size:9pt;text-align:center">${esc(f.nome)}</div>
+      <div style="flex:1;border-top:1px solid #000;padding-top:1.5mm;font-size:9pt;text-align:center">Responsável</div></div>`);
+}
+/* ---------- seleção de empréstimos para imprimir ---------- */
+const selEmp=new Set();          // ids marcados na aba Empréstimos (só na tela, não grava)
+function celSel(id){ return `<td class="sel"><input type="checkbox" data-sel="${id}"${selEmp.has(id)?' checked':''} aria-label="Selecionar para imprimir"></td>`; }
+function thSel(L){
+  const todos=L.length&&L.every(x=>selEmp.has(x.e.id));
+  return `<th class="sel"><input type="checkbox" id="selTodos"${todos?' checked':''} title="Marcar ou desmarcar todos da lista" aria-label="Selecionar todos"></th>`;
+}
+function botoesSel(){
+  // some do mapa quem foi excluído
+  [...selEmp].forEach(id=>{ if(!empPorId(id)) selEmp.delete(id); });
+  const n=selEmp.size;
+  return `<button class="btn${n?' pri':''}" id="eImpSel" ${n?'':'disabled'} title="Uma folha por pessoa, com assinatura do funcionário e do responsável">Imprimir selecionados${n?' ('+n+')':''}</button>
+    ${n?'<button class="btn sm ghost" id="eSelLimpa">Limpar seleção</button>':''}`;
+}
+function excluirEmprestimo(id){
+  const e=empPorId(id); if(!e)return;
+  if(!confirm('EXCLUIR o lançamento de '+nomeDe(e)+' ('+brl(e.valor)+')?\n\nAs parcelas somem da lista e do dashboard. Fica registrado no log.'))return;
+  if(!garanteOperador())return;
+  const nb=Object.keys(e.baixas||{}).length;
+  registra('EMP_DEL',{func:nomeDe(e),emp:e.id,txt:descEmp(e)+(nb?' · tinha '+plural(nb,'baixa','baixas'):'')});
+  state.emprestimos=state.emprestimos.filter(x=>x.id!==id);
+  fecha(); mudou(); render(); toast('Lançamento excluído','ok');
+}
+function quitar(id){
+  const e=empPorId(id); if(!e)return;
+  const calc=dt=>{ const t=Object.assign({},e,{quitadoEm:dt}); const ps=parcelasDe(t);
+    const q=ps.find(p=>p.quit); return q?q.amort:0; };
+  const d0=hoje()<e.primeiro?e.primeiro:hoje();
+  modal('<h2>Quitação antecipada</h2>',
+    `<p class="lead" style="margin-bottom:12px">${esc(nomeDe(e))} — as parcelas até a data abaixo seguem como estão;
+      o saldo que falta vira um desconto único nessa data, <b>sem os juros dos meses seguintes</b>.
+      ${modoManual()?'Depois, dê baixa nesse desconto como nas parcelas.':''}</p>
+    <label class="f"><span>Data da quitação</span><input class="inp" id="qData" type="date" value="${d0}" min="${e.primeiro}"></label>
+    <div class="kpi a"><div class="k-lab">Valor da quitação</div><div class="k-val" id="qVal">${brl(calc(d0))}</div></div>`,
+    [{rot:'Cancelar',fn:()=>abreEmprestimo(id)},
+     {rot:'Quitar',cls:'pri',fn:()=>{
+       const dt=$('#qData').value;
+       if(!dataValida(dt)){toast('Data inválida','err');return;}
+       if(dt<e.primeiro){toast('A quitação não pode ser antes do 1º desconto','err');return;}
+       if(!garanteOperador())return;
+       e.quitadoEm=dt;
+       registra('QUIT',{func:nomeDe(e),emp:e.id,txt:'Em '+dBR(dt)+' · saldo '+brl(calc(dt))+' — '+TIPOS[e.tipo].rot+' de '+dBR(e.data)});
+       mudou(); render(); abreEmprestimo(id); toast('Quitação registrada','ok');}}]);
+  $('#qData').oninput=()=>{const dt=$('#qData').value; $('#qVal').textContent=dataValida(dt)?brl(calc(dt)):'—';};
+}
+
+/* ============================================================
+   LOG DE ALTERAÇÕES (tela)
+   ============================================================ */
+let fLog={q:'',de:'',ate:'',por:'',grupo:''};
+/* data local do registro: entrada reconstruída tem só a data; as novas têm hora */
+const diaLog = ts=>{ ts=String(ts||''); if(ts.length<=10) return ts;
+  const d=new Date(ts); return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); };
+const quandoLog = ts=>{ ts=String(ts||''); if(ts.length<=10) return dBR(ts);
+  return new Date(ts).toLocaleString('pt-BR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'}); };
+function listaLog(){
+  const q=semAcento(fLog.q);
+  // mais novo primeiro; no mesmo instante (baixa em lote), vale a ordem em que foi registrado
+  return (state.log||[]).map((l,i)=>Object.assign({_i:i},l)).filter(l=>{
+    const dia=diaLog(l.ts);
+    if(fLog.de&&dia<fLog.de)return false;
+    if(fLog.ate&&dia>fLog.ate)return false;
+    if(fLog.por&&(l.por||'')!==fLog.por)return false;
+    if(fLog.grupo&&(LOG_ACOES[l.acao]||{}).grupo!==fLog.grupo)return false;
+    if(q&&semAcento((l.func||'')+' '+(l.txt||'')+' '+(l.por||'')).indexOf(q)<0)return false;
+    return true;
+  }).sort((a,b)=>String(b.ts).localeCompare(String(a.ts))||b._i-a._i);
+}
+function viewLog(){
+  const L=listaLog();
+  const ops=[...new Set((state.log||[]).map(l=>l.por||''))].sort();
+  const chipAcao=a=>{const t=LOG_ACOES[a]||{rot:a,cls:''};return '<span class="chip '+t.cls+'">'+t.rot+'</span>';};
+  return `
+  <div class="cab">
+    <div class="cab-tit">
+      <h1>Log de alterações</h1>
+      <div class="contadores">
+        <div class="ct"><b>${L.length}</b><span>${L.length===1?'registro':'registros'}</span></div>
+      </div>
+    </div>
+    <div class="filters">
+      <div class="fl"><span>Buscar</span><input class="busca" id="gQ" type="search" value="${esc(fLog.q)}" placeholder="Funcionário ou detalhe"></div>
+      <div class="fl"><span>De</span><input id="gDe" type="date" value="${esc(fLog.de)}"></div>
+      <div class="fl"><span>Até</span><input id="gAte" type="date" value="${esc(fLog.ate)}"></div>
+      <div class="fl"><span>Operador</span><select id="gPor"><option value="">Todos</option>${ops.map(o=>
+        `<option value="${esc(o)}"${fLog.por===o?' selected':''}>${o?esc(o):'(sem nome)'}</option>`).join('')}</select></div>
+      <div class="fl"><span>Ação</span><select id="gGrupo"><option value="">Todas</option>${Object.keys(LOG_GRUPOS).map(g=>
+        `<option value="${g}"${fLog.grupo===g?' selected':''}>${LOG_GRUPOS[g]}</option>`).join('')}</select></div>
+      <span class="spacer"></span>
+      <button class="btn pri" id="gCSV" ${L.length?'':'disabled'}>Exportar para Excel</button>
+    </div>
+  </div>
+  ${L.length?`<div class="tablewrap rola"><table>
+    <thead><tr><th>Quando</th><th>Operador</th><th>Ação</th><th>Funcionário</th><th>Detalhe</th></tr></thead>
+    <tbody>${L.map(l=>{const ok=l.emp&&empPorId(l.emp);
+      return `<tr${ok?' data-id="'+l.emp+'"':''}>
+      <td class="mono" style="white-space:nowrap">${quandoLog(l.ts)}${l.rec?'<div class="hint" style="margin:0" title="Registro montado a partir dos dados que já existiam antes do log">reconstruído</div>':''}</td>
+      <td>${l.por?esc(l.por):'<span class="dim">(sem nome)</span>'}</td>
+      <td>${chipAcao(l.acao)}</td>
+      <td class="nome">${esc(l.func)||'<span class="dim">—</span>'}</td>
+      <td style="min-width:320px">${esc(l.txt)}</td></tr>`;}).join('')}</tbody>
+  </table></div>`:`<div class="rola"><div class="empty"><h3>Nada no log com este filtro</h3>
+    <p>Toda alteração feita no app aparece aqui, com quem fez e quando.</p></div></div>`}`;
+}
+function exportaLogCSV(){
+  const L=listaLog();
+  const cab=['DATA','HORA','OPERADOR','AÇÃO','FUNCIONÁRIO','DETALHE','RECONSTRUÍDO'];
+  const linhas=L.map(l=>{const q=quandoLog(l.ts).split(' ');
+    return [q[0],q[1]||'',l.por||'',(LOG_ACOES[l.acao]||{rot:l.acao}).rot,l.func||'',l.txt||'',l.rec?'sim':''];});
+  const cel=c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"';
+  const csv='﻿'+[cab].concat(linhas).map(l=>l.map(cel).join(';')).join('\r\n');
+  baixar('log-emprestimos-'+hoje()+'.csv',csv,'text/csv;charset=utf-8');
+  toast(L.length+' linhas exportadas','ok');
+}
+/* CSV abre direto no Excel: ; como separador, vírgula decimal, BOM para os acentos.
+   Nº da folha vai como ="..." — senão o Excel transforma os 22 dígitos em 1E+20. */
+function exportaCSV(){
+  const L=parcelasDaLista();
+  const cab=['DATA DESCONTO','MÊS','FUNCIONÁRIO','Nº FOLHA','TIPO','DESCRIÇÃO','PARCELA','VALOR PARCELA',
+    'JUROS','DESCONTO','DESCONTADO','FALTA','SALDO APÓS','SITUAÇÃO','BAIXA EM','BAIXA POR','OBSERVAÇÃO','VALOR EMPRESTADO','JUROS % A.M.','LANÇADO EM'];
+  const man=modoManual();
+  const linhas=L.map(x=>[dBR(x.p.data),rotMes(x.mes),x.nome,x.folha?'="'+x.folha+'"':'',TIPOS[x.e.tipo].rot,
+    x.e.descricao||'',rotParcela(x.p),num2(x.p.amort),num2(x.p.juros),num2(x.p.desconto),num2(x.pago),num2(x.falta),num2(x.p.saldo),
+    x.desc?'Descontada':x.parc?'Parcial':(x.atr?'Atrasada':'A descontar'),man&&x.bx?dBR(x.bx.em):'',man&&x.bx?x.bx.por||'':'',
+    man?pagamentosDe(x.e,x.p).filter(g=>g.obs).map(g=>dBR(g.em)+': '+g.obs).join(' | '):'',
+    num2(x.e.valor),String(x.e.juros).replace('.',','),dBR(x.e.data)]);
+  const cel=c=>{c=String(c==null?'':c); return c.charAt(0)==='='?c:'"'+c.replace(/"/g,'""')+'"';};
+  const csv='﻿'+[cab].concat(linhas).map(l=>l.map(cel).join(';')).join('\r\n');
+  baixar((fEmp.mes?'descontos-emprestimos-'+fEmp.mes:'parcelas-emprestimos-'+hoje())+'.csv',csv,'text/csv;charset=utf-8');
+  toast(L.length+' linhas exportadas','ok');
+}
+/* Depois de conferir a folha do mês: filtra "Este mês" e dá baixa de uma vez. */
+function baixaTodos(){
+  const P=parcelasDaLista().filter(x=>!x.desc);
+  if(!P.length){toast('Nada sem baixa neste filtro','err');return;}
+  if(!garanteOperador())return;
+  const fut=P.filter(x=>x.p.data>hoje()).length;
+  const nPar=P.filter(x=>x.parc).length, total=soma(P,'falta');
+  // janela própria (e não confirm) para caber a observação do lote
+  modal('<h2>Dar baixa em todos do mês</h2>',
+    `<div class="rs-kpis">
+       <div class="kpi a"><div class="k-lab">Parcelas</div><div class="k-val">${P.length}</div><div class="k-sub">${plural(new Set(P.map(x=>x.e.func)).size,'funcionário','funcionários')}</div></div>
+       <div class="kpi o"><div class="k-lab">Total a descontar</div><div class="k-val">${brl(total)}</div><div class="k-sub">${esc(descrEmp())}</div></div>
+     </div>
+     <p class="lead" style="margin-bottom:10px">Cada parcela fica descontada pelo valor cheio que falta, com a <b>data da própria parcela</b>,
+       por ${esc(operador)}. Para valor ou data diferente, use o Descontar da linha.</p>
+     ${nPar?`<div class="alertbox">${plural(nPar,'delas é parcial','delas são parciais')}: entra só o que falta.</div>`:''}
+     ${fut?`<div class="alertbox" style="color:var(--crit);border-color:var(--crit-line);background:var(--crit-soft)">Atenção: ${plural(fut,'delas tem','delas têm')} data de desconto FUTURA.</div>`:''}
+     <label class="f"><span>Observação para todos (opcional)</span>
+       <input class="inp" id="loteObs" maxlength="${OBS_MAX}" placeholder="Ex.: folha de ${rotMesL(fEmp.mes||mesDe(hoje()))}"></label>`,
+    [{rot:'Cancelar',fn:fecha},
+     {rot:'Dar baixa ('+P.length+')',cls:'pri',fn:()=>{
+       const obs=limpaObs($('#loteObs').value);
+       // uma linha no log pelo lote; aplicaDesconto registra uma por parcela (a busca por nome acha)
+       registra('BAIXA_LOTE',{txt:plural(P.length,'parcela','parcelas')+' · '+brl(total)+' · '+descrEmp()+(obs?' — obs.: '+obs:'')});
+       P.forEach(x=>aplicaDesconto(x.e,chaveP(x.p),x.falta,x.p.data,obs));   // data original de cada parcela
+       fecha(); mudou(); render(); toast(plural(P.length,'baixa registrada','baixas registradas'),'ok');}}]);
+}
+function cabecalhoPR(tit,sub){
+  return `<div class="pr-head"><div><h1>${esc(tit)}</h1><div style="font-size:9pt">${esc(sub||'')}</div></div>
+    <div style="text-align:right;font-size:9pt"><b>RODRIAÇO / MR INOX</b><br>Emitido em ${dBR(hoje())}${operador?' por '+esc(operador):''}</div></div>`;
+}
+function imprime(html){ $('#printarea').innerHTML=html; window.print(); }
+function imprimeDescontos(){
+  const L=parcelasDaLista(), P=L.map(x=>x.p);
+  imprime(cabecalhoPR('Relação de descontos — empréstimos',descrEmp()+(modoManual()?' · baixa manual':' · baixa automática pela data'))+
+    `<table><thead><tr><th>Data</th><th>Funcionário</th><th>Nº folha</th><th>Tipo</th><th>Parcela</th>
+      <th class="n">Parcela</th><th class="n">Juros</th><th class="n">Desconto</th><th class="n">Descontado</th><th>Situação</th></tr></thead><tbody>
+      ${L.map(x=>`<tr><td>${dBR(x.p.data)}</td><td class="nm">${esc(x.nome)}</td><td class="fo">${esc(x.folha)}</td><td>${TIPOS[x.e.tipo].rot}</td>
+        <td>${rotParcela(x.p)}</td><td class="n">${num2(x.p.amort)}</td><td class="n">${num2(x.p.juros)}</td>
+        <td class="n"><b>${num2(x.p.desconto)}</b></td><td class="n">${x.pago?num2(x.pago):'—'}</td>
+        <td class="nm">${x.desc?'Descontada':x.parc?'Parcial · falta '+num2(x.falta):(x.atr?'Atrasada':'A descontar')}</td></tr>`).join('')}
+      <tr class="tot"><th colspan="5" style="text-align:right">TOTAL — ${plural(L.length,'desconto','descontos')}</th>
+        <th class="n">${num2(soma(P,'amort'))}</th><th class="n">${num2(soma(P,'juros'))}</th>
+        <th class="n">${num2(soma(P,'desconto'))}</th><th class="n">${num2(soma(L,'pago'))}</th><th></th></tr></tbody></table>`);
+}
+
+/* ============================================================
+   FUNCIONÁRIOS
+   ============================================================ */
+let fFunc={q:'',sit:'',soDev:false};
+function viewFuncionarios(){
+  const q=semAcento(fFunc.q);
+  const L=state.funcionarios.map(f=>{
+    const es=empsDe(f.id).map(e=>resumo(e));
+    return {f,nEmp:es.length,nAb:es.filter(r=>!r.quitado).length,aDesc:r2(es.reduce((s,r)=>s+r.aDescontar,0))};
+  }).filter(x=>{
+    if(fFunc.sit&&x.f.situacao!==fFunc.sit)return false;
+    if(fFunc.soDev&&!x.nAb)return false;
+    if(q&&semAcento(x.f.nome+' '+x.f.folha).indexOf(q)<0)return false;
+    return true;
+  }).sort((a,b)=>a.f.nome.localeCompare(b.f.nome,'pt-BR'));
+  const comDev=state.funcionarios.filter(f=>empsDe(f.id).some(e=>!resumo(e).quitado)).length;
+  return `
+  <div class="cab">
+    <div class="cab-tit">
+      <h1>Funcionários</h1>
+      <div class="contadores">
+        <div class="ct"><b>${state.funcionarios.length}</b><span>cadastrados</span></div>
+        <div class="ct v"><b>${comDev}</b><span>com empréstimo em aberto</span></div>
+      </div>
+    </div>
+    <div class="filters">
+      <div class="fl"><span>Buscar</span><input class="busca" id="fQ" type="search" value="${esc(fFunc.q)}" placeholder="Nome ou nº da folha"></div>
+      <div class="fl"><span>Situação</span><select id="fSit"><option value="">Todas</option>${Object.keys(SIT).map(k=>
+        `<option value="${k}"${fFunc.sit===k?' selected':''}>${SIT[k].rot}</option>`).join('')}</select></div>
+      <div class="fl"><span>&nbsp;</span><button class="tog" id="fDev" aria-pressed="${fFunc.soDev}">Só com empréstimo em aberto</button></div>
+      <span class="spacer"></span>
+      <button class="btn pri" id="fNovo">+ Novo funcionário</button>
+    </div>
+  </div>
+  ${L.length?`<div class="tablewrap rola"><table>
+    <thead><tr><th>Nº folha</th><th>Nome</th><th>Situação</th><th class="r">Empréstimos</th><th class="r">Em aberto</th><th class="r">Falta descontar</th></tr></thead>
+    <tbody>${L.map(x=>`<tr data-id="${x.f.id}">
+      <td class="folha">${esc(x.f.folha)||'—'}</td><td class="nome">${esc(x.f.nome)}</td><td>${chipSit(x.f.situacao)}</td>
+      <td class="num">${x.nEmp||'<span class="dim">—</span>'}</td><td class="num">${x.nAb||'<span class="dim">—</span>'}</td>
+      <td class="num">${x.aDesc?'<b>'+num2(x.aDesc)+'</b>':'<span class="dim">—</span>'}</td></tr>`).join('')}</tbody>
+  </table></div>`:'<div class="rola"><div class="empty"><h3>Ninguém neste filtro</h3><p>Mude a busca ou a situação.</p></div></div>'}`;
+}
+function formFuncionario(id){
+  const f=id?funcPorId(id):null;
+  const es=f?empsDe(f.id).map(e=>({e,r:resumo(e)})).sort((a,b)=>b.e.data.localeCompare(a.e.data)):[];
+  modal(`<h2>${f?esc(f.nome):'Novo funcionário'}</h2>`,
+    `<label class="f"><span>Nome</span><input class="inp" id="ffNome" value="${esc(f?f.nome:'')}"></label>
+     <div class="grid2">
+       <label class="f"><span>Nº folha</span><input class="inp num" id="ffFolha" value="${esc(f?f.folha:'')}"></label>
+       <label class="f"><span>Situação</span><select class="inp" id="ffSit">${Object.keys(SIT).map(k=>
+         `<option value="${k}"${(f?f.situacao:'ATIVO')===k?' selected':''}>${SIT[k].rot}</option>`).join('')}</select></label>
+     </div>
+     ${f?`<div class="sec-head" style="margin-top:8px"><h3>Empréstimos</h3><span class="count">${es.length}</span></div>
+     ${es.length?`<div class="tablewrap"><table><thead><tr><th>Lançado</th><th>Tipo</th><th class="r">Valor</th>
+       <th class="r">Parcelas</th><th class="r">Falta descontar</th><th>Situação</th></tr></thead>
+       <tbody>${es.map(x=>`<tr data-emp="${x.e.id}" style="cursor:pointer"><td class="mono">${dBR(x.e.data)}</td>
+         <td>${TIPOS[x.e.tipo].rot}</td><td class="num">${num2(x.e.valor)}</td><td class="num">${x.r.nDesc}/${x.r.n}</td>
+         <td class="num">${num2(x.r.aDescontar)}</td><td>${chipEmp(x.r,x.e)}</td></tr>`).join('')}</tbody></table></div>`
+       :'<p class="hint">Nenhum empréstimo lançado.</p>'}`:''}`,
+    [f&&!es.length?{rot:'Excluir',cls:'dang',fn:()=>{
+        if(!confirm('Excluir '+f.nome+' do cadastro?'))return;
+        if(!garanteOperador())return;
+        registra('FUNC_DEL',{func:f.nome,txt:(f.folha?'Nº folha '+f.folha+' · ':'')+SIT[f.situacao].rot});
+        state.funcionarios=state.funcionarios.filter(x=>x.id!==f.id); fecha(); mudou(); render(); toast('Excluído','ok');}}:null,
+     f&&es.length?{rot:'Ver resumo',fn:()=>abreResumo(f.id)}:null,
+     f?{rot:'Lançar empréstimo',fn:()=>{form=formNovo(); form.func=f.nome; fecha(); aba='lancar'; render();}}:null,
+     {rot:'Cancelar',fn:fecha},
+     {rot:'Gravar',cls:'pri',fn:()=>{
+       const nome=up($('#ffNome').value), folha=$('#ffFolha').value.trim(), sit=$('#ffSit').value;
+       if(!nome){toast('Informe o nome','err');return;}
+       const outro=funcPorNome(nome);
+       if(outro&&(!f||outro.id!==f.id)){toast(nome+' já está cadastrado','err');return;}
+       if(folha){const dup=state.funcionarios.find(x=>x.folha===folha&&(!f||x.id!==f.id));
+         if(dup&&!confirm('O nº de folha '+folha+' já é de '+dup.nome+'. Gravar mesmo assim?'))return;}
+       if(!garanteOperador())return;
+       if(f){
+         const mud=[];
+         if(f.nome!==nome) mud.push('Nome '+f.nome+' → '+nome);
+         if(f.folha!==folha) mud.push('Nº folha '+(f.folha||'—')+' → '+(folha||'—'));
+         if(f.situacao!==sit) mud.push('Situação '+SIT[f.situacao].rot+' → '+SIT[sit].rot);
+         if(!mud.length){ fecha(); return; }
+         registra('FUNC_EDIT',{func:nome,txt:mud.join(' · ')});
+         Object.assign(f,{nome,folha,situacao:sit});
+       } else {
+         state.funcionarios.push({id:uid(),nome,folha,situacao:sit,criadoEm:hoje()});
+         registra('FUNC_NOVO',{func:nome,txt:(folha?'Nº folha '+folha+' · ':'Sem nº de folha · ')+SIT[sit].rot});
+       }
+       fecha(); mudou(); render(); toast(f?'Cadastro alterado':nome+' cadastrado','ok');}}].filter(Boolean),f?'wide':'');
+  $$('#modalBody tr[data-emp]').forEach(tr=>tr.onclick=()=>abreEmprestimo(tr.dataset.emp));
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+let perPainel='12m';
+const PER_BTN=[['12m','12 meses'],['ano','Este ano'],['tudo','Tudo']];
+function inicioPeriodo(per){
+  const m0=mesDe(hoje());
+  if(per==='12m') return addMes(m0,-11)+'-01';
+  if(per==='ano') return m0.slice(0,4)+'-01-01';
+  return '';
+}
+const rotPer = per=>({'12m':'últimos 12 meses','ano':'este ano','tudo':'todo o histórico'})[per];
+
+/* Filtros do dashboard: valem para TUDO — indicadores, gráficos, tabela e impressão. */
+let fDash={q:'',sit:'',tipo:''};
+let oDash={k:'data',asc:false};
+const SIT_DASH=()=>[['','Todos'],['ABERTO','Em aberto']].concat(modoManual()?[['ATR','Atrasados']]:[]).concat([['QUITADO','Quitados']]);
+function empsPainel(){
+  const q=semAcento(fDash.q);
+  return state.emprestimos.filter(e=>{
+    if(fDash.tipo&&e.tipo!==fDash.tipo)return false;
+    if(q&&semAcento(nomeDe(e)+' '+folhaDe(e)+' '+(e.descricao||'')).indexOf(q)<0)return false;
+    if(fDash.sit){
+      const r=resumo(e);
+      if(fDash.sit==='ABERTO'&&r.quitado)return false;
+      if(fDash.sit==='QUITADO'&&!r.quitado)return false;
+      if(fDash.sit==='ATR'&&!r.nAtr)return false;
+    }
+    return true;
+  });
+}
+const temFiltroDash = ()=>!!(fDash.q||fDash.sit||fDash.tipo);
+function descrDash(){
+  const p=[];
+  if(fDash.sit) p.push((SIT_DASH().find(s=>s[0]===fDash.sit)||['',''])[1].toLowerCase());
+  if(fDash.tipo) p.push(TIPOS[fDash.tipo].rot);
+  if(fDash.q) p.push('busca "'+fDash.q+'"');
+  return p.length?'Filtro: '+p.join(' · '):'Todos os empréstimos';
+}
+
+/* Um cálculo só, lido pela tela e pela impressão. */
+function calcPainel(per){
+  const ini=inicioPeriodo(per), h=hoje(), m0=mesDe(h);
+  const E=empsPainel();
+  const T=todasParcelas(E);
+  const R=E.map(e=>({e,r:resumo(e),nome:nomeDe(e)}));
+  const ab=R.filter(x=>!x.r.quitado);
+  const empP=E.filter(e=>!ini||e.data>=ini);
+  // o que já entrou (inteiro ou parcial), pela data da parcela
+  const descP=T.filter(x=>x.pago>0&&(!ini||x.p.data>=ini));
+  const doMes=T.filter(x=>x.mes===m0);
+  const d={
+    concedido:soma(empP,'valor'), nConc:empP.length,
+    saldo:r2(ab.reduce((s,x)=>s+x.r.saldo,0)),
+    juros:r2(ab.reduce((s,x)=>s+x.r.jurosAReceber,0)),
+    nAb:ab.length, nPessoas:new Set(ab.map(x=>x.e.func)).size,
+    mes:soma(doMes.map(x=>x.p),'desconto'), nMes:doMes.length,
+    mesFalta:soma(doMes,'falta'),
+    descontado:soma(descP,'pago'), jurosRec:soma(descP,'jurosPago')
+  };
+  const atr=T.filter(x=>x.atr);
+  d.nAtr=atr.length; d.vAtr=soma(atr,'falta'); d.pAtr=new Set(atr.map(x=>x.e.func)).size;
+  // desconto previsto: do mês atual até 11 meses à frente
+  d.prev=[];
+  for(let k=0;k<12;k++){
+    const m=addMes(m0,k), ps=T.filter(x=>x.mes===m);
+    d.prev.push({k:rotMes(m),v:soma(ps.map(x=>x.p),'desconto'),sub:ps.length?plural(ps.length,'desc.','desc.'):'',atual:k===0,cls:k===0?'':'info'});
+  }
+  while(d.prev.length&&!d.prev[d.prev.length-1].v) d.prev.pop();   // sem cauda vazia
+  // saldo devedor por funcionário
+  const pf=new Map();
+  ab.forEach(x=>{const o=pf.get(x.nome)||{v:0,n:0,fid:x.e.func}; o.v+=x.r.saldo; o.n++; pf.set(x.nome,o);});
+  d.porFunc=[...pf].map(([k,o])=>({k,v:r2(o.v),fid:o.fid,sub:o.n>1?o.n+' lanç.':''})).sort((a,b)=>b.v-a.v);
+  d.R=R;
+  // concedidos e descontados por mês, no período
+  const serie=(itens,dataFn,valFn)=>{
+    const m=new Map(); itens.forEach(i=>{const k=mesDe(dataFn(i));const o=m.get(k)||{v:0,n:0};o.v+=valFn(i);o.n++;m.set(k,o);});
+    return [...m].sort((a,b)=>a[0].localeCompare(b[0])).map(([k,o])=>({k:rotMes(k),v:r2(o.v),sub:plural(o.n,'lanç.','lanç.'),atual:k===m0}));
+  };
+  d.conc=serie(empP,e=>e.data,e=>e.valor);
+  d.desc=serie(descP,x=>x.p.data,x=>x.pago).map(o=>Object.assign(o,{sub:o.sub.replace('lanç.','desc.'),cls:'ok'}));
+  return d;
+}
+function viewPainel(){
+  const d=calcPainel(perPainel), m0=mesDe(hoje());
+  return `
+  <div class="cab">
+  <div class="cab-tit">
+    <h1>Dashboard</h1>
+    <div class="sec-head" style="margin:0 0 0 auto;gap:10px 18px">
+      <span class="eyebrow">Período</span>
+      <div class="togs" id="togPer">${PER_BTN.map(p=>
+        `<button class="tog" data-p="${p[0]}" aria-pressed="${perPainel===p[0]}">${p[1]}</button>`).join('')}</div>
+      <button class="btn sm pri" id="btnImpPainel" title="A4 paisagem: números do topo e tabela, com os filtros aplicados">Imprimir</button>
+      ${LEITURA?'':'<button class="btn sm" id="btnShare" title="Baixa um arquivo só para leitura com este dashboard">Compartilhar</button>'}
+    </div>
+  </div>
+  <div class="filters" style="margin-bottom:0">
+    <div class="fl"><span>Buscar</span><input class="busca" id="dQ" type="search" value="${esc(fDash.q)}" placeholder="Nome, nº da folha ou descrição"></div>
+    <div class="fl"><span>Situação</span><div class="togs" id="dSit">${SIT_DASH().map(s=>
+      `<button class="tog" data-v="${s[0]}" aria-pressed="${fDash.sit===s[0]}">${s[1]}</button>`).join('')}</div></div>
+    <div class="fl"><span>Tipo</span><select id="dTipo"><option value="">Todos</option>${Object.keys(TIPOS).map(k=>
+      `<option value="${k}"${fDash.tipo===k?' selected':''}>${TIPOS[k].rot}</option>`).join('')}</select></div>
+    ${temFiltroDash()?'<div class="fl"><span>&nbsp;</span><button class="btn sm ghost" id="dLimpa">Limpar filtros</button></div>':''}
+  </div>
+  </div>
+  <div class="rola">
+  ${state.emprestimos.length?'':'<div class="alertbox">Nenhum empréstimo lançado ainda — o dashboard se monta sozinho a partir da aba Lançar.</div>'}
+  ${temFiltroDash()?`<div class="alertbox" style="border-color:var(--accent-line);background:var(--accent-soft);color:var(--accent)">
+    ${esc(descrDash())} — indicadores, gráficos e tabela mostram só ${plural(d.R.length,'lançamento','lançamentos')}.</div>`:''}
+  <div class="kpis">
+    <div class="kpi"><div class="k-lab">Total emprestado</div><div class="k-val">${brlC(d.concedido)}</div>
+      <div class="k-sub">${plural(d.nConc,'lançamento','lançamentos')} · ${rotPer(perPainel)}</div></div>
+    <div class="kpi a clickable" data-ir="emp"><div class="k-lab">Saldo devedor</div><div class="k-val">${brlC(d.saldo)}</div>
+      <div class="k-sub">principal que falta descontar</div></div>
+    <div class="kpi w"><div class="k-lab">Juros a receber</div><div class="k-val">${brlC(d.juros)}</div>
+      <div class="k-sub">nas parcelas que faltam</div></div>
+    <div class="kpi i clickable" data-ir="emp"><div class="k-lab">Em aberto</div><div class="k-val">${d.nAb}</div>
+      <div class="k-sub">${plural(d.nPessoas,'funcionário','funcionários')}</div></div>
+    <div class="kpi clickable" data-ir="mes"><div class="k-lab">Desconto de ${MESES_L[Number(m0.slice(5))-1]}</div><div class="k-val">${brlC(d.mes)}</div>
+      <div class="k-sub">${plural(d.nMes,'desconto','descontos')}${d.mesFalta?' · '+brl(d.mesFalta)+' ainda por vir':''}</div></div>
+    <div class="kpi o"><div class="k-lab">Já descontado</div><div class="k-val">${brlC(d.descontado)}</div>
+      <div class="k-sub">${d.jurosRec?'dos quais '+brl(d.jurosRec)+' de juros · ':''}${rotPer(perPainel)}</div></div>
+    ${modoManual()?`<div class="kpi ${d.nAtr?'c':''} clickable" data-ir="atr"><div class="k-lab">Atrasadas</div><div class="k-val">${d.nAtr}</div>
+      <div class="k-sub">${d.nAtr?brl(d.vAtr)+' · '+plural(d.pAtr,'funcionário','funcionários'):'nenhuma parcela vencida sem baixa'}</div></div>`:''}
+  </div>
+  <div class="panels dois">
+    <div class="card pad"><div class="sec-head" style="margin:0"><h2>Desconto previsto por mês</h2><span class="count">próximos 12 meses</span></div>
+      ${barras(d.prev,{fmt:num2,vazio:'Nenhum desconto previsto.'})}</div>
+    <div class="card pad"><div class="sec-head" style="margin:0"><h2>Saldo devedor por funcionário</h2><span class="count">${d.porFunc.length}</span>
+      <span class="hint" style="margin:0 0 0 auto">clique no nome para o resumo</span></div>
+      ${barras(d.porFunc,{fmt:num2,vazio:'Ninguém com empréstimo em aberto.'})}</div>
+    <div class="card pad"><div class="sec-head" style="margin:0"><h2>Empréstimos concedidos por mês</h2><span class="count">${rotPer(perPainel)}</span></div>
+      ${barras(d.conc,{fmt:num2,cls:'warn'})}</div>
+    <div class="card pad"><div class="sec-head" style="margin:0"><h2>Descontado por mês</h2><span class="count">${rotPer(perPainel)}</span></div>
+      ${barras(d.desc,{fmt:num2})}</div>
+  </div>
+  ${tabelaDash(d)}
+  </div>`;
+}
+/* Todos os empréstimos do filtro. Nome abre o resumo da pessoa; o resto da
+   linha abre a ficha do lançamento. Sem overflow no wrapper: quem rola é a
+   .rola da tela, e é nela que o título das colunas gruda. */
+function tabelaDash(d){
+  const L=ordena(d.R.map(x=>Object.assign({folha:folhaDe(x.e)},x)),oDash,valEmp);
+  const tot=k=>num2(L.reduce((s,x)=>s+(k==='valor'?x.e.valor:x.r[k]),0));
+  return `
+  <div class="sec-head" style="margin:20px 0 10px"><h2>Todos os empréstimos</h2><span class="count">${L.length}</span>
+    <span class="hint" style="margin:0">clique no nome para ver o resumo da pessoa · na linha para a ficha do lançamento</span></div>
+  ${L.length?`<div class="tablewrap solta"><table>
+    <thead><tr>${thOrd('nome','Funcionário',oDash)}${thOrd('folha','Nº folha',oDash)}${thOrd('tipo','Tipo',oDash)}
+      ${thOrd('data','Lançado',oDash)}${thOrd('valor','Valor',oDash,'r')}${thOrd('juros','Juros',oDash,'r')}
+      ${thOrd('parc','Parcelas',oDash,'r')}${thOrd('descontado','Já descontado',oDash,'r')}
+      ${thOrd('aDescontar','Falta descontar',oDash,'r')}${thOrd('prox','Próximo desconto',oDash)}<th>Situação</th></tr></thead>
+    <tbody>${L.map(x=>`<tr data-id="${x.e.id}">
+      <td class="nome"><button class="lnk" data-func="${x.e.func}">${esc(x.nome)}</button>${x.e.descricao?'<div class="hint" style="margin:0">'+esc(x.e.descricao)+'</div>':''}</td>
+      <td class="folha">${esc(x.folha)||'—'}</td>
+      <td>${TIPOS[x.e.tipo].rot}</td>
+      <td class="mono">${dBR(x.e.data)}</td>
+      <td class="num">${num2(x.e.valor)}</td>
+      <td class="num">${pct(x.e.juros)}</td>
+      <td class="num">${progresso(x.r)}</td>
+      <td class="num">${num2(x.r.descontado)}</td>
+      <td class="num"><b>${num2(x.r.aDescontar)}</b></td>
+      <td class="mono">${x.r.prox?dBR(x.r.prox.data)+' · '+num2(x.r.prox.desconto):'<span class="dim">—</span>'}</td>
+      <td>${chipEmp(x.r,x.e)}</td></tr>`).join('')}</tbody>
+    <tfoot><tr><td colspan="4">TOTAL · ${plural(new Set(L.map(x=>x.e.func)).size,'funcionário','funcionários')}</td>
+      <td class="num">${tot('valor')}</td><td></td><td></td><td class="num">${tot('descontado')}</td>
+      <td class="num">${tot('aDescontar')}</td><td colspan="2"></td></tr></tfoot>
+  </table></div>`:'<div class="empty"><h3>Nenhum empréstimo neste filtro</h3><p>Mude ou limpe os filtros acima.</p></div>'}`;
+}
+/* "3/5" com barrinha de quanto já foi descontado */
+function progresso(r){
+  const pc=r.totDesc?Math.min(100,r.descontado/r.totDesc*100):0;
+  return `<span class="prog" title="${pc.toFixed(0)}% descontado"><span class="prog-t"><span class="prog-f" style="width:${pc.toFixed(1)}%"></span></span>${r.nDesc}/${r.n}</span>`;
+}
+/* Papel: só os números do topo e a tabela de todos os empréstimos, na mesma
+   ordem e com o mesmo filtro da tela. Sem altura fixa: a tabela continua nas
+   folhas seguintes e o navegador repete o thead em cada uma. */
+function imprimirPainel(){
+  const d=calcPainel(perPainel), m0=mesDe(hoje());
+  const L=ordena(d.R.map(x=>Object.assign({folha:folhaDe(x.e)},x)),oDash,valEmp);
+  const tot=f=>num2(L.reduce((s,x)=>s+f(x),0));
+  const k=(c,l,v,s)=>`<div class="pp-kpi ${c}"><div class="l">${l}</div><div class="v">${v}</div><div class="s">${s}</div></div>`;
+  imprime(`<div class="pp"><div class="pp-doc">
+    <div class="pp-ph"><div><h1>Controle de Empréstimos <span>· Dashboard</span></h1>
+      <div class="pp-sub">${esc(descrDash())} · período: ${rotPer(perPainel)} · saldo e previsão sempre na data de hoje</div></div>
+      <div class="pp-emi"><b>RODRIAÇO / MR INOX</b><br>Emitido em ${dBR(hoje())}${operador?' por '+esc(operador):''}</div></div>
+    <div class="pp-kpis">
+      ${k('','Total emprestado',brl(d.concedido),plural(d.nConc,'lançamento','lançamentos'))}
+      ${k('a','Saldo devedor',brl(d.saldo),'principal que falta')}
+      ${k('w','Juros a receber',brl(d.juros),'nas parcelas que faltam')}
+      ${k('i','Em aberto',d.nAb,plural(d.nPessoas,'funcionário','funcionários'))}
+      ${k('','Desconto de '+MESES_L[Number(m0.slice(5))-1],brl(d.mes),plural(d.nMes,'desconto','descontos'))}
+      ${k('o','Já descontado',brl(d.descontado),d.jurosRec?'juros '+brl(d.jurosRec):'')}
+      ${modoManual()?k(d.nAtr?'c':'','Atrasadas',d.nAtr,d.nAtr?brl(d.vAtr):'nenhuma'):''}
+    </div>
+    <h2 class="pp-tt">Todos os empréstimos <small>${plural(L.length,'lançamento','lançamentos')} · ${plural(new Set(L.map(x=>x.e.func)).size,'funcionário','funcionários')}</small></h2>
+    ${L.length?`<table class="pp-tab"><thead><tr><th>Funcionário</th><th>Nº folha</th><th>Tipo</th><th>Lançado</th>
+      <th class="n">Valor</th><th class="n">Juros</th><th class="n">Parcelas</th><th class="n">Já descontado</th>
+      <th class="n">Falta descontar</th><th>Próximo desconto</th><th>Situação</th></tr></thead><tbody>
+      ${L.map(x=>`<tr><td><b>${esc(x.nome)}</b>${x.e.descricao?'<br><small>'+esc(x.e.descricao)+'</small>':''}</td>
+        <td class="fo">${esc(x.folha)||'—'}</td><td>${TIPOS[x.e.tipo].rot}</td><td>${dBR(x.e.data)}</td>
+        <td class="n">${num2(x.e.valor)}</td><td class="n">${pct(x.e.juros)}</td><td class="n">${x.r.nDesc}/${x.r.n}</td>
+        <td class="n">${num2(x.r.descontado)}</td><td class="n"><b>${num2(x.r.aDescontar)}</b></td>
+        <td>${x.r.prox?dBR(x.r.prox.data)+' · '+num2(x.r.prox.desconto):'—'}</td>
+        <td>${chipEmp(x.r,x.e).replace(/<[^>]+>/g,'')}</td></tr>`).join('')}
+      <tr class="pp-tot"><td colspan="4">TOTAL</td><td class="n">${tot(x=>x.e.valor)}</td><td></td><td></td>
+        <td class="n">${tot(x=>x.r.descontado)}</td><td class="n">${tot(x=>x.r.aDescontar)}</td><td colspan="2"></td></tr>
+    </tbody></table>`:'<p class="pp-vazio">Nenhum empréstimo neste filtro.</p>'}
+    </div></div>`);
+}
+
+/* Compartilhar: baixa uma cópia deste próprio app em MODO LEITURA, levando só
+   os lançamentos do filtro atual (e só os funcionários deles). */
+function compartilharPainel(){
+  const E=empsPainel();
+  if(!E.length){toast('Nada para compartilhar neste filtro','err');return;}
+  const fids=new Set(E.map(e=>e.func));
+  if(!confirm('COMPARTILHAR O DASHBOARD\n\n'+
+    'Vai baixar um arquivo só para leitura com '+plural(E.length,'lançamento','lançamentos')+
+    ' de '+plural(fids.size,'funcionário','funcionários')+'\n('+descrDash()+').\n\n'+
+    'O arquivo leva nomes e valores das dívidas — mande só para quem pode ver.\n'+
+    'Os dados ficam congelados na posição de hoje ('+dBR(hoje())+').'))return;
+  const snap={hoje:hoje(),geradoEm:new Date().toISOString(),geradoPor:operador,filtro:descrDash(),per:perPainel,
+    dados:{config:state.config,funcionarios:state.funcionarios.filter(f=>fids.has(f.id)),emprestimos:E}};
+  const main=[...document.scripts].find(s=>s.textContent.indexOf('CONTROLE DE EMPRÉSTIMOS')>=0);
+  if(!main){toast('Não consegui montar o arquivo','err');return;}
+  // esqueleto da página sem o que está desenhado agora (tela, janelas, avisos)
+  const corpo=document.body.cloneNode(true);
+  corpo.querySelectorAll('script,#scrim,.toast').forEach(n=>n.remove());
+  corpo.querySelector('#view').innerHTML=''; corpo.querySelector('#printarea').innerHTML='';
+  const html='<!doctype html>\n<html lang="pt-BR">\n<head>\n<meta charset="utf-8">\n'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1">\n'+
+    '<title>Dashboard de Empréstimos — '+dBR(hoje())+'</title>\n'+
+    ($('link[rel="icon"]')?$('link[rel="icon"]').outerHTML+'\n':'')+
+    '<style>'+$('style').textContent+'</style>\n</head>\n<body>'+
+    corpo.innerHTML+
+    '\n<script>window.__LEITURA__='+JSON.stringify(snap).replace(/</g,'\\u003c')+';<\/script>'+
+    '\n<script>'+main.textContent.replace(/<\/script/gi,'<\\/script')+'<\/script>\n</body>\n</html>';
+  baixar('dashboard-emprestimos-'+hoje()+'.html',html,'text/html;charset=utf-8');
+  toast('Arquivo do dashboard baixado — confira na pasta Downloads','ok');
+}
+
+/* ============================================================
+   DADOS
+   ============================================================ */
+function viewDados(){
+  const nF=state.funcionarios.length, nE=state.emprestimos.length, nL=state.log.length;
+  return `
+  <div class="cab"><div class="cab-tit"><h1>Dados</h1></div></div>
+  <div class="rola">
+  <div class="panels" style="margin-top:0">
+    <div class="card pad">
+      <h2>Dados na nuvem</h2>
+      <p class="lead" style="margin:6px 0 12px">Os lançamentos ficam no banco da Rodriaço (Supabase), com login e permissão.
+        Cada alteração é gravada na hora; quem tiver acesso vê o mesmo que você.</p>
+      <p class="hint" style="margin-bottom:12px">Agora: ${plural(nF,'funcionário','funcionários')} · ${plural(nE,'lançamento','lançamentos')} · ${plural(nL,'registro no log','registros no log')}</p>
+      <div class="btnrow">
+        <button class="btn pri" id="dRecarregar">Atualizar da nuvem</button>
+        <button class="btn" id="dBaixar">Baixar cópia de segurança (.json)</button>
+      </div>
+    </div>
+    <div class="card pad">
+      <h2>Tipos de empréstimo</h2>
+      <p class="lead" style="margin:6px 0 12px">Aparecem no Lançar e nos filtros. Aqui você adiciona, renomeia, muda o juros sugerido ou exclui.</p>
+      <div class="togs" style="margin-bottom:12px">${state.config.tipos.map(t=>
+        `<span class="chip">${esc(t.rot)} · ${pct(t.juros)}</span>`).join('')}</div>
+      <button class="btn sm" id="dTipos">Gerenciar tipos</button>
+    </div>
+    <div class="card pad">
+      <h2>Conta</h2>
+      <p class="lead" style="margin:6px 0 12px">Você está como <b>${esc(operador||'—')}</b> (${esc(emailLogado)}). Esse nome fica gravado em cada lançamento e no log.
+        É o mesmo login da Central; sair aqui sai dos outros apps também.</p>
+      <button class="btn" id="dSair">Sair</button>
+    </div>
+  </div>
+  </div>`;
+}
+
+/* ============================================================
+   SUGESTÕES ENQUANTO DIGITA
+   ============================================================ */
+const FONTES={
+  func:()=>state.funcionarios.slice().sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'))
+    .map(f=>({v:f.nome,busca:f.nome+' '+f.folha,n:0}))
+};
+function realce(txt,q){
+  if(!q) return esc(txt);
+  const i=semAcento(txt).indexOf(q);
+  if(i<0) return esc(txt);
+  return esc(txt.slice(0,i))+'<b>'+esc(txt.slice(i,i+q.length))+'</b>'+esc(txt.slice(i+q.length));
+}
+function ligaSugestoes(raiz){
+  $$('[data-sug]',raiz||document).forEach(inp=>{
+    if(inp._sug)return; inp._sug=true;
+    const fonte=FONTES[inp.dataset.sug]; if(!fonte)return;
+    const lab=inp.closest('label')||inp.parentElement;
+    lab.classList.add('sugwrap');
+    const cx=document.createElement('div'); cx.className='sugbox'; cx.hidden=true;
+    lab.appendChild(cx);
+    let itens=[], idx=-1;
+
+    const fechar=()=>{cx.hidden=true; idx=-1;};
+    function abrir(){
+      const q=semAcento(inp.value.trim());
+      let r=fonte();
+      if(q) r=r.filter(x=>semAcento(x.busca||x.v).indexOf(q)>=0);
+      if(r.length===1 && semAcento(r[0].v)===q) return fechar();
+      r=r.slice(0,10);
+      if(!r.length) return fechar();
+      itens=r; idx=-1;
+      cx.innerHTML=r.map((x,i)=>'<button type="button" class="sugit" data-i="'+i+'">'+realce(x.v,q)+'</button>').join('');
+      cx.hidden=false;
+    }
+    function escolhe(i){
+      if(i<0||i>=itens.length)return;
+      inp.value=itens[i].v; fechar();
+      inp.dispatchEvent(new Event('input',{bubbles:true}));
+      inp.dispatchEvent(new Event('change',{bubbles:true}));
+      fechar();
+    }
+    const marca=()=>$$('.sugit',cx).forEach((b,i)=>{
+      b.classList.toggle('on',i===idx);
+      if(i===idx && b.scrollIntoView) b.scrollIntoView({block:'nearest'});
+    });
+
+    inp.setAttribute('autocomplete','off');
+    inp.addEventListener('input',e=>{ if(e.isTrusted) abrir(); });
+    inp.addEventListener('focus',abrir);
+    /* o clique na sugestão chega depois do blur: espera um pouco antes de sumir */
+    inp.addEventListener('blur',()=>setTimeout(fechar,150));
+    inp.addEventListener('keydown',e=>{
+      if(cx.hidden){ if(e.key==='ArrowDown')abrir(); return; }
+      if(e.key==='ArrowDown'){e.preventDefault(); idx=Math.min(idx+1,itens.length-1); marca();}
+      else if(e.key==='ArrowUp'){e.preventDefault(); idx=Math.max(idx-1,0); marca();}
+      else if(e.key==='Enter'&&idx>=0){e.preventDefault(); escolhe(idx);}
+      else if(e.key==='Escape'){e.stopPropagation(); fechar();}   // Esc fecha a lista, não o formulário
+    });
+    const pegar=e=>{
+      const b=e.target.closest('.sugit'); if(!b)return;
+      if(e.type==='mousedown') e.preventDefault();
+      escolhe(Number(b.dataset.i));
+    };
+    cx.addEventListener('mousedown',pegar);
+    cx.addEventListener('click',pegar);
+  });
+}
+
+/* ---------- modal genérico ---------- */
+function modal(tituloHTML,corpoHTML,botoes,classe){
+  fecha();
+  const sc=document.createElement('div'); sc.className='scrim'; sc.id='scrim';
+  sc.innerHTML=`<div class="modal ${classe||''}" role="dialog" aria-modal="true">
+    <div class="modal-head">${tituloHTML}<button class="x" id="mX" aria-label="Fechar">✕</button></div>
+    <div class="modal-body" id="modalBody">${corpoHTML}</div>
+    <div class="modal-foot" id="modalFoot"></div></div>`;
+  document.body.appendChild(sc);
+  const ft=$('#modalFoot');
+  (botoes||[]).forEach(b=>{const el=document.createElement('button');
+    el.className='btn '+(b.cls||''); el.textContent=b.rot; el.onclick=b.fn; ft.appendChild(el);});
+  $('#mX').onclick=fecha;
+  sc.addEventListener('mousedown',e=>{if(e.target===sc)fecha();});
+  ligaSugestoes(sc);
+  const foco=sc.querySelector('.modal-body input,.modal-body select'); if(foco)setTimeout(()=>foco.focus(),40);
+}
+function fecha(){const s=$('#scrim'); if(s)s.remove();}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')fecha();});
+
+/* ============================================================
+   EVENTOS
+   ============================================================ */
+function busca(id,obj){
+  const el=$(id); if(!el)return;
+  el.oninput=()=>{obj.q=el.value; clearTimeout(el._t); el._t=setTimeout(()=>{render();
+    const n=$(id); if(n){n.focus(); n.setSelectionRange(n.value.length,n.value.length);}},220);};
+}
+function togs(sel,fn){ $$(sel+' .tog').forEach(b=>b.onclick=()=>{fn(b.dataset.v);render();}); }
+function posRender(){
+  ligaSugestoes($('#view'));
+  // lançar
+  if($('#lFunc')){
+    ['#lFunc','#lData','#lDesc','#lValor','#lParc'].forEach(s=>$(s).addEventListener('input',atualizaPrevia));
+    $('#lJuros').addEventListener('input',()=>{form.jurosTocado=true;atualizaPrevia();});
+    $('#lPrim').addEventListener('input',()=>{form.primeiroTocado=true;atualizaPrevia();});
+    $('#lTipo').onchange=()=>{
+      const t=$('#lTipo').value;
+      // juros e 1º desconto seguem o tipo enquanto ninguém mexeu neles
+      if(!form.jurosTocado) $('#lJuros').value=String(TIPOS[t].juros).replace('.',',');
+      if(!form.primeiroTocado) $('#lPrim').value=sugestaoPrimeiro(t);
+      atualizaPrevia();
+    };
+    $('#lSalvar').onclick=salvarLancamento;
+    $$('#view .card input').forEach(i=>i.addEventListener('keydown',e=>{
+      if(e.key==='Enter' && !(i.dataset.sug && !i.parentElement.querySelector('.sugbox').hidden)) salvarLancamento();}));
+    if($('#lLimpar'))$('#lLimpar').onclick=()=>{form=formNovo();render();};
+    if($('#lCancelar'))$('#lCancelar').onclick=()=>{form=formNovo();aba='emprestimos';render();};
+  }
+  // empréstimos — a situação muda de sentido com o mês: do lançamento sem mês,
+  // do desconto com mês; cada uma guarda a sua escolha
+  busca('#eQ',fEmp);
+  togs('#eSit',v=>{ if(fEmp.mes) fEmp.sitMes=v; else fEmp.sit=v; });
+  togs('#eMesAt',v=>fEmp.mes=v);
+  if($('#eMes'))$('#eMes').onchange=()=>{fEmp.mes=$('#eMes').value;render();};
+  if($('#eTipo'))$('#eTipo').onchange=()=>{fEmp.tipo=$('#eTipo').value;render();};
+  if($('#eCSV'))$('#eCSV').onclick=exportaCSV;
+  if($('#eBaixaTodos'))$('#eBaixaTodos').onclick=baixaTodos;
+  if($('#eImp'))$('#eImp').onclick=imprimeDescontos;
+  // seleção para imprimir: a célula da caixa não abre a ficha
+  $$('#view td.sel').forEach(td=>td.onclick=ev=>{
+    ev.stopPropagation();
+    const cb=td.querySelector('input'); if(ev.target!==cb) cb.checked=!cb.checked;
+    if(cb.checked) selEmp.add(cb.dataset.sel); else selEmp.delete(cb.dataset.sel);
+    render();
+  });
+  if($('#selTodos'))$('#selTodos').onclick=ev=>{
+    ev.stopPropagation();
+    const ids=$$('#view [data-sel]').map(c=>c.dataset.sel);
+    if(ev.target.checked) ids.forEach(id=>selEmp.add(id)); else ids.forEach(id=>selEmp.delete(id));
+    render();
+  };
+  if($('#eImpSel'))$('#eImpSel').onclick=()=>imprimeSelecionados(selEmp);
+  if($('#eSelLimpa'))$('#eSelLimpa').onclick=()=>{selEmp.clear();render();};
+  if(aba==='emprestimos'){ ligaBaixas($('#view'),render); ligaParcelas($('#view'),render); }
+  if($('#eDescFeitos'))$('#eDescFeitos').onclick=janelaDescontosFeitos;
+  // log
+  busca('#gQ',fLog);
+  if($('#gDe'))$('#gDe').onchange=()=>{fLog.de=$('#gDe').value;render();};
+  if($('#gAte'))$('#gAte').onchange=()=>{fLog.ate=$('#gAte').value;render();};
+  if($('#gPor'))$('#gPor').onchange=()=>{fLog.por=$('#gPor').value;render();};
+  if($('#gGrupo'))$('#gGrupo').onchange=()=>{fLog.grupo=$('#gGrupo').value;render();};
+  if($('#gCSV'))$('#gCSV').onclick=exportaLogCSV;
+  // funcionários
+  busca('#fQ',fFunc);
+  if($('#fSit'))$('#fSit').onchange=()=>{fFunc.sit=$('#fSit').value;render();};
+  if($('#fDev'))$('#fDev').onclick=()=>{fFunc.soDev=!fFunc.soDev;render();};
+  if($('#fNovo'))$('#fNovo').onclick=()=>formFuncionario(null);
+  // linhas clicáveis
+  $$('#view tbody tr[data-id]').forEach(tr=>tr.onclick=()=>
+    aba==='funcionarios'?formFuncionario(tr.dataset.id):abreEmprestimo(tr.dataset.id));
+  // ordenação
+  $$('#view thead th[data-ord]').forEach(th=>th.onclick=()=>{
+    const o=aba==='painel'?oDash:oEmp;
+    const k=th.dataset.ord; if(o.k===k)o.asc=!o.asc; else{o.k=k;o.asc=true;} render();});
+  // nome (tabela do dashboard e gráfico de saldo) abre o resumo da pessoa
+  $$('#view [data-func]').forEach(b=>b.onclick=ev=>{ev.stopPropagation(); abreResumo(b.dataset.func);});
+  // filtros do dashboard
+  busca('#dQ',fDash); togs('#dSit',v=>fDash.sit=v);
+  if($('#dTipo'))$('#dTipo').onchange=()=>{fDash.tipo=$('#dTipo').value;render();};
+  if($('#dLimpa'))$('#dLimpa').onclick=()=>{fDash={q:'',sit:'',tipo:''};render();};
+  // dashboard
+  $$('#togPer .tog').forEach(b=>b.onclick=()=>{perPainel=b.dataset.p;render();});
+  if($('#btnImpPainel'))$('#btnImpPainel').onclick=imprimirPainel;
+  if($('#btnShare'))$('#btnShare').onclick=compartilharPainel;
+  if(!LEITURA) $$('#view .kpi.clickable').forEach(k=>k.onclick=()=>{
+    if(k.dataset.ir==='mes') fEmp={q:'',sit:'ABERTO',tipo:'',mes:mesDe(hoje()),sitMes:''};
+    else if(k.dataset.ir==='atr') fEmp={q:'',sit:'ATR',tipo:'',mes:'',sitMes:''};
+    else fEmp={q:'',sit:'ABERTO',tipo:'',mes:'',sitMes:''};
+    aba='emprestimos';
+    render();});
+  // dados
+  if($('#dRecarregar'))$('#dRecarregar').onclick=()=>puxar(true);
+  if($('#dBaixar'))$('#dBaixar').onclick=baixarJSON;
+  if($('#dTipos'))$('#dTipos').onclick=()=>janelaTipos(null);
+  if($('#dSair'))$('#dSair').onclick=sairDoApp;
+}
+
+$('#nav').onclick=e=>{const b=e.target.closest('[data-aba]'); if(!b)return; aba=b.dataset.aba; render();};
+$('#btnUser').onclick=()=>{ aba='dados'; render(); };
+$('#btnReconectar').onclick=()=>flush();
+$('#btnSalvar').onclick=()=>{ if(sujo)flush(); else toast('Tudo já está gravado','ok'); };
+window.addEventListener('beforeunload',e=>{if(sujo&&!LEITURA){e.preventDefault();e.returnValue='';}});
+
+/* ---------- boot ---------- */
+(function(){
+  // cópia compartilhada: só o dashboard, com os dados que vieram dentro do arquivo
+  if(LEITURA){
+    aplicaJSON(LEITURA.dados); sujo=false;
+    perPainel=LEITURA.per||perPainel; aba='painel';
+    document.body.classList.add('leitura');
+    $('.brand-app').textContent='Dashboard de Empréstimos · somente leitura';
+    $('#btnUser').hidden=true; $('#nav').hidden=true;
+    document.title='Dashboard de Empréstimos — '+dBR(LEITURA.hoje);
+    render(); return;
+  }
+  render();   // só a moldura; os dados entram depois do login
+  iniciar();
+})();
+</script>
+</body>
+</html>
