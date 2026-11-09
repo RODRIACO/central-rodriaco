@@ -372,7 +372,6 @@ tr.quit td{font-style:italic}
   <span class="spacer"></span>
   <div class="btnrow">
     <button class="btn sm pri" id="btnReconectar" hidden>Tentar de novo</button>
-    <button class="btn sm pri" id="btnSalvar">Salvar</button>
   </div>
 </div>
 
@@ -880,16 +879,15 @@ async function puxar(manual){
 }
 
 function pintaStatus(){
-  const d=$('#stDot'),t=$('#stTxt'),rb=$('#btnReconectar'),sb=$('#btnSalvar');
+  const d=$('#stDot'),t=$('#stTxt'),rb=$('#btnReconectar');
   if(LEITURA){
-    d.className='dot on'; rb.hidden=true; sb.hidden=true;
+    d.className='dot on'; rb.hidden=true;
     t.innerHTML='<b>SOMENTE LEITURA</b> — posição de '+dBR(LEITURA.hoje)+
       (LEITURA.geradoPor?' · gerado por '+esc(LEITURA.geradoPor):'')+' · '+esc(LEITURA.filtro||'');
     return;
   }
   rb.hidden=!semConexao; rb.textContent='Tentar de novo';
-  if(!carregado){ d.className='dot off'; t.textContent='conectando à nuvem…'; sb.hidden=true; return; }
-  sb.hidden=false; sb.textContent='Salvar agora';
+  if(!carregado){ d.className='dot off'; t.textContent='conectando à nuvem…'; return; }
   if(semConexao){
     d.className='dot bad';
     t.innerHTML='<b style="color:var(--crit)">SEM CONEXÃO — NÃO ESTÁ GRAVANDO</b> — as alterações ficam nesta tela e são enviadas quando a conexão voltar. Não feche esta janela.';
@@ -2680,7 +2678,6 @@ function posRender(){
 $('#nav').onclick=e=>{const b=e.target.closest('[data-aba]'); if(!b)return; aba=b.dataset.aba; render();};
 $('#btnUser').onclick=()=>{ aba='dados'; render(); };
 $('#btnReconectar').onclick=()=>flush();
-$('#btnSalvar').onclick=()=>{ if(sujo)flush(); else toast('Tudo já está gravado','ok'); };
 window.addEventListener('beforeunload',e=>{if(sujo&&!LEITURA){e.preventDefault();e.returnValue='';}});
 
 /* ---------- boot ---------- */
