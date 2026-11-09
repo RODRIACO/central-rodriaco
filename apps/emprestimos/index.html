@@ -656,6 +656,9 @@ let carregado   = false;  // o que está na tela veio MESMO da nuvem (protege co
 let semConexao  = false;
 let conflito    = false;
 let ultimaGravacao = '';
+let erroGravar = '';      // motivo mostrado na barra quando o banco recusa a gravação
+let avisouRecusa = false;
+let usarKeepalive = false; // na saída da página o envio precisa sobreviver ao fechamento da aba
 let tmrSalva = null, tmrTenta = null;
 let emailLogado = '';
 
@@ -700,7 +703,7 @@ async function api(metodo,caminho,corpo,extra,jaRenovou){
   const h={apikey:SUPABASE_ANON,Authorization:'Bearer '+g.access_token};
   if(corpo!==undefined)h['Content-Type']='application/json';
   Object.assign(h,extra||{});
-  const r=await fetch(SUPABASE_URL+caminho,{method:metodo,headers:h,body:corpo===undefined?undefined:JSON.stringify(corpo)});
+  const r=await fetch(SUPABASE_URL+caminho,{method:metodo,headers:h,keepalive:usarKeepalive,body:corpo===undefined?undefined:JSON.stringify(corpo)});
   if(r.status===401&&!jaRenovou){
     const g0=sessaoLer(); if(g0){ g0.expira=0; sessaoGuardar(g0); }
     await sessaoRenovar();
@@ -779,23 +782,33 @@ function itensDe(k){
   const lista=k==='func'?state.funcionarios:(k==='emp'?state.emprestimos:state.log);
   return lista.map(x=>[x.id,x]);
 }
+/* o que a tela tem e a nuvem ainda não: novos, alterados e apagados */
+function coletaPendencias(){
+  const novos=[], mudados=[], apagados=[];
+  ['cfg','func','emp','log'].forEach(k=>{
+    const atuais=itensDe(k), vistos={};
+    atuais.forEach(([id,obj])=>{
+      vistos[id]=1;
+      const n=nuvem[k][id], j=JSON.stringify(obj);
+      if(!n) novos.push({k,id,obj,j});
+      else if(k!=='log'&&n.j!==j) mudados.push({k,id,obj,j,v:n.v});
+    });
+    if(k==='func'||k==='emp') Object.keys(nuvem[k]).forEach(id=>{ if(!vistos[id]) apagados.push({k,id}); });
+  });
+  return {novos,mudados,apagados};
+}
+function temPendencia(){
+  if(LEITURA||!carregado)return false;
+  const p=coletaPendencias();
+  return !!(p.novos.length||p.mudados.length||p.apagados.length);
+}
 async function flush(){
   if(LEITURA||!carregado||conflito)return;
   if(gravando){ regravar=true; return; }
   gravando=true; regravar=false; pintaStatus();
   const prefer='return=representation';
   try{
-    const novos=[], mudados=[], apagados=[];
-    ['cfg','func','emp','log'].forEach(k=>{
-      const atuais=itensDe(k), vistos={};
-      atuais.forEach(([id,obj])=>{
-        vistos[id]=1;
-        const n=nuvem[k][id], j=JSON.stringify(obj);
-        if(!n) novos.push({k,id,obj,j});
-        else if(k!=='log'&&n.j!==j) mudados.push({k,id,obj,j,v:n.v});
-      });
-      if(k==='func'||k==='emp') Object.keys(nuvem[k]).forEach(id=>{ if(!vistos[id]) apagados.push({k,id}); });
-    });
+    const {novos,mudados,apagados}=coletaPendencias();
     // novos, por tabela
     for(const k of ['cfg','func','emp','log']){
       const L=novos.filter(x=>x.k===k);
@@ -821,20 +834,25 @@ async function flush(){
       if(!r.ok)throw Object.assign(new Error('Exclusão recusada (erro '+r.status+').'),{status:r.status});
       delete nuvem[a.k][a.id];
     }
-    semConexao=false; ultimaGravacao=new Date().toISOString();
+    semConexao=false; erroGravar=''; ultimaGravacao=new Date().toISOString();
     sujo=false;
   }catch(e){
     sujo=true;
     if(e&&e.conflito){ gravando=false; await resolveConflito(); return; }
     if(e&&e.semSessao){ gravando=false; telaLogin('Sua sessão expirou. Entre de novo para continuar gravando.'); pintaStatus(); return; }
-    if(e&&(e.status===401||e.status===403)){ toast('Sem permissão para gravar. Peça ao administrador.','err'); }
+    if(e&&(e.status===401||e.status===403)){
+      // permissão ou sessão recusada: avisa o motivo e continua tentando, em vez de parar em silêncio
+      erroGravar='o banco recusou a gravação (erro '+e.status+'). Confira a sua permissão em Contas.';
+      if(!avisouRecusa){ avisouRecusa=true; toast('Sem permissão para gravar. Peça ao administrador.','err'); }
+      clearTimeout(tmrTenta); tmrTenta=setTimeout(()=>flush(),30000);
+    }
     else { semConexao=true; clearTimeout(tmrTenta); tmrTenta=setTimeout(()=>flush(),10000); }
   }
-  gravando=false; pintaStatus();
+  gravando=false; usarKeepalive=false; pintaStatus();
   if(regravar&&!semConexao&&!conflito){ regravar=false; setTimeout(flush,50); }
 }
 function mudou(){ if(LEITURA)return; sujo=true; pintaStatus();
-  clearTimeout(tmrSalva); tmrSalva=setTimeout(()=>flush(),700);
+  clearTimeout(tmrSalva); tmrSalva=setTimeout(()=>flush(),200);
 }
 async function resolveConflito(){
   conflito=true; pintaStatus();
@@ -894,6 +912,7 @@ function pintaStatus(){
     return;
   }
   if(conflito){ d.className='dot bad'; t.innerHTML='<b style="color:var(--crit)">ALTERADO POR OUTRA PESSOA</b> — decida na janela que abriu'; return; }
+  if(erroGravar&&sujo){ d.className='dot bad'; t.innerHTML='<b style="color:var(--crit)">NÃO ESTÁ GRAVANDO</b> — '+esc(erroGravar); return; }
   if(gravando||sujo){ d.className='dot off'; t.textContent=gravando?'gravando na nuvem…':'alterações pendentes…'; return; }
   d.className='dot on';
   t.textContent='gravado na nuvem'+(ultimaGravacao?' · '+new Date(ultimaGravacao).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}):'')+
@@ -2705,7 +2724,16 @@ function posRender(){
 $('#nav').onclick=e=>{const b=e.target.closest('[data-aba]'); if(!b)return; aba=b.dataset.aba; render();};
 $('#btnUser').onclick=()=>{ aba='dados'; render(); };
 $('#btnReconectar').onclick=()=>flush();
-window.addEventListener('beforeunload',e=>{if(sujo&&!LEITURA){e.preventDefault();e.returnValue='';}});
+/* Aviso do navegador ao sair: só quando há mesmo algo que a nuvem ainda não tem (compara a tela com o banco;
+   uma marca "pendente" esquecida não segura mais a pessoa). Antes de sair tenta enviar o que faltar. */
+window.addEventListener('beforeunload',e=>{
+  if(LEITURA||!carregado)return;
+  if(!gravando&&!temPendencia()){ sujo=false; return; }
+  usarKeepalive=true; flush();
+  e.preventDefault(); e.returnValue='';
+});
+window.addEventListener('pagehide',()=>{ if(!LEITURA&&carregado&&(gravando||temPendencia())){ usarKeepalive=true; flush(); } });
+document.addEventListener('visibilitychange',()=>{ if(document.hidden&&!LEITURA&&carregado&&sujo&&!gravando){ flush(); } });
 
 /* ---------- boot ---------- */
 (function(){
