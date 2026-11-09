@@ -900,6 +900,33 @@ function pintaStatus(){
     (emailLogado?' · '+emailLogado:'');
 }
 
+/* ---------- inatividade: 1 hora sem uso encerra a sessão (também com o app fechado) ----------
+   Mesmo relógio da Central e dos outros apps (chave do localStorage). Contam clique, tecla, rolagem e toque;
+   a atualização automática da tela NÃO conta. */
+const INATIV_CHAVE='central_rodriaco_atividade_v1', INATIV_MS=3600000;
+const INATIV_MSG='Sessão encerrada: mais de 1 hora sem uso. Entre de novo.';
+let inativUltima=0;
+function inativLer(){ try{ return parseInt(localStorage.getItem(INATIV_CHAVE),10)||0; }catch(e){ return 0; } }
+function inativMarcar(forca){ const t=Date.now(); if(!forca&&t-inativUltima<15000)return; inativUltima=t; try{ localStorage.setItem(INATIV_CHAVE,String(t)); }catch(e){} }
+function inativVencida(){ if(!sessaoLer())return false; const u=inativLer(); if(!u){ inativMarcar(true); return false; } return Date.now()-u>INATIV_MS; }
+function inativMotivo(){
+  try{ if(sessionStorage.getItem('rodriaco_motivo')==='inatividade'){ sessionStorage.removeItem('rodriaco_motivo'); return INATIV_MSG; } }catch(e){}
+  return '';
+}
+async function inativEncerrar(recarregar){
+  // o que ainda não foi gravado na nuvem não pode se perder: grava antes de sair (se não der, tenta de novo depois)
+  if(typeof sujo!=='undefined'&&sujo){ try{ await flush(); }catch(e){} if(sujo)return; }
+  const g=sessaoLer();
+  if(g&&g.access_token){ try{ fetch(SUPABASE_URL+'/auth/v1/logout?scope=local',{method:'POST',keepalive:true,headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+g.access_token}}).catch(()=>{}); }catch(e){} }
+  sessaoGuardar(null);
+  try{ localStorage.removeItem(INATIV_CHAVE); sessionStorage.setItem('rodriaco_motivo','inatividade'); }catch(e){}
+  if(recarregar)location.reload();
+}
+if(!LEITURA&&inativVencida())inativEncerrar(false);   // venceu com o app fechado: pede login já na abertura
+['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>document.addEventListener(ev,()=>inativMarcar(false),{passive:true,capture:true}));
+setInterval(()=>{ if(!LEITURA&&inativVencida())inativEncerrar(true); },30000);
+document.addEventListener('visibilitychange',()=>{ if(!LEITURA&&!document.hidden&&inativVencida())inativEncerrar(true); });
+
 /* ---------- entrar ---------- */
 function tela(html){
   let el=$('#acesso');
@@ -943,7 +970,7 @@ function telaLogin(msg){
 }
 async function iniciar(){
   const g=await sessaoValida();
-  if(!g){ telaLogin(''); return; }
+  if(!g){ telaLogin(inativMotivo()); return; }
   emailLogado=g.email||'';
   tela('<h2>Controle de Empréstimos</h2><p class="lead">Conferindo o acesso…</p>');
   try{

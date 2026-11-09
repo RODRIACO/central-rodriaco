@@ -176,6 +176,28 @@ O ERP inteiro fica atrás do login do Supabase, não só a Análise CSV:
 - A Área do Operador (inclusive pelo QR da OP) é um módulo à parte, "Área do
   Operador", e também precisa de liberação.
 
+### Sessão e inatividade
+
+- **1 hora sem uso encerra a sessão**, inclusive com a Central **fechada**: quem abrir depois de
+  mais de 1 hora sem mexer em nada cai na tela de login ("Sessão encerrada: mais de 1 hora sem
+  uso"). Aberta e parada, ela sai sozinha ao completar 1 hora.
+- O relógio é uma chave do `localStorage` (`central_rodriaco_atividade_v1`) **dividida com os
+  apps**: usar a Central, o Estoque Livre, as Ferramentas ou os Empréstimos mantém todos
+  logados. Contam clique, tecla, rolagem e toque; a atualização automática dos dados **não**
+  conta (senão uma tela esquecida aberta nunca venceria).
+- Ao vencer, a sessão é encerrada também no Supabase (`scope=local`). No Controle de Empréstimos,
+  o que ainda não foi gravado é enviado antes de sair.
+- O tempo fica em `INATIV.ms` (Central) e `INATIV_MS` (apps).
+
+### Instalar como app (Central)
+
+Chrome/Edge: botão **Instalar** na barra de endereço (ou menu › Instalar Central Rodriaço) cria o
+atalho na Área de Trabalho e no menu Iniciar, com o ícone **R**. Android: "Instalar app"; iPhone:
+"Adicionar à tela de início". Arquivos: `manifest.json`, `sw.js` (service worker **sem cache**,
+só habilita a instalação; ninguém fica preso em versão velha) e `icones/` (512, 192, 180 do iPhone,
+`icone-mask-512` para o Android recortar, `favicon.ico`/`favicon-32.png` só com o R, sem a moldura).
+O ícone também está no menu, na tela de login e no cabeçalho das impressões da Central.
+
 ### Esqueci minha senha / definir nova senha
 
 - Na tela de login, **Esqueci minha senha** pede o e-mail e o Supabase manda um link

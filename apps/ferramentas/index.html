@@ -235,7 +235,7 @@ td.dim{color:var(--ink-3)}
    banco (RLS), não esta tela.
    ============================================================ */
 
-const VERSAO = "20261104-112743";
+const VERSAO = "20261109-100131";
 const SUPABASE_URL  = "https://vgcwzfeucfkaawwwhvjo.supabase.co";
 const SUPABASE_ANON  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnY3d6ZmV1Y2ZrYWF3d3dodmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMDMyNzEsImV4cCI6MjEwNDY3OTI3MX0.ej6C2X0If1wLBRa4DoX_P2Z8-32IwZoN-AlcWKpM6RY";
 
@@ -1315,6 +1315,25 @@ async function aoEntrar(ss){
   guardarSessao(g);
   await aoMudarSessao(sessaoDoApp(g));
 }
+
+/* ---------- inatividade: 1 hora sem uso encerra a sessão (também com o app fechado) ----------
+   Mesmo relógio da Central e dos outros apps (chave do localStorage). Contam clique, tecla, rolagem e toque. */
+const INATIV_CHAVE='central_rodriaco_atividade_v1', INATIV_MS=3600000;
+let inativUltima=0;
+function inativLer(){ try{ return parseInt(localStorage.getItem(INATIV_CHAVE),10)||0; }catch(e){ return 0; } }
+function inativMarcar(forca){ const t=Date.now(); if(!forca&&t-inativUltima<15000)return; inativUltima=t; try{ localStorage.setItem(INATIV_CHAVE,String(t)); }catch(e){} }
+function inativVencida(){ if(!lerSessaoGuardada())return false; const u=inativLer(); if(!u){ inativMarcar(true); return false; } return Date.now()-u>INATIV_MS; }
+function inativEncerrar(recarregar){
+  const g=lerSessaoGuardada();
+  if(g&&g.access_token){ try{ fetch(SUPABASE_URL+'/auth/v1/logout?scope=local',{method:'POST',keepalive:true,headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+g.access_token}}).catch(()=>{}); }catch(e){} }
+  guardarSessao(null);
+  try{ localStorage.removeItem(INATIV_CHAVE); }catch(e){}
+  if(recarregar)location.reload();
+}
+if(inativVencida())inativEncerrar(false);   // venceu com o app fechado: pede login já na abertura
+['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>document.addEventListener(ev,()=>inativMarcar(false),{passive:true,capture:true}));
+setInterval(()=>{ if(inativVencida())inativEncerrar(true); },30000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&inativVencida())inativEncerrar(true); });
 
 /* ---------- boot ---------- */
 async function aoMudarSessao(sessao){

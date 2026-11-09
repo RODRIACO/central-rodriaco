@@ -1,4 +1,4 @@
-<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Central Rodriaço</title><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet"><style id="estilos">
+<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Central Rodriaço</title><meta name="theme-color" content="#17161A"><link rel="manifest" href="manifest.json"><link rel="icon" href="icones/favicon.ico" sizes="any"><link rel="icon" type="image/png" sizes="32x32" href="icones/favicon-32.png"><link rel="apple-touch-icon" href="icones/apple-touch-icon.png"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet"><style id="estilos">
   :root {
     --bg: #17161A;
     --surface: #1F1E23;
@@ -28,7 +28,7 @@
   /* ===== BARRA DE NAVEGAÇÃO ===== */
   .navbar { background: var(--navbar-bg); border-bottom: 1px solid var(--navbar-border); display: flex; align-items: center; gap: 4px; padding: 0 14px; height: 52px; position: relative; z-index: 100; overflow-x: auto; }
   .navbar-marca { display: flex; align-items: center; gap: 9px; padding-right: 12px; margin-right: 8px; border-right: 1px solid var(--navbar-border); flex: none; }
-  .navbar-marca .selo { width: 28px; height: 28px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; font-size: 13px; font-weight: 800; color: #0F0F0F; }
+  .navbar-marca .selo { width: 28px; height: 28px; border-radius: 7px; display: block; object-fit: cover; }
   .navbar-marca strong { color: #fff; font-size: 13.5px; letter-spacing: .03em; white-space: nowrap; }
   .navbar-menu { display: flex; align-items: center; gap: 2px; flex: 1; min-width: 0; }
   .botao-menu { background: none; border: none; cursor: pointer; font-family: inherit; color: var(--navbar-muted); font-size: 12.5px; font-weight: 600; padding: 0 10px; height: 52px; display: flex; align-items: center; gap: 5px; white-space: nowrap; border-bottom: 2px solid transparent; }
@@ -392,7 +392,7 @@
   .tela-acesso { position: fixed; inset: 0; z-index: 6000; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
   .acesso-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 26px; box-shadow: var(--shadow); }
   .acesso-marca { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
-  .acesso-marca .selo { width: 34px; height: 34px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; font-weight: 800; color: #0F0F0F; }
+  .acesso-marca .selo { width: 34px; height: 34px; border-radius: 8px; display: block; object-fit: cover; }
   .acesso-marca strong { color: #fff; letter-spacing: .03em; }
   .acesso-link { background: none; border: 0; padding: 0; margin-top: 14px; color: var(--accent-strong); font-size: 12.5px; text-decoration: underline; cursor: pointer; }
   .acesso-ok { font-size: 12.5px; color: var(--good); margin-bottom: 12px; }
@@ -459,7 +459,7 @@
   .mf-rodape .btn { flex: 1; justify-content: center; }
 </style></head><body><div id="shell" class="app-shell">
   <aside class="sidebar" id="sidebar">
-    <div class="navbar-marca"><div class="selo">R</div><strong>RODRIAÇO</strong></div>
+    <div class="navbar-marca"><img class="selo" src="icones/icone-192.png" alt="Rodriaço"><strong>RODRIAÇO</strong></div>
     <nav class="navbar-menu" id="navbarMenu"></nav>
     <div class="sidebar-rodape">
       <button type="button" class="icone-topo" id="btnAbrirOperador" title="Área do Operador" style="cursor:pointer; opacity:1;"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/></svg> <span class="rotulo-menu">Área do Operador</span></button>
@@ -1121,6 +1121,12 @@ function logDescascar(c) {
 }
 /* código da OP = ordem (5 dígitos, igual ao pedido) + linha (3 dígitos): 38421001 = OP 38421, linha 001 */
 function opLinha(op) { return String(op || '').slice(-3); }
+/* logo para a janela de impressão (endereço absoluto: a janela nova não enxerga caminho relativo) */
+function logoImpressao() {
+  var u = '';
+  try { u = new URL('icones/icone-192.png', location.href).href; } catch (e) {}
+  return u ? '<img src="' + u + '" alt="" style="height:26px;width:26px;vertical-align:middle;margin-right:8px;border-radius:5px;">' : '';
+}
 function logDataISO(s) {
   var m = /^(\d{2})\/(\d{2})\/(\d{4})/.exec(s || '');
   if (m) return +m[3] < 2001 ? '' : m[3] + '-' + m[2] + '-' + m[1];
@@ -2099,7 +2105,7 @@ function logImprimirItens() {
     '@media print{.toolbar{display:none;}body{padding:0;}}' +
     '</style></head><body>' +
     '<div class="toolbar"><button class="btn-print" onclick="window.print()">Imprimir</button></div>' +
-    '<div class="cab"><div><div class="marca">RODRIAÇO</div><h1>Análise de itens — OPs abertas</h1></div>' +
+    '<div class="cab"><div><div class="marca">' + logoImpressao() + 'RODRIAÇO</div><h1>Análise de itens — OPs abertas</h1></div>' +
     '<div class="meta">Agrupado por: <b>' + escaparHTML(logAgrupRotulo()) + '</b><br>Impresso em ' + escaparHTML(agora) +
     (arquivo ? '<br>Arquivo do Cosmos de ' + escaparHTML(arquivo) : '') + '<br>Totais somam só peças (PC e UN)<br>Embarque vencido = antes de ' + escaparHTML(logFmtData(logHoje)) + '</div></div>' +
     '<div class="filtros"><b>Filtros:</b>' + filtros + '</div>' +
@@ -5812,7 +5818,7 @@ function imprimirOP(op, it) {
     '@media print{.toolbar{display:none;}}' +
     '</style></head><body>' +
     '<div class="toolbar"><button class="btn-print" onclick="window.print()">Imprimir</button></div>' +
-    '<div class="cab"><div><div class="marca">RODRIAÇO</div><div>Ordem de Produção</div></div>' +
+    '<div class="cab"><div><div class="marca">' + logoImpressao() + 'RODRIAÇO</div><div>Ordem de Produção</div></div>' +
     '<div id="qrbox" style="text-align:center;"></div></div>' +
     '<p><strong>Número:</strong> ' + escaparHTML(op.codigo) + (op.pedidoId ? ' &middot; <strong>Pedido:</strong> ' + escaparHTML(nomePedido(op.pedidoId) || '') : '') + '</p>' +
     '<p><strong>Item:</strong> ' + escaparHTML(it ? it.nome : '') + ' &middot; <strong>Quantidade:</strong> ' + op.quantidade + '</p>' +
@@ -6582,7 +6588,7 @@ function fecharTelaAcesso() {
   if (el && el.parentNode) el.parentNode.removeChild(el);
 }
 function acessoCard(interno) {
-  return '<div class="acesso-card"><div class="acesso-marca"><div class="selo">R</div><strong>RODRIAÇO</strong></div>' + interno + '</div>';
+  return '<div class="acesso-card"><div class="acesso-marca"><img class="selo" src="icones/icone-192.png" alt="Rodriaço"><strong>RODRIAÇO</strong></div>' + interno + '</div>';
 }
 function telaAcessoLogin(mensagem, aoLiberar) {
   var el = criarTelaAcesso();
@@ -6671,6 +6677,54 @@ function liberarApp(aoLiberar) {
   if (btn && !btn.getAttribute('data-ligado')) { btn.setAttribute('data-ligado', '1'); btn.addEventListener('click', sairDoErp); }
   if (!appIniciado) { appIniciado = true; aoLiberar(); }
 }
+/* ===== INATIVIDADE: 1 hora sem uso encerra a sessão (vale também com a Central fechada) =====
+   O relógio é uma chave do localStorage dividida com os apps: usar qualquer um mantém todos logados.
+   Contam clique, tecla, rolagem e toque. A atualização automática dos dados NÃO conta. */
+var INATIV = { chave: 'central_rodriaco_atividade_v1', ms: 60 * 60 * 1000 };
+var INATIV_MSG = 'Sessão encerrada: mais de 1 hora sem uso. Entre de novo.';
+var inativUltima = 0, inativAviso = '';
+function inativLer() { try { return parseInt(localStorage.getItem(INATIV.chave), 10) || 0; } catch (e) { return 0; } }
+function inativMarcar(forca) {
+  var t = Date.now();
+  if (!forca && t - inativUltima < 15000) return;
+  inativUltima = t;
+  try { localStorage.setItem(INATIV.chave, String(t)); } catch (e) {}
+}
+function inativVencida() {
+  if (!logObterSessao()) return false;
+  var u = inativLer();
+  if (!u) { inativMarcar(true); return false; }   /* sessão de antes desta regra: começa a contar agora */
+  return Date.now() - u > INATIV.ms;
+}
+/* mensagem para a tela de login depois de uma saída por inatividade */
+function inativMotivo() {
+  var m = inativAviso;
+  try { if (sessionStorage.getItem('rodriaco_motivo') === 'inatividade') { m = INATIV_MSG; sessionStorage.removeItem('rodriaco_motivo'); } } catch (e) {}
+  inativAviso = '';
+  return m;
+}
+/* a sessão venceu com a Central FECHADA: limpa na abertura e pede login */
+function inativLimparNaAbertura() {
+  var s = logObterSessao();
+  if (s && s.access_token) {
+    try { fetch(LOG_CFG.url + '/auth/v1/logout?scope=local', { method: 'POST', keepalive: true, headers: { 'apikey': LOG_CFG.anon, 'Authorization': 'Bearer ' + s.access_token } }).catch(function () {}); } catch (e) {}
+  }
+  logSair();
+  try { localStorage.removeItem(INATIV.chave); } catch (e) {}
+  inativAviso = INATIV_MSG;
+}
+/* a sessão venceu com a Central ABERTA e parada */
+function inativEncerrar() {
+  try { sessionStorage.setItem('rodriaco_motivo', 'inatividade'); } catch (e) {}
+  try { localStorage.removeItem(INATIV.chave); } catch (e) {}
+  sairDoErp();
+}
+['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'].forEach(function (ev) {
+  document.addEventListener(ev, function () { inativMarcar(false); }, { passive: true, capture: true });
+});
+setInterval(function () { if (appIniciado && inativVencida()) inativEncerrar(); }, 30000);
+document.addEventListener('visibilitychange', function () { if (!document.hidden && appIniciado && inativVencida()) inativEncerrar(); });
+
 function sairDoErp() {
   var s = logObterSessao();
   if (s && s.access_token) {
@@ -6809,7 +6863,8 @@ function telaNovaSenha(p, aoLiberar) {
 
 function exigirAcesso(aoLiberar) {
   if (acessoTratarLinkEmail(aoLiberar)) return;
-  if (!logObterSessao()) { telaAcessoLogin('', aoLiberar); return; }
+  if (inativVencida()) inativLimparNaAbertura();
+  if (!logObterSessao()) { telaAcessoLogin(inativMotivo(), aoLiberar); return; }
   criarTelaAcesso().innerHTML = acessoCard('<h2>Central Rodriaço</h2><p class="dica">Verificando acesso...</p>');
   conferirAcesso(aoLiberar);
 }
@@ -7089,6 +7144,10 @@ function inicializarApp() {
       status('Dados salvos neste navegador', '');
     }
   });
+}
+/* instalar como app (Chrome/Edge): o service worker não guarda nada em cache */
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
 }
 exigirAcesso(inicializarApp);
 

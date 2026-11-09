@@ -498,7 +498,7 @@ function preenchendoAlgo() {
 const ehAdmin = () => S.user && S.user.papel === "admin";
 
 /* ---------------- banco (Supabase) ---------------- */
-const VERSAO = "20261104-112743";   /* carimbado por versao.py a cada publicacao */
+const VERSAO = "20261109-100131";   /* carimbado por versao.py a cada publicacao */
 /* Nome da funcao que troca senha, no Supabase. ATENCAO: o painel publicou
    com o nome automatico "clever-worker" e o endereco nao pode ser renomeado.
    No painel ela aparece como "admin-senha"; e a mesma coisa. Se um dia for
@@ -589,6 +589,25 @@ function limparSessaoLocal() {
   S.tentouPerfil = false; S.ready = true;
   render();
 }
+
+/* ---------- inatividade: 1 hora sem uso encerra a sessão (também com o app fechado) ----------
+   Mesmo relógio da Central e dos outros apps (chave do localStorage). Contam clique, tecla, rolagem e toque. */
+const INATIV_CHAVE='central_rodriaco_atividade_v1', INATIV_MS=3600000;
+let inativUltima=0;
+function inativLer(){ try{ return parseInt(localStorage.getItem(INATIV_CHAVE),10)||0; }catch(e){ return 0; } }
+function inativMarcar(forca){ const t=Date.now(); if(!forca&&t-inativUltima<15000)return; inativUltima=t; try{ localStorage.setItem(INATIV_CHAVE,String(t)); }catch(e){} }
+function inativVencida(){ if(!lerSessaoGuardada())return false; const u=inativLer(); if(!u){ inativMarcar(true); return false; } return Date.now()-u>INATIV_MS; }
+function inativEncerrar(recarregar){
+  const g=lerSessaoGuardada();
+  if(g&&g.access_token){ try{ fetch(SUPABASE_URL+'/auth/v1/logout?scope=local',{method:'POST',keepalive:true,headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+g.access_token}}).catch(()=>{}); }catch(e){} }
+  guardarSessao(null);
+  try{ localStorage.removeItem(INATIV_CHAVE); }catch(e){}
+  if(recarregar)location.reload();
+}
+if(inativVencida())inativEncerrar(false);   // venceu com o app fechado: pede login já na abertura
+['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>document.addEventListener(ev,()=>inativMarcar(false),{passive:true,capture:true}));
+setInterval(()=>{ if(inativVencida())inativEncerrar(true); },30000);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&inativVencida())inativEncerrar(true); });
 
 /* espera a biblioteca aparecer: CDN lenta nao pode derrubar o app */
 function esperarLib(nome, ms) {
