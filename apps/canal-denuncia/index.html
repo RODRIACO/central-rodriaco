@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#222222">
+<title>Canal de Denúncia — Rodriaço</title>
+<style>
+:root{
+  --lar:#EB7831; --lar-esc:#C55A11; --lar-bg:#FDF1E8;
+  --tx:#222; --tx2:#5d5750; --linha:#D0C8C0; --fundo:#F6F3F0; --card:#fff;
+  --ok:#2E7D32; --ok-bg:#EAF5EA; --crit:#C00000; --crit-bg:#FDECEC; --info:#2E74B5; --info-bg:#EAF1FB;
+  --raio:10px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--fundo);color:var(--tx);font:17px/1.5 Calibri,"Segoe UI",Roboto,Arial,sans-serif}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;line-height:1.2;margin:0 0 .5em}
+h1{font-size:1.9rem} h2{font-size:1.35rem;color:var(--lar-esc)} h3{font-size:1.08rem}
+p{margin:0 0 .8em}
+a{color:var(--lar-esc)}
+.topo{background:var(--tx);color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px}
+.topo b{font-family:Georgia,serif;letter-spacing:.06em;font-size:.86rem}
+.topo a{color:#fff;margin-left:auto;font-size:.9rem;text-decoration:none;border:1px solid #777;border-radius:6px;padding:4px 10px}
+.demo{background:var(--info);color:#fff;text-align:center;padding:6px;font-size:.9rem}
+main{max-width:720px;margin:0 auto;padding:16px 16px 60px}
+main.largo{max-width:1080px}
+.heroi{background:var(--lar);color:#fff;border-radius:var(--raio);padding:26px 20px;text-align:center;margin-bottom:16px}
+.heroi h1{font-size:2.2rem;margin:0 0 6px}
+.heroi p{margin:0;font-size:1.15rem;font-family:Georgia,serif}
+.card{background:var(--card);border:1px solid var(--linha);border-radius:var(--raio);padding:16px;margin-bottom:14px}
+.caixa{border:2px solid;border-radius:var(--raio);padding:12px 14px;margin-bottom:14px}
+.caixa.ok{border-color:var(--ok);background:var(--ok-bg)}
+.caixa.crit{border-color:var(--crit);background:var(--crit-bg)}
+.caixa.lar{border-color:var(--lar);background:var(--lar-bg)}
+.caixa.info{border-color:var(--info);background:var(--info-bg)}
+.caixa p:last-child,.card p:last-child{margin-bottom:0}
+.caixa ul{margin:0;padding-left:1.2em}
+.btn{display:block;width:100%;border:0;border-radius:var(--raio);padding:15px 18px;font:inherit;font-weight:700;font-size:1.1rem;cursor:pointer;background:var(--lar);color:#fff;text-align:center;text-decoration:none}
+.btn:hover{background:var(--lar-esc)}
+.btn.sec{background:#fff;color:var(--tx);border:2px solid var(--tx)}
+.btn.sec:hover{background:#eee}
+.btn.peq{display:inline-block;width:auto;padding:8px 14px;font-size:.95rem}
+.btn.perigo{background:var(--crit)}
+.btn:disabled{opacity:.55;cursor:wait}
+.duo{display:grid;gap:12px;margin-bottom:16px}
+@media(min-width:560px){.duo{grid-template-columns:1fr 1fr}}
+label.campo{display:block;font-weight:700;margin:16px 0 4px}
+label.campo small{font-weight:400;color:var(--tx2);display:block}
+input[type=text],input[type=email],input[type=password],textarea,select{width:100%;font:inherit;padding:11px 12px;border:1.5px solid #9b938b;border-radius:8px;background:#fff;color:var(--tx)}
+textarea{min-height:150px;resize:vertical}
+input:focus,textarea:focus,select:focus,.btn:focus-visible,.tipo:focus-within{outline:3px solid #f7b98f;outline-offset:1px}
+.tipos{display:grid;gap:8px}
+@media(min-width:560px){.tipos{grid-template-columns:1fr 1fr}}
+.tipo{display:flex;gap:10px;align-items:flex-start;border:1.5px solid var(--linha);border-radius:8px;padding:10px 12px;background:#fff;cursor:pointer}
+.tipo input{margin-top:5px;transform:scale(1.3);accent-color:var(--lar-esc)}
+.tipo b{display:block}
+.tipo span{color:var(--tx2);font-size:.92rem}
+.tipo:has(input:checked){border-color:var(--lar);background:var(--lar-bg)}
+.marca{display:flex;gap:10px;align-items:flex-start;margin:14px 0}
+.marca input{margin-top:5px;transform:scale(1.4);accent-color:var(--lar-esc)}
+.erro{color:var(--crit);font-weight:700;margin:10px 0}
+.nota{color:var(--tx2);font-size:.92rem}
+.voltar{display:inline-block;margin-bottom:12px;text-decoration:none;font-weight:700}
+.protocolo{font:700 1.7rem/1.3 Consolas,"Courier New",monospace;letter-spacing:.06em;background:#fff;border:3px dashed var(--lar);border-radius:var(--raio);padding:16px 8px;text-align:center;margin:10px 0;word-break:break-all;user-select:all}
+.arqs{list-style:none;padding:0;margin:8px 0}
+.arqs li{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--linha);border-radius:8px;padding:6px 10px;margin-bottom:6px;font-size:.95rem}
+.arqs button{margin-left:auto;border:0;background:none;color:var(--crit);font:inherit;font-weight:700;cursor:pointer}
+.etapas{display:flex;gap:4px;margin:12px 0}
+.etapas div{flex:1;text-align:center;font-size:.8rem;padding-top:8px;border-top:6px solid var(--linha);color:var(--tx2)}
+.etapas div.feito{border-color:var(--lar);color:var(--tx);font-weight:700}
+.msg{border-radius:10px;padding:9px 12px;margin:8px 0;max-width:88%;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg small{display:block;color:var(--tx2);font-size:.8rem;margin-bottom:2px}
+.msg.rh{background:var(--lar-bg);border:1px solid #f0c9ab}
+.msg.den{background:#eef1f4;border:1px solid #d5dbe1;margin-left:auto}
+.rodape{text-align:center;color:var(--tx2);font-size:.85rem;margin-top:26px}
+.rodape a{color:var(--tx2)}
+details{margin:14px 0}
+summary{cursor:pointer;font-weight:700;padding:6px 0}
+/* ---- painel RH ---- */
+.barra{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.barra select{width:auto}
+.barra .esp{flex:1}
+.abas{display:flex;gap:6px;margin-bottom:12px;border-bottom:2px solid var(--linha)}
+.abas button{border:0;background:none;font:inherit;font-weight:700;padding:8px 14px;cursor:pointer;color:var(--tx2);border-bottom:3px solid transparent;margin-bottom:-2px}
+.abas button.on{color:var(--lar-esc);border-color:var(--lar)}
+.rolo{overflow-x:auto}
+table{border-collapse:collapse;width:100%;background:#fff;font-size:.95rem}
+th,td{border:1px solid var(--linha);padding:7px 9px;text-align:left;vertical-align:top}
+th{background:var(--lar);color:#fff;white-space:nowrap}
+tbody tr:nth-child(even){background:#F8F4F0}
+tr.clic{cursor:pointer} tr.clic:hover{background:var(--lar-bg)}
+.sel{display:inline-block;border-radius:20px;padding:1px 10px;font-size:.82rem;font-weight:700;white-space:nowrap;background:#e8e4df}
+.sel.crit{background:var(--crit);color:#fff}.sel.ok{background:var(--ok-bg);color:var(--ok)}
+.sel.aviso{background:#FFF1C7;color:#7a5600}.sel.info{background:var(--info-bg);color:var(--info)}
+.dl{display:grid;grid-template-columns:150px 1fr;gap:4px 12px;margin:0}
+.dl dt{font-weight:700;color:var(--tx2)} .dl dd{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+@media(max-width:560px){.dl{grid-template-columns:1fr}.dl dd{margin-bottom:8px}}
+.relato{white-space:pre-wrap;overflow-wrap:anywhere;background:#faf8f6;border-left:4px solid var(--lar);padding:10px 12px;border-radius:0 8px 8px 0}
+.notai{border-left:3px solid var(--linha);padding:2px 10px;margin:8px 0;font-size:.95rem;white-space:pre-wrap}
+.notai.auto{color:var(--tx2);font-style:italic}
+.notai small{display:block;color:var(--tx2);font-style:normal}
+.grade2{display:grid;gap:14px}
+@media(min-width:900px){.grade2{grid-template-columns:1.25fr 1fr;align-items:start}}
+@media print{
+  .topo,.demo,.barra,.abas,.rodape,.naoimp{display:none!important}
+  body{background:#fff;font-size:12pt} main{max-width:none;padding:0} .card{border:0;padding:0}
+}
+</style>
+</head>
+<body>
+<div class="topo"><b>METALÚRGICA RODRIAÇO</b><span id="topoacao"></span></div>
+<div id="demo" class="demo" hidden>MODO DEMONSTRAÇÃO — nada é enviado nem gravado de verdade</div>
+<main id="app"><p>Carregando…</p></main>
+<noscript><p style="padding:16px">Este canal precisa de JavaScript ligado no navegador.</p></noscript>
+
+<script>
+"use strict";
+/* ============================================================
+   CANAL DE DENÚNCIA — Rodriaço
+   Uma página só. Três áreas: Denunciar, Acompanhar, Painel do RH.
+
+   ANONIMATO — o que este arquivo garante:
+   - As telas públicas falam com o banco por fetch simples, usando
+     só a chave pública. Nunca leem sessão guardada de outro app
+     da Rodriaço, mesmo que a pessoa esteja logada nele no celular.
+   - Nenhuma biblioteca externa, fonte ou contador é carregado nas
+     telas públicas. A biblioteca do Supabase só é baixada quando
+     alguém abre o Painel do RH.
+   - Fotos são redesenhadas antes do envio: saem sem os dados do
+     aparelho e do local (EXIF). Nome original do arquivo não é enviado.
+   - O protocolo é sorteado aqui e o banco guarda só o resumo dele.
+   ============================================================ */
+
+const VERSAO = "20261110-1";
+const SUPABASE_URL  = "https://vgcwzfeucfkaawwwhvjo.supabase.co";
+const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnY3d6ZmV1Y2ZrYWF3d3dodmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMDMyNzEsImV4cCI6MjEwNDY3OTI3MX0.ej6C2X0If1wLBRa4DoX_P2Z8-32IwZoN-AlcWKpM6RY";
+const SUPABASE_LIB  = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js";
+const DEMO = new URLSearchParams(location.search).has("demo");
+
+const TIPOS = {
+  assedio_moral:  ["Assédio moral", "humilhação, xingamento, apelido, perseguição, ameaça"],
+  assedio_sexual: ["Assédio sexual", "cantada insistente, toque, comentário ou mensagem de cunho sexual"],
+  discriminacao:  ["Discriminação", "por cor, sexo, idade, religião, deficiência, orientação sexual"],
+  violencia:      ["Violência", "agressão física ou verbal, intimidação"],
+  conduta:        ["Desvio de conduta", "furto, fraude, favorecimento, álcool ou drogas no trabalho"],
+  seguranca:      ["Condição insegura", "máquina sem proteção, pressão para trabalhar sem EPI"],
+  outro:          ["Outro assunto", "algo que não se encaixa nas opções acima"]
+};
+const STATUS = {
+  recebida:  {rot:"Recebida",      pub:"Recebida. O RH vai analisar.",            n:1, cls:"info"},
+  apuracao:  {rot:"Em apuração",   pub:"Em apuração. Os fatos estão sendo verificados.", n:2, cls:"aviso"},
+  conclusao: {rot:"Em conclusão",  pub:"Em conclusão. A decisão está sendo tomada.",     n:3, cls:"aviso"},
+  concluida: {rot:"Concluída",     pub:"Concluída. A apuração terminou e as medidas cabíveis foram tomadas.", n:4, cls:"ok"},
+  arquivada: {rot:"Encerrada",     pub:"Encerrada. Não foi possível prosseguir com as informações disponíveis.", n:4, cls:""}
+};
+const MAX_ARQS = 5, MAX_BYTES = 10 * 1024 * 1024;
+const TIPOS_ARQ = /^(image\/(jpeg|png|webp)|application\/pdf|audio\/)/;
+
+const $ = (s, r) => (r || document).querySelector(s);
+const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const dataBR = v => v ? new Date(v).toLocaleDateString("pt-BR") : "";
+const dataHoraBR = v => v ? new Date(v).toLocaleString("pt-BR", {dateStyle:"short", timeStyle:"short"}) : "";
+const numero = n => "D-" + String(n).padStart(4, "0");
+
+/* ---------------- protocolo ---------------- */
+function novoProtocolo(){
+  const letras = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";       // sem I, O, 0 e 1 (confundem)
+  const b = crypto.getRandomValues(new Uint8Array(12));
+  const c = Array.from(b, x => letras[x & 31]).join("");
+  return `RDA-${c.slice(0,4)}-${c.slice(4,8)}-${c.slice(8,12)}`;
+}
+function limparProtocolo(v){
+  const s = String(v || "").toUpperCase().replace(/[^A-Z0-9]/g, "").replace(/^RDA/, "");
+  return s.length === 12 ? `RDA-${s.slice(0,4)}-${s.slice(4,8)}-${s.slice(8,12)}` : null;
+}
+
+/* ---------------- fotos sem dados do aparelho ---------------- */
+async function limparImagem(arq){
+  const bmp = await createImageBitmap(arq);
+  const esc_ = Math.min(1, 2000 / Math.max(bmp.width, bmp.height));
+  const cv = document.createElement("canvas");
+  cv.width = Math.round(bmp.width * esc_); cv.height = Math.round(bmp.height * esc_);
+  cv.getContext("2d").drawImage(bmp, 0, 0, cv.width, cv.height);
+  const blob = await new Promise(r => cv.toBlob(r, "image/jpeg", 0.85));
+  if(!blob) throw new Error("falha ao processar imagem");
+  return blob;
+}
+const EXT = {"image/jpeg":"jpg","application/pdf":"pdf","audio/mpeg":"mp3","audio/mp4":"m4a","audio/x-m4a":"m4a","audio/aac":"aac",
+             "audio/ogg":"ogg","audio/webm":"webm","audio/wav":"wav","audio/x-wav":"wav","audio/3gpp":"3gp","audio/amr":"amr"};
+
+/* ============================================================
+   BANCO — lado público (fetch simples, sem sessão)
+   ============================================================ */
+const CAB = {apikey: SUPABASE_ANON, Authorization: "Bearer " + SUPABASE_ANON};
+async function rpc(fn, args){
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method:"POST", headers:{...CAB, "Content-Type":"application/json"}, body:JSON.stringify(args),
+    credentials:"omit", referrerPolicy:"no-referrer", cache:"no-store"});
+  const t = await r.text();
+  let j = null; try{ j = t ? JSON.parse(t) : null; }catch(e){}
+  if(!r.ok) throw new Error((j && j.message) || "Não foi possível falar com o servidor.");
+  return j;
+}
+const real = {
+  registrar: d => rpc("denuncia_registrar", {
+    p_protocolo:d.protocolo, p_tipo:d.tipo, p_relato:d.relato, p_local:d.local, p_quando:d.quando,
+    p_envolvidos:d.envolvidos, p_testemunhas:d.testemunhas, p_envolve_rh:d.envolve_rh, p_nome:d.nome, p_contato:d.contato}),
+  async anexar(id, protocolo, blob, nome){
+    const sorteio = Array.from(crypto.getRandomValues(new Uint8Array(8)), x => x.toString(16).padStart(2,"0")).join("");
+    const caminho = `${id}/${sorteio}.${EXT[blob.type] || "bin"}`;
+    const r = await fetch(`${SUPABASE_URL}/storage/v1/object/denuncias/${caminho}`, {
+      method:"POST", headers:{...CAB, "Content-Type":blob.type, "x-upsert":"false"}, body:blob,
+      credentials:"omit", referrerPolicy:"no-referrer"});
+    if(!r.ok) throw new Error("envio recusado");
+    await rpc("denuncia_anexar", {p_protocolo:protocolo, p_caminho:caminho, p_nome:nome, p_tipo:blob.type, p_tamanho:blob.size});
+  },
+  consultar: p => rpc("denuncia_consultar", {p_protocolo:p}),
+  complementar: (p, t) => rpc("denuncia_complementar", {p_protocolo:p, p_texto:t}),
+
+  /* ---------- lado do RH (com login; biblioteca baixada só aqui) ---------- */
+  rh: {
+    sb: null,
+    async cliente(){
+      if(this.sb) return this.sb;
+      if(!(window.supabase && window.supabase.createClient)){
+        await new Promise((ok, falha) => { const s = document.createElement("script");
+          s.src = SUPABASE_LIB; s.onload = ok; s.onerror = () => falha(new Error("Sem conexão com o servidor.")); document.head.appendChild(s); });
+      }
+      // Sessão própria (não mistura com outros apps) e só enquanto a aba estiver aberta.
+      this.sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON,
+        {auth:{persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, storageKey:"canal-denuncia-rh", storage:window.sessionStorage}});
+      this.sb.auth.onAuthStateChange(ev => { if(ev === "PASSWORD_RECOVERY"){ S.rh.fase = "novasenha"; render(); } });
+      return this.sb;
+    },
+    async sessao(){ const sb = await this.cliente(); const {data} = await sb.auth.getSession(); return data && data.session ? data.session.user.email : null; },
+    async entrar(email, senha){ const sb = await this.cliente(); const {error} = await sb.auth.signInWithPassword({email, password:senha}); if(error) throw new Error("E-mail ou senha incorretos."); return email; },
+    async sair(){ const sb = await this.cliente(); await sb.auth.signOut(); },
+    async recuperar(email){ const sb = await this.cliente(); const {error} = await sb.auth.resetPasswordForEmail(email, {redirectTo: location.origin + location.pathname}); if(error) throw new Error(error.message); },
+    async novaSenha(s){ const sb = await this.cliente(); const {error} = await sb.auth.updateUser({password:s}); if(error) throw new Error(error.message); },
+    async papel(){ const sb = await this.cliente(); const {data, error} = await sb.rpc("denuncia_papel"); if(error) throw new Error(error.message); return data; },
+    async listar(){ const sb = await this.cliente();
+      const {data, error} = await sb.from("denuncias").select("id,numero,tipo,status,envolve_rh,pendente_rh,local,criado_em,apuracao_em,conclusao_em,encerrada_em").order("criado_em", {ascending:false});
+      if(error) throw new Error(error.message); return data; },
+    async detalhe(id){ const sb = await this.cliente();
+      const [d, m, n, a] = await Promise.all([
+        sb.from("denuncias").select("*").eq("id", id).single(),
+        sb.from("denuncia_msgs").select("*").eq("denuncia_id", id).order("em"),
+        sb.from("denuncia_notas").select("*").eq("denuncia_id", id).order("em"),
+        sb.from("denuncia_anexos").select("*").eq("denuncia_id", id).order("em")]);
+      const e = d.error || m.error || n.error || a.error; if(e) throw new Error(e.message);
+      return {...d.data, msgs:m.data, notas:n.data, anexos:a.data}; },
+    async atualizar(id, campos){ const sb = await this.cliente(); const {error} = await sb.from("denuncias").update(campos).eq("id", id); if(error) throw new Error(error.message); },
+    async msg(id, texto){ const sb = await this.cliente(); const {error} = await sb.from("denuncia_msgs").insert({denuncia_id:id, autor:"rh", texto}); if(error) throw new Error(error.message); },
+    async nota(id, texto){ const sb = await this.cliente(); const {error} = await sb.from("denuncia_notas").insert({denuncia_id:id, texto}); if(error) throw new Error(error.message); },
+    async urlAnexo(caminho){ const sb = await this.cliente(); const {data, error} = await sb.storage.from("denuncias").createSignedUrl(caminho, 300); if(error) throw new Error(error.message); return data.signedUrl; }
+  }
+};
+
+/* ============================================================
+   DEMONSTRAÇÃO (?demo) — tudo na memória da aba, some ao fechar
+   ============================================================ */
+const demo = (() => {
+  const h = d => new Date(Date.now() - d * 864e5).toISOString();
+  let seq = 3;
+  const base = [
+    {id:"d1", numero:1, protocolo:"RDA-AAAA-BBBB-CCCC", tipo:"assedio_moral", status:"apuracao", envolve_rh:false, pendente_rh:true,
+     relato:"O encarregado do turno da noite grita e xinga os soldadores na frente de todos quando a meta atrasa. Já aconteceu várias vezes neste mês.",
+     local:"Solda — turno da noite", quando:"Várias vezes em outubro", envolvidos:"Encarregado do turno", testemunhas:"Toda a equipe da solda",
+     ident_nome:"", ident_contato:"", medida:"", criado_em:h(12), apuracao_em:h(10), conclusao_em:null, encerrada_em:null,
+     msgs:[{autor:"rh", texto:"Recebemos seu relato. Consegue informar em quais dias aconteceu?", em:h(10)},
+           {autor:"denunciante", texto:"Na terça e na quinta da semana passada, perto das 22h.", em:h(1)}],
+     notas:[{texto:"Situação alterada: recebida → apuracao", usuario:"rh@demo", automatica:true, em:h(10)}], anexos:[]},
+    {id:"d2", numero:2, protocolo:"RDA-DDDD-EEEE-FFFF", tipo:"seguranca", status:"recebida", envolve_rh:false, pendente_rh:true,
+     relato:"A guilhotina do corte está sem a proteção frontal desde a manutenção. Estão mandando usar assim mesmo.",
+     local:"Corte", quando:"Desde segunda-feira", envolvidos:"", testemunhas:"", ident_nome:"", ident_contato:"", medida:"",
+     criado_em:h(4), apuracao_em:null, conclusao_em:null, encerrada_em:null, msgs:[], notas:[], anexos:[]},
+    {id:"d3", numero:3, protocolo:"RDA-GGGG-HHHH-JJJJ", tipo:"conduta", status:"concluida", envolve_rh:true, pendente_rh:false,
+     relato:"Suspeita de favorecimento na escala de horas extras.", local:"Administrativo", quando:"Setembro", envolvidos:"", testemunhas:"",
+     ident_nome:"", ident_contato:"", medida:"Escala passou a ser publicada no mural e revisada pela Direção.",
+     criado_em:h(60), apuracao_em:h(58), conclusao_em:h(35), encerrada_em:h(30),
+     msgs:[{autor:"rh", texto:"Apuração concluída. Foram adotadas medidas para dar transparência à escala.", em:h(30)}], notas:[], anexos:[]}
+  ];
+  const achar = p => base.find(x => x.protocolo === p);
+  const pausa = () => new Promise(r => setTimeout(r, 250));
+  return {
+    async registrar(d){ await pausa(); const id = "d" + (++seq);
+      base.unshift({id, numero:seq, protocolo:d.protocolo, tipo:d.tipo, status:"recebida", envolve_rh:d.envolve_rh, pendente_rh:true,
+        relato:d.relato, local:d.local, quando:d.quando, envolvidos:d.envolvidos, testemunhas:d.testemunhas, ident_nome:d.nome, ident_contato:d.contato,
+        medida:"", criado_em:new Date().toISOString(), apuracao_em:null, conclusao_em:null, encerrada_em:null, msgs:[], notas:[], anexos:[]});
+      return id; },
+    async anexar(id, protocolo, blob, nome){ await pausa(); base.find(x => x.id === id).anexos.push({caminho:URL.createObjectURL(blob), nome, tipo:blob.type, tamanho:blob.size}); },
+    async consultar(p){ await pausa(); const d = achar(p); return d ? JSON.parse(JSON.stringify(d)) : null; },
+    async complementar(p, t){ await pausa(); const d = achar(p); d.msgs.push({autor:"denunciante", texto:t, em:new Date().toISOString()}); d.pendente_rh = true; },
+    rh: {
+      email:null,
+      async sessao(){ return this.email; },
+      async entrar(email){ await pausa(); this.email = email || "direcao@demo"; return this.email; },
+      async sair(){ this.email = null; },
+      async recuperar(){ await pausa(); }, async novaSenha(){ await pausa(); },
+      async papel(){ return "direcao"; },
+      async listar(){ await pausa(); return JSON.parse(JSON.stringify(base)); },
+      async detalhe(id){ await pausa(); return JSON.parse(JSON.stringify(base.find(x => x.id === id))); },
+      async atualizar(id, c){ await pausa(); const d = base.find(x => x.id === id); const agora = new Date().toISOString();
+        if(c.status && c.status !== d.status){
+          d.notas.push({texto:`Situação alterada: ${d.status} → ${c.status}`, usuario:this.email, automatica:true, em:agora});
+          if(c.status === "apuracao" && !d.apuracao_em) d.apuracao_em = agora;
+          if(c.status === "conclusao" && !d.conclusao_em) d.conclusao_em = agora;
+          d.encerrada_em = (c.status === "concluida" || c.status === "arquivada") ? agora : null;
+        }
+        if("medida" in c && c.medida !== d.medida) d.notas.push({texto:"Medida/conclusão registrada ou alterada.", usuario:this.email, automatica:true, em:agora});
+        Object.assign(d, c); },
+      async msg(id, texto){ await pausa(); base.find(x => x.id === id).msgs.push({autor:"rh", texto, em:new Date().toISOString()}); },
+      async nota(id, texto){ await pausa(); base.find(x => x.id === id).notas.push({texto, usuario:this.email, automatica:false, em:new Date().toISOString()}); },
+      async urlAnexo(c){ return c; }
+    }
+  };
+})();
+const api = DEMO ? demo : real;
+
+/* ============================================================
+   ESTADO E ROTAS
+   ============================================================ */
+const S = {
+  arqs: [],                 // [{blob, nome, rotulo}]
+  novo: null,               // {protocolo, falhas}
+  consulta: null,           // {protocolo, dados}
+  rh: {fase:"carregando", email:null, papel:null, lista:[], det:null, aba:"lista", fStatus:"abertas", fTipo:"", erro:""}
+};
+const rota = () => (location.hash.replace(/^#\/?/, "").split(/[?&]/)[0]) || "inicio";
+const ir = r => { if(rota() === r) render(); else location.hash = r; };
+addEventListener("hashchange", () => { scrollTo(0, 0); render(); });
+
+function render(){
+  const r = rota(), app = $("#app");
+  $("#demo").hidden = !DEMO;
+  app.className = r === "rh" ? "largo" : "";
+  $("#topoacao").innerHTML = "";
+  if(r === "denunciar") return vDenunciar(app);
+  if(r === "protocolo" && S.novo) return vProtocolo(app);
+  if(r === "acompanhar") return vAcompanhar(app);
+  if(r === "rh") return vRH(app);
+  vInicio(app);
+}
+
+/* ============================================================
+   TELAS PÚBLICAS
+   ============================================================ */
+function vInicio(app){
+  app.innerHTML = `
+  <div class="heroi"><h1>Canal de Denúncia</h1><p>Você pode falar. Ninguém vai saber quem foi.</p></div>
+  <div class="duo">
+    <a class="btn" href="#denunciar">Fazer uma denúncia</a>
+    <a class="btn sec" href="#acompanhar">Acompanhar pelo protocolo</a>
+  </div>
+  <div class="caixa ok"><ul>
+    <li><b>Anônimo:</b> não pedimos nome, matrícula nem cadastro.</li>
+    <li><b>Sigiloso:</b> só o RH lê o que você escrever.</li>
+    <li><b>Sem punição:</b> é proibido perseguir quem denuncia de boa-fé.</li>
+    <li><b>Toda denúncia é apurada.</b></li>
+  </ul></div>
+  <div class="card"><h3>O que você pode denunciar</h3>
+    <p>Assédio moral ou sexual, discriminação, violência, desvio de conduta e condição insegura de trabalho.</p></div>
+  <div class="caixa crit"><p><b>Perigo agora?</b> Risco de acidente ou agressão acontecendo: avise na hora seu líder, a CIPA ou o RH. Não espere pelo canal.</p></div>
+  <details class="card"><summary>Como o meu anonimato é protegido?</summary>
+    <p>Este canal não grava seu nome, seu aparelho nem sua localização. As fotos que você anexar são limpas antes do envio, sem os dados do celular.</p>
+    <p>Como em qualquer site, o provedor de internet registra tecnicamente os acessos por alguns dias. Se quiser mais proteção, use os dados móveis do seu celular em vez do Wi-Fi da empresa.</p>
+    <p>Cuidado com o que você escreve: detalhes que só você saberia podem indicar quem denunciou.</p></details>
+  <p class="rodape">Canal operado pelo Recursos Humanos · NR-1, item 1.4.1.1 · Lei nº 14.457/2022<br><a href="#rh">Acesso do RH</a></p>`;
+}
+
+function vDenunciar(app){
+  S.arqs = [];
+  app.innerHTML = `
+  <a class="voltar" href="#inicio">← Voltar</a>
+  <h1>Fazer uma denúncia</h1>
+  <p>Só o primeiro e o segundo campo são obrigatórios. Preencha o que souber.</p>
+  <form id="fden" novalidate>
+    <label class="campo">1. Qual é o assunto?</label>
+    <div class="tipos">${Object.entries(TIPOS).map(([k, [t, d]]) =>
+      `<label class="tipo"><input type="radio" name="tipo" value="${k}"><div><b>${t}</b><span>${d}</span></div></label>`).join("")}</div>
+
+    <label class="campo" for="relato">2. O que aconteceu?<small>Conte com suas palavras: o que foi feito ou dito, e como.</small></label>
+    <textarea id="relato" maxlength="8000" autocomplete="off"></textarea>
+
+    <label class="campo" for="local">Onde foi?<small>Setor, máquina, local. (opcional)</small></label>
+    <input type="text" id="local" maxlength="300" autocomplete="off">
+
+    <label class="campo" for="quando">Quando foi?<small>Dia, turno, ou "acontece toda semana". (opcional)</small></label>
+    <input type="text" id="quando" maxlength="300" autocomplete="off">
+
+    <label class="campo" for="envolvidos">Quem fez?<small>Nome, apelido, cargo ou setor. (opcional)</small></label>
+    <input type="text" id="envolvidos" maxlength="1000" autocomplete="off">
+
+    <label class="campo" for="testemunhas">Alguém viu?<small>Quem pode confirmar o que aconteceu. (opcional)</small></label>
+    <input type="text" id="testemunhas" maxlength="1000" autocomplete="off">
+
+    <label class="marca"><input type="checkbox" id="envolve_rh"><span><b>Esta denúncia envolve alguém do RH.</b><br>
+      <span class="nota">Se marcar, o RH não vê: ela será lida somente pela Direção.</span></span></label>
+
+    <label class="campo">Fotos, áudios ou documentos<small>Até ${MAX_ARQS} arquivos de 10 MB (foto, print, áudio ou PDF). (opcional)</small></label>
+    <div class="caixa lar"><p><b>Atenção:</b> as fotos são limpas automaticamente (saem sem os dados do celular e do local).
+      <b>Áudios e PDFs vão como estão:</b> sua voz, seu nome em um documento ou em um print de conversa podem identificar você.</p></div>
+    <input type="file" id="arq" multiple accept="image/jpeg,image/png,image/webp,application/pdf,audio/*">
+    <ul class="arqs" id="arqs"></ul>
+
+    <details><summary>Quero me identificar (opcional)</summary>
+      <p class="nota">Deixe em branco para ficar anônimo. Se preencher, só o RH verá, e manterá sigilo.</p>
+      <label class="campo" for="nome">Seu nome</label><input type="text" id="nome" maxlength="200" autocomplete="off">
+      <label class="campo" for="contato">Como falar com você<small>Telefone ou e-mail.</small></label><input type="text" id="contato" maxlength="200" autocomplete="off">
+    </details>
+
+    <p class="nota">Denúncia falsa, feita de propósito para prejudicar alguém, é falta grave.</p>
+    <p class="erro" id="erro" role="alert" hidden></p>
+    <button class="btn" id="enviar" type="submit">Enviar denúncia</button>
+  </form>`;
+
+  const lista = () => { $("#arqs").innerHTML = S.arqs.map((a, i) =>
+    `<li><span>${esc(a.rotulo)}</span><button type="button" data-tirar="${i}">Remover</button></li>`).join(""); };
+  const erro = m => { const e = $("#erro"); if(!e) return; e.textContent = m; e.hidden = !m; if(m) e.scrollIntoView({block:"center"}); };
+  let preparo = Promise.resolve();          // fotos ainda sendo limpas: o envio espera por elas
+
+  $("#arq").addEventListener("change", ev => {
+    const escolhidos = Array.from(ev.target.files); ev.target.value = "";
+    preparo = preparo.then(() => preparar(escolhidos));
+  });
+  async function preparar(escolhidos){
+    erro("");
+    for(const f of escolhidos){
+      if(S.arqs.length >= MAX_ARQS){ erro(`No máximo ${MAX_ARQS} arquivos.`); break; }
+      if(!TIPOS_ARQ.test(f.type)){ erro("Arquivo não aceito. Envie foto, print, áudio ou PDF."); continue; }
+      try{
+        let blob = f, obs = "";
+        if(f.type.startsWith("image/")){ blob = await limparImagem(f); obs = " (foto limpa)"; }
+        if(blob.size > MAX_BYTES){ erro("Arquivo maior que 10 MB não é aceito."); continue; }
+        const n = S.arqs.length + 1, classe = blob.type.startsWith("image/") ? "Foto" : blob.type.startsWith("audio/") ? "Áudio" : "Documento";
+        S.arqs.push({blob, nome:`anexo-${n}.${EXT[blob.type] || "bin"}`, rotulo:`${classe} ${n}${obs} · ${(blob.size/1048576).toFixed(1)} MB`});
+      }catch(e){ erro("Não foi possível preparar uma das fotos. Ela não será enviada."); }
+      lista();
+    }
+  }
+  $("#arqs").addEventListener("click", ev => { const i = ev.target.dataset.tirar; if(i != null){ S.arqs.splice(+i, 1); lista(); } });
+
+  $("#fden").addEventListener("submit", async ev => {
+    ev.preventDefault(); erro("");
+    const tipo = ($("input[name=tipo]:checked") || {}).value, relato = $("#relato").value.trim();
+    if(!tipo) return erro("Escolha o assunto da denúncia (campo 1).");
+    if(relato.length < 10) return erro("Conte o que aconteceu (campo 2).");
+    const bt = $("#enviar"); bt.disabled = true; bt.textContent = "Preparando…";
+    await preparo;
+    bt.textContent = "Enviando…";
+    const d = {protocolo:novoProtocolo(), tipo, relato, local:$("#local").value, quando:$("#quando").value,
+               envolvidos:$("#envolvidos").value, testemunhas:$("#testemunhas").value, envolve_rh:$("#envolve_rh").checked,
+               nome:$("#nome").value, contato:$("#contato").value};
+    try{
+      const id = await api.registrar(d);
+      let falhas = 0;
+      for(let i = 0; i < S.arqs.length; i++){
+        bt.textContent = `Enviando anexo ${i + 1} de ${S.arqs.length}…`;
+        try{ await api.anexar(id, d.protocolo, S.arqs[i].blob, S.arqs[i].nome); }catch(e){ falhas++; }
+      }
+      S.novo = {protocolo:d.protocolo, falhas, envolve_rh:d.envolve_rh}; S.arqs = [];
+      ir("protocolo");
+    }catch(e){
+      bt.disabled = false; bt.textContent = "Enviar denúncia";
+      erro(e.message + " Sua denúncia NÃO foi enviada. Tente de novo.");
+    }
+  });
+}
+
+function vProtocolo(app){
+  const n = S.novo;
+  app.innerHTML = `
+  <div class="caixa ok"><h2 style="color:var(--ok)">Denúncia enviada</h2>
+    <p>${n.envolve_rh ? "Ela será lida somente pela Direção." : "Ela será lida somente pelo RH."} Obrigado pela confiança.</p></div>
+  ${n.falhas ? `<div class="caixa crit"><p><b>${n.falhas} anexo(s) não foram enviados.</b> O texto da denúncia foi recebido normalmente.</p></div>` : ""}
+  <h2>Guarde este protocolo</h2>
+  <div class="protocolo" id="prot">${esc(n.protocolo)}</div>
+  <div class="duo"><button class="btn sec" id="copiar" type="button">Copiar protocolo</button>
+    <a class="btn" href="#acompanhar">Acompanhar agora</a></div>
+  <div class="caixa lar"><p><b>Tire um print ou anote agora.</b> É com ele que você acompanha a denúncia e responde ao RH sem se identificar.
+    Como o canal é anônimo, <b>não temos como recuperar o protocolo</b> se você perder.</p></div>
+  <p><a href="#inicio">Voltar ao início</a></p>`;
+  $("#copiar").addEventListener("click", async ev => {
+    try{ await navigator.clipboard.writeText(n.protocolo); ev.target.textContent = "Copiado ✔"; }
+    catch(e){ ev.target.textContent = "Não deu para copiar: anote à mão"; }
+  });
+}
+
+function vAcompanhar(app){
+  const c = S.consulta;
+  app.innerHTML = `
+  <a class="voltar" href="#inicio">← Voltar</a>
+  <h1>Acompanhar denúncia</h1>
+  <form id="fcons" class="card">
+    <label class="campo" for="prot" style="margin-top:0">Digite seu protocolo</label>
+    <input type="text" id="prot" placeholder="RDA-XXXX-XXXX-XXXX" autocomplete="off" autocapitalize="characters" spellcheck="false" value="${esc(c ? c.protocolo : (S.novo ? S.novo.protocolo : ""))}">
+    <p class="erro" id="erro" role="alert" hidden></p>
+    <button class="btn" type="submit" style="margin-top:12px">Consultar</button>
+  </form>
+  <div id="res"></div>`;
+  const erro = m => { const e = $("#erro"); e.textContent = m; e.hidden = !m; };
+
+  const mostra = () => {
+    const d = S.consulta && S.consulta.dados; if(!d){ $("#res").innerHTML = ""; return; }
+    const st = STATUS[d.status];
+    $("#res").innerHTML = `
+    <div class="card"><h2>Situação</h2>
+      <p><b>${esc(st.pub)}</b></p>
+      <div class="etapas">${["Recebida","Em apuração","Em conclusão", d.status === "arquivada" ? "Encerrada" : "Concluída"]
+        .map((t, i) => `<div class="${i < st.n ? "feito" : ""}">${t}</div>`).join("")}</div>
+      <p class="nota">${esc(TIPOS[d.tipo][0])} · registrada em ${dataBR(d.criado_em)}. Os detalhes da apuração são sigilosos.</p></div>
+    <div class="card"><h2>Mensagens</h2>
+      ${d.msgs.length ? d.msgs.map(m => `<div class="msg ${m.autor === "rh" ? "rh" : "den"}"><small>${m.autor === "rh" ? (d.envolve_rh ? "Direção" : "RH") : "Você"} · ${dataHoraBR(m.em)}</small>${esc(m.texto)}</div>`).join("")
+        : `<p class="nota">Ainda não há mensagens. Volte aqui de vez em quando: o RH pode pedir mais informações.</p>`}
+      <form id="fcomp"><label class="campo" for="comp">Responder ou acrescentar informação</label>
+        <textarea id="comp" maxlength="4000" style="min-height:90px"></textarea>
+        <p class="erro" id="erro2" role="alert" hidden></p>
+        <button class="btn peq" type="submit" style="margin-top:8px">Enviar mensagem</button></form></div>`;
+    $("#fcomp").addEventListener("submit", async ev => {
+      ev.preventDefault(); const t = $("#comp").value.trim(), e2 = $("#erro2"); e2.hidden = true;
+      if(t.length < 2) return;
+      const bt = ev.target.querySelector("button"); bt.disabled = true;
+      try{ await api.complementar(S.consulta.protocolo, t); S.consulta.dados = await api.consultar(S.consulta.protocolo); mostra(); }
+      catch(e){ e2.textContent = e.message; e2.hidden = false; bt.disabled = false; }
+    });
+  };
+
+  $("#fcons").addEventListener("submit", async ev => {
+    ev.preventDefault(); erro("");
+    const p = limparProtocolo($("#prot").value);
+    if(!p) return erro("Protocolo incompleto. Ele tem o formato RDA-XXXX-XXXX-XXXX.");
+    const bt = ev.target.querySelector("button"); bt.disabled = true;
+    try{
+      const dados = await api.consultar(p);
+      if(!dados){ S.consulta = null; mostra(); erro("Protocolo não encontrado. Confira as letras e os números."); }
+      else { S.consulta = {protocolo:p, dados}; $("#prot").value = p; mostra(); }
+    }catch(e){ erro(e.message); }
+    bt.disabled = false;
+  });
+  mostra();
+}
+
+/* ============================================================
+   PAINEL DO RH
+   ============================================================ */
+function addUteis(d, n){ d = new Date(d); while(n > 0){ d.setDate(d.getDate() + 1); const w = d.getDay(); if(w !== 0 && w !== 6) n--; } return d; }
+function prazo(x){
+  let lim, rot;
+  if(x.status === "recebida"){ lim = addUteis(x.criado_em, 2); rot = "Triagem"; }
+  else if(x.status === "apuracao"){ lim = new Date(new Date(x.apuracao_em || x.criado_em).getTime() + 30 * 864e5); rot = "Apuração"; }
+  else if(x.status === "conclusao"){ lim = new Date(new Date(x.conclusao_em || x.criado_em).getTime() + 10 * 864e5); rot = "Conclusão"; }
+  else return null;
+  return {rot, lim, dias: Math.ceil((lim - Date.now()) / 864e5)};
+}
+function seloPrazo(x){
+  const p = prazo(x); if(!p) return "";
+  if(p.dias < 0) return `<span class="sel crit">${p.rot}: atrasada ${-p.dias} d</span>`;
+  if(p.dias <= 3) return `<span class="sel aviso">${p.rot}: vence em ${p.dias} d</span>`;
+  return `<span class="sel">${p.rot}: até ${dataBR(p.lim)}</span>`;
+}
+
+async function rhEntrarNoPainel(){
+  const R = S.rh;
+  try{
+    R.papel = await api.rh.papel();
+    if(!R.papel){ R.fase = "semacesso"; return render(); }
+    R.lista = await api.rh.listar(); R.fase = "painel"; R.erro = "";
+  }catch(e){ R.fase = "login"; R.erro = e.message; }
+  render();
+}
+async function rhInicio(){
+  const R = S.rh;
+  try{ R.email = await api.rh.sessao(); }catch(e){ R.email = null; R.erro = e.message; }
+  if(R.fase === "novasenha") return render();
+  if(R.email) return rhEntrarNoPainel();
+  R.fase = "login"; render();
+}
+
+function vRH(app){
+  const R = S.rh;
+  if(R.fase === "carregando"){ app.innerHTML = `<p>Carregando…</p>`; rhInicio(); return; }
+  if(R.email && R.fase !== "login") $("#topoacao").innerHTML = `<a href="#" id="sair">Sair</a>`, $("#topoacao").style.marginLeft = "auto";
+  const sair = $("#sair"); if(sair) sair.onclick = async ev => { ev.preventDefault(); await api.rh.sair(); Object.assign(R, {fase:"login", email:null, papel:null, lista:[], det:null}); render(); };
+
+  if(R.fase === "login") return vRHLogin(app);
+  if(R.fase === "novasenha") return vRHNovaSenha(app);
+  if(R.fase === "semacesso"){ app.innerHTML = `<div class="caixa crit"><h2 style="color:var(--crit)">Sem acesso</h2>
+    <p>O usuário <b>${esc(R.email)}</b> não está autorizado a ver o Canal de Denúncia. O acesso é liberado individualmente pela Direção.</p></div>
+    <p><a href="#inicio">Voltar ao início</a></p>`; return; }
+  if(R.det) return vRHDetalhe(app);
+  vRHPainel(app);
+}
+
+function vRHLogin(app){
+  const R = S.rh;
+  app.className = "";
+  app.innerHTML = `
+  <a class="voltar" href="#inicio">← Voltar</a>
+  <h1>Acesso do RH</h1>
+  <form id="flog" class="card">
+    <label class="campo" for="email" style="margin-top:0">E-mail</label><input type="email" id="email" autocomplete="username">
+    <label class="campo" for="senha">Senha</label><input type="password" id="senha" autocomplete="current-password">
+    <p class="erro" id="erro" role="alert" ${R.erro ? "" : "hidden"}>${esc(R.erro)}</p>
+    <button class="btn" type="submit" style="margin-top:14px">Entrar</button>
+    <p class="nota" style="margin-top:12px"><a href="#" id="esqueci">Esqueci a senha</a></p>
+  </form>
+  <p class="nota">A sessão termina ao fechar esta aba. Não use computador compartilhado sem clicar em "Sair".</p>`;
+  const erro = m => { const e = $("#erro"); e.textContent = m; e.hidden = !m; };
+  $("#flog").addEventListener("submit", async ev => {
+    ev.preventDefault(); erro("");
+    const bt = ev.target.querySelector("button"); bt.disabled = true;
+    try{ R.email = await api.rh.entrar($("#email").value.trim(), $("#senha").value); R.fase = "carregando"; R.erro = ""; await rhEntrarNoPainel(); }
+    catch(e){ erro(e.message); bt.disabled = false; }
+  });
+  $("#esqueci").addEventListener("click", async ev => {
+    ev.preventDefault(); const em = $("#email").value.trim();
+    if(!em) return erro("Digite seu e-mail acima e clique de novo em \"Esqueci a senha\".");
+    try{ await api.rh.recuperar(em); erro("Se o e-mail estiver cadastrado, você receberá um link para criar nova senha."); }
+    catch(e){ erro(e.message); }
+  });
+}
+
+function vRHNovaSenha(app){
+  app.className = "";
+  app.innerHTML = `<h1>Criar nova senha</h1><form id="fns" class="card">
+    <label class="campo" for="ns" style="margin-top:0">Nova senha<small>Mínimo de 8 caracteres.</small></label><input type="password" id="ns" autocomplete="new-password">
+    <p class="erro" id="erro" role="alert" hidden></p><button class="btn" type="submit" style="margin-top:14px">Salvar senha</button></form>`;
+  $("#fns").addEventListener("submit", async ev => {
+    ev.preventDefault(); const e = $("#erro"); e.hidden = true;
+    if($("#ns").value.length < 8){ e.textContent = "Use pelo menos 8 caracteres."; e.hidden = false; return; }
+    try{ await api.rh.novaSenha($("#ns").value); history.replaceState(null, "", location.pathname + location.search + "#rh"); S.rh.fase = "carregando"; render(); }
+    catch(x){ e.textContent = x.message; e.hidden = false; }
+  });
+}
+
+function filtrada(){
+  const R = S.rh;
+  return R.lista.filter(x => (R.fStatus === "todas" || (R.fStatus === "abertas" ? !["concluida","arquivada"].includes(x.status) : x.status === R.fStatus))
+    && (!R.fTipo || x.tipo === R.fTipo));
+}
+
+function vRHPainel(app){
+  const R = S.rh, l = filtrada();
+  const abertas = R.lista.filter(x => !["concluida","arquivada"].includes(x.status));
+  const atras = abertas.filter(x => { const p = prazo(x); return p && p.dias < 0; }).length;
+  const pend = R.lista.filter(x => x.pendente_rh).length;
+  app.innerHTML = `
+  <h1>Painel do Canal de Denúncia</h1>
+  <p class="nota">${esc(R.email)} · ${R.papel === "direcao" ? "Direção (vê todas as denúncias)" : "RH (não vê denúncias que envolvem o RH)"}</p>
+  <div class="abas"><button data-aba="lista" class="${R.aba === "lista" ? "on" : ""}">Denúncias</button>
+    <button data-aba="resumo" class="${R.aba === "resumo" ? "on" : ""}">Resumo para a CIPA</button></div>
+  ${R.aba === "resumo" ? htmlResumo() : `
+  <div class="barra">
+    <span class="sel info">${abertas.length} em aberto</span>
+    <span class="sel ${atras ? "crit" : "ok"}">${atras} atrasada(s)</span>
+    <span class="sel ${pend ? "aviso" : ""}">${pend} com novidade</span>
+    <span class="esp"></span>
+    <select id="fstatus" aria-label="Situação">
+      ${[["abertas","Em aberto"],["todas","Todas"],...Object.entries(STATUS).map(([k, v]) => [k, v.rot])]
+        .map(([k, t]) => `<option value="${k}" ${R.fStatus === k ? "selected" : ""}>${t}</option>`).join("")}</select>
+    <select id="ftipo" aria-label="Assunto"><option value="">Todos os assuntos</option>
+      ${Object.entries(TIPOS).map(([k, [t]]) => `<option value="${k}" ${R.fTipo === k ? "selected" : ""}>${t}</option>`).join("")}</select>
+    <button class="btn peq sec" id="csv" type="button">Exportar</button>
+    <button class="btn peq sec" id="atualizar" type="button">Atualizar</button>
+  </div>
+  <div class="rolo"><table><thead><tr><th>Nº</th><th>Data</th><th>Assunto</th><th>Local</th><th>Situação</th><th>Prazo</th></tr></thead><tbody>
+  ${l.length ? l.map(x => `<tr class="clic" data-id="${esc(x.id)}" tabindex="0">
+    <td><b>${numero(x.numero)}</b>${x.pendente_rh ? ` <span class="sel aviso">novo</span>` : ""}</td>
+    <td>${dataBR(x.criado_em)}</td>
+    <td>${esc(TIPOS[x.tipo][0])}${x.envolve_rh ? ` <span class="sel crit">envolve RH</span>` : ""}</td>
+    <td>${esc(x.local)}</td>
+    <td><span class="sel ${STATUS[x.status].cls}">${STATUS[x.status].rot}</span></td>
+    <td>${seloPrazo(x)}</td></tr>`).join("")
+    : `<tr><td colspan="6">Nenhuma denúncia neste filtro.</td></tr>`}
+  </tbody></table></div>`}`;
+
+  app.querySelectorAll("[data-aba]").forEach(b => b.onclick = () => { R.aba = b.dataset.aba; render(); });
+  if(R.aba === "resumo"){ const im = $("#imprimir"); if(im) im.onclick = () => print(); const an = $("#ano"); if(an) an.onchange = () => { R.ano = +an.value; render(); }; return; }
+  $("#fstatus").onchange = ev => { R.fStatus = ev.target.value; render(); };
+  $("#ftipo").onchange = ev => { R.fTipo = ev.target.value; render(); };
+  $("#atualizar").onclick = async () => { R.lista = await api.rh.listar(); render(); };
+  $("#csv").onclick = () => exportar(l);
+  const abrir = async id => { app.innerHTML = `<p>Carregando…</p>`;
+    try{ R.det = await api.rh.detalhe(id);
+      if(R.det.pendente_rh){ await api.rh.atualizar(id, {pendente_rh:false}); const it = R.lista.find(x => x.id === id); if(it) it.pendente_rh = false; }
+    }catch(e){ alert(e.message); }
+    scrollTo(0, 0); render(); };
+  app.querySelectorAll("tr.clic").forEach(tr => { tr.onclick = () => abrir(tr.dataset.id); tr.onkeydown = ev => { if(ev.key === "Enter") abrir(tr.dataset.id); }; });
+}
+
+function htmlResumo(){
+  const R = S.rh, anos = [...new Set(R.lista.map(x => new Date(x.criado_em).getFullYear()))].sort((a, b) => b - a);
+  if(!anos.length) return `<p>Ainda não há denúncias registradas.</p>`;
+  const ano = anos.includes(R.ano) ? R.ano : anos[0];
+  const doAno = R.lista.filter(x => new Date(x.criado_em).getFullYear() === ano);
+  const conta = (f) => doAno.filter(f).length;
+  return `
+  <div class="barra"><label>Ano: <select id="ano">${anos.map(a => `<option ${a === ano ? "selected" : ""}>${a}</option>`).join("")}</select></label>
+    <span class="esp"></span><button class="btn peq sec" id="imprimir" type="button">Imprimir</button></div>
+  <div class="card"><h2>Canal de Denúncia — Resumo ${ano}</h2>
+    <p class="nota">Somente quantidades, sem identificar pessoas nem casos. Para uso da CIPA nas ações de prevenção (NR-1, item 1.4.1.1; NR-5).${R.papel === "rh" ? " Não inclui denúncias que envolvem o RH." : ""}</p>
+    <div class="rolo"><table><thead><tr><th>Assunto</th><th>Recebidas</th><th>Em andamento</th><th>Concluídas</th><th>Encerradas sem prosseguir</th></tr></thead><tbody>
+    ${Object.entries(TIPOS).map(([k, [t]]) => `<tr><td>${t}</td><td>${conta(x => x.tipo === k)}</td>
+      <td>${conta(x => x.tipo === k && !["concluida","arquivada"].includes(x.status))}</td>
+      <td>${conta(x => x.tipo === k && x.status === "concluida")}</td><td>${conta(x => x.tipo === k && x.status === "arquivada")}</td></tr>`).join("")}
+    <tr><td><b>Total</b></td><td><b>${doAno.length}</b></td><td><b>${conta(x => !["concluida","arquivada"].includes(x.status))}</b></td>
+      <td><b>${conta(x => x.status === "concluida")}</b></td><td><b>${conta(x => x.status === "arquivada")}</b></td></tr>
+    </tbody></table></div>
+    <p class="nota" style="margin-top:10px">Emitido em ${dataBR(new Date())}.</p></div>`;
+}
+
+function exportar(l){
+  const cab = ["Numero","Data","Assunto","Local","Situacao","Envolve RH","Inicio apuracao","Inicio conclusao","Encerrada em"];
+  const lin = l.map(x => [numero(x.numero), dataBR(x.criado_em), TIPOS[x.tipo][0], x.local, STATUS[x.status].rot, x.envolve_rh ? "Sim" : "Não",
+    dataBR(x.apuracao_em), dataBR(x.conclusao_em), dataBR(x.encerrada_em)]);
+  const csv = "﻿" + [cab, ...lin].map(r => r.map(c => `"${String(c == null ? "" : c).replace(/"/g, '""')}"`).join(";")).join("\r\n");
+  const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([csv], {type:"text/csv"}));
+  a.download = `canal-denuncia-${new Date().toISOString().slice(0, 10)}.csv`; a.click(); URL.revokeObjectURL(a.href);
+}
+
+function vRHDetalhe(app){
+  const R = S.rh, d = R.det, quem = d.envolve_rh ? "Direção" : "RH";
+  const prox = {recebida:[["apuracao","Iniciar apuração"],["arquivada","Encerrar sem prosseguir"]],
+                apuracao:[["conclusao","Passar para conclusão"],["arquivada","Encerrar sem prosseguir"]],
+                conclusao:[["concluida","Concluir"],["apuracao","Voltar para apuração"]],
+                concluida:[["apuracao","Reabrir"]], arquivada:[["apuracao","Reabrir"]]}[d.status];
+  app.innerHTML = `
+  <a class="voltar naoimp" href="#" id="volta">← Voltar à lista</a>
+  <h1>${numero(d.numero)} · ${esc(TIPOS[d.tipo][0])}</h1>
+  <p><span class="sel ${STATUS[d.status].cls}">${STATUS[d.status].rot}</span> ${seloPrazo(d)} ${d.envolve_rh ? `<span class="sel crit">envolve RH — só Direção</span>` : ""}</p>
+  <div class="grade2">
+   <div>
+    <div class="card"><h2>Relato</h2><div class="relato">${esc(d.relato)}</div>
+      <dl class="dl" style="margin-top:12px">
+        <dt>Registrada em</dt><dd>${dataHoraBR(d.criado_em)}</dd>
+        <dt>Onde</dt><dd>${esc(d.local) || "—"}</dd><dt>Quando</dt><dd>${esc(d.quando) || "—"}</dd>
+        <dt>Quem fez</dt><dd>${esc(d.envolvidos) || "—"}</dd><dt>Testemunhas</dt><dd>${esc(d.testemunhas) || "—"}</dd>
+        <dt>Denunciante</dt><dd>${d.ident_nome || d.ident_contato ? `${esc(d.ident_nome)} ${esc(d.ident_contato)} <span class="sel aviso">identificou-se: manter sigilo</span>` : "Anônimo"}</dd>
+      </dl></div>
+    <div class="card"><h2>Anexos</h2>${d.anexos.length ? `<ul class="arqs">${d.anexos.map((a, i) =>
+      `<li><span>${esc(a.nome)} · ${(a.tamanho/1048576).toFixed(1)} MB</span><button type="button" data-anexo="${i}" style="color:var(--lar-esc)">Abrir</button></li>`).join("")}</ul>
+      <p class="nota">O link de cada anexo vale por 5 minutos. Não encaminhe nem salve fora da empresa.</p>` : `<p class="nota">Sem anexos.</p>`}</div>
+    <div class="card"><h2>Conversa com o denunciante</h2>
+      ${d.msgs.length ? d.msgs.map(m => `<div class="msg ${m.autor === "rh" ? "rh" : "den"}"><small>${m.autor === "rh" ? quem : "Denunciante"} · ${dataHoraBR(m.em)}</small>${esc(m.texto)}</div>`).join("") : `<p class="nota">Nenhuma mensagem ainda.</p>`}
+      <form id="fmsg" class="naoimp"><label class="campo" for="tmsg">Mensagem ao denunciante<small>Ele lê pelo protocolo. Não cite nomes nem detalhes da apuração.</small></label>
+        <textarea id="tmsg" maxlength="4000" style="min-height:90px"></textarea>
+        <button class="btn peq" type="submit" style="margin-top:8px">Enviar mensagem</button></form></div>
+   </div>
+   <div>
+    <div class="card naoimp"><h2>Andamento</h2>
+      <div class="duo" style="grid-template-columns:1fr;margin-bottom:0">${prox.map(([k, t], i) => `<button class="btn ${i ? "sec" : ""}" type="button" data-status="${k}">${t}</button>`).join("")}</div></div>
+    <div class="card"><h2>Medida / conclusão</h2>
+      <p class="nota">Registro interno do que foi apurado e decidido. O denunciante não vê.</p>
+      <textarea id="medida" maxlength="6000" style="min-height:120px">${esc(d.medida)}</textarea>
+      <button class="btn peq naoimp" id="salvamedida" type="button" style="margin-top:8px">Salvar</button></div>
+    <div class="card"><h2>Anotações internas e histórico</h2>
+      ${d.notas.length ? d.notas.map(n => `<div class="notai ${n.automatica ? "auto" : ""}"><small>${dataHoraBR(n.em)} · ${esc(n.usuario)}</small>${esc(n.texto)}</div>`).join("") : `<p class="nota">Sem anotações.</p>`}
+      <form id="fnota" class="naoimp"><label class="campo" for="tnota">Nova anotação<small>Oitivas, documentos, providências. Não pode ser apagada depois.</small></label>
+        <textarea id="tnota" maxlength="6000" style="min-height:90px"></textarea>
+        <button class="btn peq sec" type="submit" style="margin-top:8px">Registrar anotação</button></form></div>
+    <button class="btn peq sec naoimp" type="button" id="impdet">Imprimir este caso</button>
+   </div>
+  </div>`;
+
+  const recarrega = async () => { R.det = await api.rh.detalhe(d.id); const it = R.lista.find(x => x.id === d.id); if(it) Object.assign(it, {status:R.det.status, apuracao_em:R.det.apuracao_em, conclusao_em:R.det.conclusao_em, encerrada_em:R.det.encerrada_em, pendente_rh:R.det.pendente_rh}); render(); };
+  const faz = async (bt, f) => { bt.disabled = true; try{ await f(); await recarrega(); }catch(e){ alert(e.message); bt.disabled = false; } };
+  $("#volta").onclick = ev => { ev.preventDefault(); R.det = null; render(); };
+  $("#impdet").onclick = () => print();
+  app.querySelectorAll("[data-status]").forEach(b => b.onclick = () => {
+    const k = b.dataset.status;
+    if((k === "concluida" || k === "arquivada") && !confirm(`Confirmar: ${b.textContent.toLowerCase()}?\nO denunciante verá a nova situação pelo protocolo.`)) return;
+    faz(b, () => api.rh.atualizar(d.id, {status:k}));
+  });
+  $("#salvamedida").onclick = ev => faz(ev.target, () => api.rh.atualizar(d.id, {medida:$("#medida").value.trim()}));
+  $("#fmsg").onsubmit = ev => { ev.preventDefault(); const t = $("#tmsg").value.trim(); if(t.length < 2) return; faz(ev.target.querySelector("button"), () => api.rh.msg(d.id, t)); };
+  $("#fnota").onsubmit = ev => { ev.preventDefault(); const t = $("#tnota").value.trim(); if(t.length < 2) return; faz(ev.target.querySelector("button"), () => api.rh.nota(d.id, t)); };
+  app.querySelectorAll("[data-anexo]").forEach(b => b.onclick = async () => {
+    try{ window.open(await api.rh.urlAnexo(d.anexos[+b.dataset.anexo].caminho), "_blank", "noopener"); }catch(e){ alert(e.message); } });
+}
+
+/* ---------------- partida ---------------- */
+// Link de "esqueci a senha" volta com o token no endereço: leva direto ao painel.
+if(/access_token=|type=recovery/.test(location.hash)){ S.rh.fase = "carregando"; real.rh.cliente().then(() => { if(rota() !== "rh") history.replaceState(null, "", location.pathname + location.search + "#rh"); render(); }).catch(() => render()); }
+else render();
+</script>
+</body>
+</html>

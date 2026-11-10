@@ -669,7 +669,7 @@ var SUBMENUS = {
   comercial: [['clientes', 'Clientes'], ['oportunidades', 'Oportunidades'], ['orcamentos', 'Orçamentos'], ['pedidos', 'Pedidos'], ['analisePedidos', 'Análise de Pedidos'], ['interacoes', 'Interações'], ['config', 'Configurações']],
   pcp: [['ordens', 'Ordens'], ['mapa', 'Mapa de Produção'], ['configPcp', 'Configurações']],
   logistica: [['csv', 'Análise CSV']],
-  apps: [['estoque_livre', 'Estoque Livre'], ['ferramentas', 'Controle de Ferramentas'], ['emprestimos', 'Controle de Empréstimos']]
+  apps: [['estoque_livre', 'Estoque Livre'], ['ferramentas', 'Controle de Ferramentas'], ['emprestimos', 'Controle de Empréstimos'], ['canal_denuncia', 'Canal de Denúncia (painel)']]
 };
 var NAVEGAR_SUB = {
   cadastros: function (s) { mudarAba(s); },
@@ -977,7 +977,9 @@ var abaLogAtual = 'csv';
 var APPS_SUPORTE = {
   estoque_livre: { nome: 'Estoque Livre', url: 'apps/estoque-livre/', descricao: 'Sobras e peças livres: foto, reserva e etiqueta com QR.' },
   ferramentas: { nome: 'Controle de Ferramentas', url: 'apps/ferramentas/', descricao: 'Quem está com cada ferramenta, conserto, troca e baixa. Só o administrador altera.' },
-  emprestimos: { nome: 'Controle de Empréstimos', url: 'apps/emprestimos/', descricao: 'Empréstimos e adiantamentos dos funcionários: parcelas, juros, descontos, dashboard e impressão. Dados pessoais: só quem for liberado.' }
+  emprestimos: { nome: 'Controle de Empréstimos', url: 'apps/emprestimos/', descricao: 'Empréstimos e adiantamentos dos funcionários: parcelas, juros, descontos, dashboard e impressão. Dados pessoais: só quem for liberado.' },
+  /* login proprio (nao usa a sessao da Central); quem le denuncia e decidido no banco (denuncia_acesso), nao por esta permissao */
+  canal_denuncia: { nome: 'Canal de Denúncia', url: 'apps/canal-denuncia/#rh', descricao: 'Painel do RH e da Direção para as denúncias (NR-1). Pede login próprio; esta permissão só mostra o atalho, a leitura é liberada à parte.' }
 };
 /* a sessao fica no localStorage (mesma origem): a aba do app ja abre logada */
 function abrirApp(chave) {

@@ -138,6 +138,30 @@ Cloudflare (dados no mesmo Supabase), e **Controle de Empréstimos**
   login (`perfis.nome`). Baixar cópia de segurança (.json) e Compartilhar dashboard
   (arquivo de leitura) continuam.
 
+- **Canal de Denúncia** (`apps/canal-denuncia/`, permissão `apps.canal_denuncia`): canal
+  anônimo exigido pela NR-1 (item 1.4.1.1) e pela Lei 14.457/2022. **É diferente dos
+  outros apps, de propósito:**
+  - As telas **Denunciar** e **Acompanhar** são públicas, **sem login**, e nunca leem a
+    sessão da Central (falam com o banco por `fetch` só com a chave pública). É o
+    endereço que vai no QR code do informativo: `.../apps/canal-denuncia/`.
+  - O **painel** (`.../apps/canal-denuncia/#rh`) tem **login próprio**, guardado só
+    enquanto a aba está aberta (`sessionStorage`, chave `canal-denuncia-rh`). Estar
+    logado na Central não abre o painel.
+  - A caixinha em Contas **só mostra o atalho**. Quem lê denúncia é decidido no banco,
+    pela tabela `denuncia_acesso` (`rh` = tudo menos o que envolve o RH; `direcao` =
+    tudo). Administrador da Central não lê denúncia nem consegue se liberar pela tela.
+  - O banco não guarda IP, aparelho nem usuário; o protocolo é sorteado no celular e só
+    o resumo (hash) dele é gravado; fotos saem sem EXIF.
+  Passos, uma vez:
+  1. rodar o `banco_canal_denuncia.sql` no SQL Editor (tabelas `denuncia*`, regras,
+     funções públicas e o balde privado `denuncias`);
+  2. criar os usuários em Authentication › Users e rodar o `acessos.sql` (tem e-mails;
+     fica **fora do GitHub**, na pasta `canal-denuncia-app` do computador);
+  3. em Contas, marcar Apps de suporte › Canal de Denúncia (painel) para RH e Direção.
+  Para ver sem gravar nada: `.../apps/canal-denuncia/?demo=1`. Materiais impressos
+  (Manual do Gestor e Informativo da Fábrica) ficam na pasta `canal-denuncia` do
+  computador.
+
 - **Login único:** Central e apps guardam o login na mesma chave do `localStorage`
   (`central_rodriaco_sb_v1`, mesmo site). Quem entrou em um abre o outro já logado;
   entrar pelo próprio app também vale para a Central. **Sair** em qualquer um sai nos
