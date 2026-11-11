@@ -324,3 +324,9 @@ futura, ainda não feita.
 
 No começo do bloco `LOG_CFG` do `index.html`: URL do projeto, chave anon, nome do
 bucket e do arquivo.
+
+### Avisos por e-mail do Canal de Denúncia
+`banco_canal_denuncia_avisos.sql` (rodar depois do `banco_canal_denuncia.sql`) cria duas funções que só a chave
+`service_role` executa; elas devolvem **contagens** e os e-mails de `denuncia_acesso`, nunca o conteúdo. Quem envia é a
+rotina do repositório privado `ROBO-COSMOS` (`avisos_canal.py`, veja o README de lá). O aviso diz só "Você tem uma nova
+denúncia" / "Você tem uma resposta" e traz o link do painel.
