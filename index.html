@@ -669,7 +669,7 @@ var SUBMENUS = {
   comercial: [['clientes', 'Clientes'], ['oportunidades', 'Oportunidades'], ['orcamentos', 'Orçamentos'], ['pedidos', 'Pedidos'], ['analisePedidos', 'Análise de Pedidos'], ['interacoes', 'Interações'], ['config', 'Configurações']],
   pcp: [['ordens', 'Ordens'], ['mapa', 'Mapa de Produção'], ['configPcp', 'Configurações']],
   logistica: [['csv', 'Análise CSV']],
-  apps: [['estoque_livre', 'Estoque Livre'], ['ferramentas', 'Controle de Ferramentas'], ['emprestimos', 'Controle de Empréstimos'], ['canal_denuncia', 'Canal de Denúncia (painel)']]
+  apps: [['estoque_livre', 'Estoque Livre'], ['ferramentas', 'Controle de Ferramentas'], ['emprestimos', 'Controle de Empréstimos'], ['canal_denuncia', 'Canal de Denúncia']]
 };
 var NAVEGAR_SUB = {
   cadastros: function (s) { mudarAba(s); },
@@ -978,8 +978,8 @@ var APPS_SUPORTE = {
   estoque_livre: { nome: 'Estoque Livre', url: 'apps/estoque-livre/', descricao: 'Sobras e peças livres: foto, reserva e etiqueta com QR.' },
   ferramentas: { nome: 'Controle de Ferramentas', url: 'apps/ferramentas/', descricao: 'Quem está com cada ferramenta, conserto, troca e baixa. Só o administrador altera.' },
   emprestimos: { nome: 'Controle de Empréstimos', url: 'apps/emprestimos/', descricao: 'Empréstimos e adiantamentos dos funcionários: parcelas, juros, descontos, dashboard e impressão. Dados pessoais: só quem for liberado.' },
-  /* login proprio (nao usa a sessao da Central); quem le denuncia e decidido no banco (denuncia_acesso), nao por esta permissao */
-  canal_denuncia: { nome: 'Canal de Denúncia', url: 'apps/canal-denuncia/#rh', descricao: 'Painel do RH e da Direção para as denúncias (NR-1). Pede login próprio; esta permissão só mostra o atalho, a leitura é liberada à parte.' }
+  /* login proprio (nao usa a sessao da Central); atalho travado: ver SUBS_TRAVADAS */
+  canal_denuncia: { nome: 'Canal de Denúncia', url: 'apps/canal-denuncia/#rh', descricao: 'Painel do RH e da Direção para as denúncias (NR-1). Pede login próprio. Este atalho só aparece para quem está liberado no banco.' }
 };
 /* a sessao fica no localStorage (mesma origem): a aba do app ja abre logada */
 function abrirApp(chave) {
@@ -6550,10 +6550,16 @@ function montarHTML(estadoAtual) {
 
 /* ===== ACESSO AO ERP (login do Supabase; so conta ATIVA entra) ===== */
 var appIniciado = false;
-var ACESSO = { admin: false, modulos: {} };
+var ACESSO = { admin: false, modulos: {}, canalDenuncia: false };
+/* Subareas que NAO aparecem na janela Permissoes de Contas e que nenhuma caixinha libera.
+   Canal de Denuncia: o atalho so aparece para o admin e para quem o BANCO diz que esta
+   liberado (tabela denuncia_acesso, mexida so pelo SQL Editor). Evita marcacao por engano
+   e nao deixa nenhum e-mail escrito neste arquivo, que e publico. */
+var SUBS_TRAVADAS = { 'apps.canal_denuncia': true };
 /* chaves: 'modulo' (inteiro; contas antigas e modulos sem subareas) ou 'modulo.sub' */
 function podeSub(modulo, sub) {
   if (ACESSO.admin) return true;
+  if (SUBS_TRAVADAS[modulo + '.' + sub]) return modulo === 'apps' && sub === 'canal_denuncia' && !!ACESSO.canalDenuncia;
   return !!(ACESSO.modulos[modulo] || ACESSO.modulos[modulo + '.' + sub]);
 }
 function podeModulo(chave) {
@@ -6562,8 +6568,15 @@ function podeModulo(chave) {
   if (ACESSO.admin || ACESSO.modulos[chave]) return true;
   var subs = SUBMENUS[chave];
   if (!subs) return false;
-  for (var i = 0; i < subs.length; i++) { if (ACESSO.modulos[chave + '.' + subs[i][0]]) return true; }
+  for (var i = 0; i < subs.length; i++) { if (podeSub(chave, subs[i][0])) return true; }
   return false;
+}
+/* pergunta ao banco se este login le denuncias; qualquer falha = nao */
+function contaCanalDenuncia() {
+  return logFetchAut('/rest/v1/rpc/denuncia_papel', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (papel) { return !!papel; })
+    .catch(function () { return false; });
 }
 function primeiraSub(modulo) {
   var subs = SUBMENUS[modulo] || [];
@@ -6655,9 +6668,11 @@ function telaAcessoErro(aoLiberar, e) {
 function conferirAcesso(aoLiberar) {
   return contaAcessos().then(function (a) {
     if (!a || a.status !== 'ativo') { telaAcessoPendente(aoLiberar); return; }
-    ACESSO = { admin: !!a.admin, modulos: a.modulos || {} };
-    if (!ACESSO.admin && !temAlgumModulo()) { telaAcessoSemModulo(aoLiberar); return; }
-    liberarApp(aoLiberar);
+    return contaCanalDenuncia().then(function (canal) {
+      ACESSO = { admin: !!a.admin, modulos: a.modulos || {}, canalDenuncia: canal };
+      if (!ACESSO.admin && !temAlgumModulo() && !canal) { telaAcessoSemModulo(aoLiberar); return; }
+      liberarApp(aoLiberar);
+    });
   }).catch(function (e) {
     if (e && e.message === 'sem sessão') telaAcessoLogin('Sua sessão expirou. Entre de novo.', aoLiberar);
     else telaAcessoErro(aoLiberar, e);
@@ -6886,7 +6901,8 @@ var contasBusca = '';
 function contasGrade() {
   var l = [];
   MODULOS.forEach(function (m) {
-    if (m.disponivel && !m.somenteAdmin) l.push({ chave: m.chave, nome: m.nome, subs: SUBMENUS[m.chave] || null });
+    if (m.disponivel && !m.somenteAdmin) l.push({ chave: m.chave, nome: m.nome,
+      subs: SUBMENUS[m.chave] ? SUBMENUS[m.chave].filter(function (s) { return !SUBS_TRAVADAS[m.chave + '.' + s[0]]; }) : null });
   });
   l.push({ chave: 'operador', nome: 'Área do Operador', subs: null });
   return l;

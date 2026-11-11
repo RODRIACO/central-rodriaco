@@ -138,7 +138,7 @@ Cloudflare (dados no mesmo Supabase), e **Controle de Empréstimos**
   login (`perfis.nome`). Baixar cópia de segurança (.json) e Compartilhar dashboard
   (arquivo de leitura) continuam.
 
-- **Canal de Denúncia** (`apps/canal-denuncia/`, permissão `apps.canal_denuncia`): canal
+- **Canal de Denúncia** (`apps/canal-denuncia/`, **sem caixinha em Contas**): canal
   anônimo exigido pela NR-1 (item 1.4.1.1) e pela Lei 14.457/2022. **É diferente dos
   outros apps, de propósito:**
   - As telas **Denunciar** e **Acompanhar** são públicas, **sem login**, e nunca leem a
@@ -147,17 +147,22 @@ Cloudflare (dados no mesmo Supabase), e **Controle de Empréstimos**
   - O **painel** (`.../apps/canal-denuncia/#rh`) tem **login próprio**, guardado só
     enquanto a aba está aberta (`sessionStorage`, chave `canal-denuncia-rh`). Estar
     logado na Central não abre o painel.
-  - A caixinha em Contas **só mostra o atalho**. Quem lê denúncia é decidido no banco,
-    pela tabela `denuncia_acesso` (`rh` = tudo menos o que envolve o RH; `direcao` =
-    tudo). Administrador da Central não lê denúncia nem consegue se liberar pela tela.
+  - **Não existe caixinha em Contas** para este app (`SUBS_TRAVADAS` no `index.html`),
+    para ninguém ser marcado por engano. O atalho aparece sozinho para o administrador e
+    para quem o banco diz que está liberado (a Central chama `denuncia_papel()` ao
+    entrar). Nenhum e-mail fica escrito no código, que é público.
+  - Quem lê denúncia é decidido no banco, pela tabela `denuncia_acesso` (`rh` = tudo
+    menos o que envolve o RH; `direcao` = tudo), mexida só pelo SQL Editor. O
+    administrador da Central vê o atalho, mas não lê denúncia: o painel responde
+    "Sem acesso".
   - O banco não guarda IP, aparelho nem usuário; o protocolo é sorteado no celular e só
     o resumo (hash) dele é gravado; fotos saem sem EXIF.
   Passos, uma vez:
   1. rodar o `banco_canal_denuncia.sql` no SQL Editor (tabelas `denuncia*`, regras,
      funções públicas e o balde privado `denuncias`);
   2. criar os usuários em Authentication › Users e rodar o `acessos.sql` (tem e-mails;
-     fica **fora do GitHub**, na pasta `canal-denuncia-app` do computador);
-  3. em Contas, marcar Apps de suporte › Canal de Denúncia (painel) para RH e Direção.
+     fica **fora do GitHub**, na pasta `canal-denuncia-app` do computador).
+  Para incluir ou tirar alguém depois: só pelo `acessos.sql`.
   Para ver sem gravar nada: `.../apps/canal-denuncia/?demo=1`. Materiais impressos
   (Manual do Gestor e Informativo da Fábrica) ficam na pasta `canal-denuncia` do
   computador.
