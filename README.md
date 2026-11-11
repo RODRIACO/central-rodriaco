@@ -130,7 +130,18 @@ Cloudflare (dados no mesmo Supabase), e **Controle de Empréstimos**
   2. rodar a carga inicial (`dados-iniciais.sql`, gerado do `.json` do app antigo por
      `gerar_dados.py`; fica **fora do GitHub**, na pasta `emprestimos-nuvem` do
      computador; recusa-se a rodar se o banco já tiver empréstimos);
-  3. em Contas, marcar Apps de suporte › Controle de Empréstimos para quem lança.
+  3. autorizar quem pode receber a permissão (ver **caixinha travada** abaixo) e, em Contas,
+     marcar Apps de suporte › Controle de Empréstimos para essa pessoa.
+  **Caixinha travada:** em Contas › Permissões, "Controle de Empréstimos" aparece **desabilitada**
+  para todas as contas, exceto as autorizadas na tabela `emp_acesso` (e os administradores, que
+  não têm caixinha). Marcar o módulo "Apps de suporte" inteiro **não** libera: o banco exige a
+  chave exata `apps.emprestimos`. A trava vale no **banco** (função `emp_pode`, usada nas regras
+  das tabelas `emp_*`), não só na tela, então uma permissão gravada por engano não abre nada.
+  A lista é mexida só pelo SQL Editor (o e-mail não fica no código, que é público):
+  `insert into public.emp_acesso (email) values ('pessoa@empresa.com.br');` /
+  `delete from public.emp_acesso where email = '...';` /
+  `select email from public.emp_acesso;`. A Central pergunta ao banco (`emp_pode`,
+  `emp_liberaveis`); sem resposta, tudo fica travado.
   O app guarda objetos JSON (`dados`) com `versao` por linha: só grava o que mudou e,
   se outra pessoa mexeu na mesma linha, pergunta se recarrega ou sobrescreve. Atualiza a
   tela sozinho a cada minuto (quando está parada), mostra "SEM CONEXÃO — NÃO ESTÁ

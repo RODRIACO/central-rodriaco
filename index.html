@@ -390,6 +390,8 @@
 
   /* ===== PORTA DE ENTRADA (login do ERP) ===== */
   .tela-acesso { position: fixed; inset: 0; z-index: 6000; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
+  .perm-travada { opacity: .6; cursor: not-allowed; }
+  .perm-travada input { cursor: not-allowed; }
   .acesso-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 26px; box-shadow: var(--shadow); }
   .acesso-marca { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
   .acesso-marca .selo { width: 34px; height: 34px; border-radius: 8px; display: block; object-fit: cover; }
@@ -6550,16 +6552,21 @@ function montarHTML(estadoAtual) {
 
 /* ===== ACESSO AO ERP (login do Supabase; so conta ATIVA entra) ===== */
 var appIniciado = false;
-var ACESSO = { admin: false, modulos: {}, canalDenuncia: false };
+var ACESSO = { admin: false, modulos: {}, canalDenuncia: false, empLiberado: false };
 /* Subareas que NAO aparecem na janela Permissoes de Contas e que nenhuma caixinha libera.
    Canal de Denuncia: o atalho so aparece para o admin e para quem o BANCO diz que esta
    liberado (tabela denuncia_acesso, mexida so pelo SQL Editor). Evita marcacao por engano
    e nao deixa nenhum e-mail escrito neste arquivo, que e publico. */
 var SUBS_TRAVADAS = { 'apps.canal_denuncia': true };
+/* Subareas com caixinha TRAVADA na janela Permissoes: aparecem, mas so da para marcar para quem o BANCO
+   autorizou (tabela emp_acesso, mexida so pelo SQL Editor; admin sempre tem). O modulo inteiro ('apps')
+   tambem NAO libera: o banco exige a chave exata. Nenhum e-mail fica escrito neste arquivo, que e publico. */
+var SUBS_RESTRITAS = { 'apps.emprestimos': true };
 /* chaves: 'modulo' (inteiro; contas antigas e modulos sem subareas) ou 'modulo.sub' */
 function podeSub(modulo, sub) {
   if (ACESSO.admin) return true;
   if (SUBS_TRAVADAS[modulo + '.' + sub]) return modulo === 'apps' && sub === 'canal_denuncia' && !!ACESSO.canalDenuncia;
+  if (SUBS_RESTRITAS[modulo + '.' + sub]) return !!ACESSO.empLiberado;
   return !!(ACESSO.modulos[modulo] || ACESSO.modulos[modulo + '.' + sub]);
 }
 function podeModulo(chave) {
@@ -6665,11 +6672,19 @@ function telaAcessoErro(aoLiberar, e) {
   document.getElementById('acessoBtnDeNovo').addEventListener('click', function () { exigirAcesso(aoLiberar); });
   document.getElementById('acessoBtnSair').addEventListener('click', sairDoErp);
 }
+/* pergunta ao banco se este login pode abrir o Controle de Empréstimos (admin ou conta autorizada); falha = não */
+function contaEmprestimos() {
+  return logFetchAut('/rest/v1/rpc/emp_pode', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"p_nivel":"ver"}' })
+    .then(function (r) { return r.ok ? r.json() : false; })
+    .then(function (v) { return v === true; })
+    .catch(function () { return false; });
+}
 function conferirAcesso(aoLiberar) {
   return contaAcessos().then(function (a) {
     if (!a || a.status !== 'ativo') { telaAcessoPendente(aoLiberar); return; }
-    return contaCanalDenuncia().then(function (canal) {
-      ACESSO = { admin: !!a.admin, modulos: a.modulos || {}, canalDenuncia: canal };
+    return Promise.all([contaCanalDenuncia(), contaEmprestimos()]).then(function (extra) {
+      var canal = extra[0];
+      ACESSO = { admin: !!a.admin, modulos: a.modulos || {}, canalDenuncia: canal, empLiberado: !!extra[1] };
       if (!ACESSO.admin && !temAlgumModulo() && !canal) { telaAcessoSemModulo(aoLiberar); return; }
       liberarApp(aoLiberar);
     });
@@ -6897,6 +6912,13 @@ var CONTAS_PRESETS = [
 ];
 var contasLista = null;
 var contasBusca = '';
+var contasLiberaveis = [];   /* e-mails autorizados no banco a receber permissões restritas (só o admin consegue ler) */
+/* a caixinha restrita só vale para admin e para contas autorizadas no banco */
+function contaLiberada(conta, chave) {
+  if (!SUBS_RESTRITAS[chave]) return true;
+  if (!conta) return false;
+  return conta.papel === 'admin' || contasLiberaveis.indexOf(String(conta.email || '').toLowerCase()) !== -1;
+}
 /* [{chave, nome, subs: [[chave, nome], ...] | null}] — o que da para liberar */
 function contasGrade() {
   var l = [];
@@ -6908,18 +6930,20 @@ function contasGrade() {
   return l;
 }
 /* modulo inteiro ('cadastros') vira todas as subareas ('cadastros.itens', ...) */
-function contasConjunto(modulos) {
+function contasConjunto(modulos, conta) {
   var out = {};
   contasGrade().forEach(function (g) {
     if (!g.subs) { if (modulos[g.chave]) out[g.chave] = true; return; }
     g.subs.forEach(function (s) {
-      if (modulos[g.chave] || modulos[g.chave + '.' + s[0]]) out[g.chave + '.' + s[0]] = true;
+      var chave = g.chave + '.' + s[0];
+      if (!contaLiberada(conta, chave)) return;   /* travada: nem o módulo inteiro conta */
+      if (modulos[g.chave] || modulos[chave]) out[chave] = true;
     });
   });
   return out;
 }
-function contasResumoHTML(modulos) {
-  var set = contasConjunto(modulos), partes = [];
+function contasResumoHTML(modulos, conta) {
+  var set = contasConjunto(modulos, conta), partes = [];
   contasGrade().forEach(function (g) {
     if (!g.subs) { if (set[g.chave]) partes.push(escaparHTML(g.nome)); return; }
     var marcadas = g.subs.filter(function (s) { return set[g.chave + '.' + s[0]]; });
@@ -6929,12 +6953,12 @@ function contasResumoHTML(modulos) {
   });
   return partes.length ? partes.join(' &middot; ') : '<span class="muted">Nenhum módulo</span>';
 }
-function contasExpandir(chaves) {
+function contasExpandir(chaves, conta) {
   var out = {};
   contasGrade().forEach(function (g) {
     if (chaves !== '*' && chaves.indexOf(g.chave) === -1) return;
     if (!g.subs) { out[g.chave] = 'editar'; return; }
-    g.subs.forEach(function (s) { out[g.chave + '.' + s[0]] = 'editar'; });
+    g.subs.forEach(function (s) { if (contaLiberada(conta, g.chave + '.' + s[0])) out[g.chave + '.' + s[0]] = 'editar'; });
   });
   return out;
 }
@@ -6956,8 +6980,11 @@ function contasEmailEu() { var s = logObterSessao(); return ((s && s.email) || '
 function contasCarregar() {
   return Promise.all([
     contasApi('/rest/v1/perfis?select=id,email,nome,papel,status&order=email.asc'),
-    contasApi('/rest/v1/acessos_erp?select=user_id,modulos')
+    contasApi('/rest/v1/acessos_erp?select=user_id,modulos'),
+    /* quem o banco autorizou para as caixinhas restritas; sem resposta = ninguém (fica tudo travado) */
+    contasApi('/rest/v1/rpc/emp_liberaveis', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).catch(function () { return []; })
   ]).then(function (r) {
+    contasLiberaveis = (r[2] || []).map(function (e) { return String(e).toLowerCase(); });
     var mods = {};
     (r[1] || []).forEach(function (a) { mods[a.user_id] = a.modulos || {}; });
     contasLista = (r[0] || []).map(function (p) {
@@ -6993,7 +7020,7 @@ function contasTabelaHTML() {
         (ativa ? '<span class="badge-status status-op-concluida">Ativa</span>' : '<span class="badge-status status-op-cancelada">Desativada</span>')) + '</td>';
     if (admin) html += '<td class="resumo muted">Todos os módulos</td><td class="muted">—</td><td></td>';
     else {
-      html += '<td class="resumo">' + contasResumoHTML(c.modulos) + '</td>' +
+      html += '<td class="resumo">' + contasResumoHTML(c.modulos, c) + '</td>' +
         '<td><select data-preset><option value="">Aplicar perfil…</option>' +
         CONTAS_PRESETS.map(function (p) { return '<option value="' + p.id + '">' + escaparHTML(p.nome) + '</option>'; }).join('') + '</select></td>' +
         '<td class="acoes"><button type="button" class="btn btn-primario btn-sm" data-acao="permissoes">Permissões</button> ' +
@@ -7053,18 +7080,21 @@ function contasMudou(e) {
   var preset = null;
   CONTAS_PRESETS.forEach(function (p) { if (p.id === t.value) preset = p; });
   if (!conta || !preset) return;
-  contasGravarModulos(conta, contasExpandir(preset.modulos)).then(contasRedesenhar);
+  contasGravarModulos(conta, contasExpandir(preset.modulos, conta)).then(contasRedesenhar);
 }
 /* janela de permissoes: modulo marca/desmarca todas as subareas; cada subarea pode ser tirada */
 function contasAbrirPermissoes(conta) {
-  var set = contasConjunto(conta.modulos);
+  var set = contasConjunto(conta.modulos, conta);
   var corpo = '<p class="dica">Marque o módulo para liberar todas as subáreas e desmarque as que <strong>' + escaparHTML(conta.email) + '</strong> não deve ver.</p><div id="permLista">';
   contasGrade().forEach(function (g) {
     corpo += '<div class="perm-grupo" data-pg="' + g.chave + '"><label class="perm-mod"><input type="checkbox" data-pm="' + g.chave + '"' + (!g.subs && set[g.chave] ? ' checked' : '') + '> <strong>' + escaparHTML(g.nome) + '</strong></label>';
     if (g.subs) {
       corpo += '<div class="perm-subs">';
       g.subs.forEach(function (s) {
-        corpo += '<label><input type="checkbox" data-ps="' + g.chave + '.' + s[0] + '"' + (set[g.chave + '.' + s[0]] ? ' checked' : '') + '> ' + escaparHTML(s[1]) + '</label>';
+        var chave = g.chave + '.' + s[0], travada = !contaLiberada(conta, chave);
+        corpo += '<label' + (travada ? ' class="perm-travada" title="Travada: só administrador e contas autorizadas no banco recebem esta permissão."' : '') +
+          '><input type="checkbox" data-ps="' + chave + '"' + (set[chave] ? ' checked' : '') + (travada ? ' disabled' : '') + '> ' + escaparHTML(s[1]) +
+          (travada ? ' <span class="muted">(travada)</span>' : '') + '</label>';
       });
       corpo += '</div>';
     }
@@ -7073,9 +7103,9 @@ function contasAbrirPermissoes(conta) {
   corpo += '</div>';
   function sincronizar() {
     document.querySelectorAll('#permLista .perm-grupo').forEach(function (grupo) {
-      var subs = grupo.querySelectorAll('[data-ps]');
+      var subs = grupo.querySelectorAll('[data-ps]:not(:disabled)');   /* as travadas não entram na conta */
       if (!subs.length) return;
-      var marcadas = grupo.querySelectorAll('[data-ps]:checked').length;
+      var marcadas = grupo.querySelectorAll('[data-ps]:checked:not(:disabled)').length;
       var pm = grupo.querySelector('[data-pm]');
       pm.checked = marcadas === subs.length;
       pm.indeterminate = marcadas > 0 && marcadas < subs.length;
@@ -7085,7 +7115,7 @@ function contasAbrirPermissoes(conta) {
     { texto: 'Cancelar', classe: 'btn-contorno', aoClicar: function () { return true; } },
     { texto: 'Salvar', classe: 'btn-primario', aoClicar: function () {
         var modulos = {};
-        document.querySelectorAll('#permLista [data-ps]:checked').forEach(function (c) { modulos[c.getAttribute('data-ps')] = 'editar'; });
+        document.querySelectorAll('#permLista [data-ps]:checked:not(:disabled)').forEach(function (c) { modulos[c.getAttribute('data-ps')] = 'editar'; });
         document.querySelectorAll('#permLista [data-pm]').forEach(function (c) {
           if (!c.closest('.perm-grupo').querySelector('[data-ps]') && c.checked) modulos[c.getAttribute('data-pm')] = 'editar';
         });
@@ -7097,7 +7127,7 @@ function contasAbrirPermissoes(conta) {
     var t = e.target;
     if (t.hasAttribute('data-pm')) {
       var grupo = t.closest('.perm-grupo');
-      grupo.querySelectorAll('[data-ps]').forEach(function (c) { c.checked = t.checked; });
+      grupo.querySelectorAll('[data-ps]:not(:disabled)').forEach(function (c) { c.checked = t.checked; });
     }
     sincronizar();
   });

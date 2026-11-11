@@ -6,10 +6,12 @@
 -- (não apaga dados).
 -- Pré-requisito: banco_acessos.sql já rodado (função tem_acesso).
 --
--- Quem acessa: administrador e contas com a caixinha
+-- Quem acessa: administrador e as contas AUTORIZADAS na tabela emp_acesso
+-- (ver seção 4), desde que também tenham a caixinha
 -- "Apps de suporte › Controle de Empréstimos" marcada em Contas.
--- Os dados são pessoais (nome, folha, dívida): sem a permissão o banco
--- não devolve NENHUMA linha, mesmo para quem conhece o endereço.
+-- A caixinha é TRAVADA para as demais contas: mesmo que alguém grave a
+-- permissão por engano (ou marque o módulo "Apps de suporte" inteiro), o
+-- banco não devolve NENHUMA linha. Os dados são pessoais (nome, folha, dívida).
 --
 -- Desenho: o app trabalha com objetos JSON. Cada funcionário, empréstimo e
 -- linha do log é uma linha de tabela (coluna dados = o objeto). O log só
@@ -18,8 +20,9 @@
 
 do $$
 begin
-  if to_regprocedure('public.tem_acesso(text, text)') is null then
-    raise exception 'Rode antes o banco_acessos.sql (falta public.tem_acesso).';
+  if to_regprocedure('public.tem_acesso(text, text)') is null
+     or to_regclass('public.acessos_erp') is null then
+    raise exception 'Rode antes o banco_acessos.sql (faltam public.tem_acesso e public.acessos_erp).';
   end if;
 end $$;
 
@@ -105,9 +108,51 @@ create trigger emp_log_imutavel_trg before update or delete on public.emp_log
   for each row execute function public.emp_log_imutavel();
 
 -- ------------------------------------------------------------
--- 4. REGRAS DE ACESSO (RLS)
---    ler: tem_acesso('apps.emprestimos','ver');  gravar: 'editar'.
---    A tela Contas liga/desliga como 'editar', então quem recebe a caixinha lê e grava.
+-- 4. QUEM PODE: administrador, ou conta AUTORIZADA em emp_acesso
+--    + chave EXATA 'apps.emprestimos' em acessos_erp (o módulo inteiro 'apps' NÃO vale).
+--    emp_acesso só se mexe pelo SQL Editor; o e-mail não fica escrito no site (que é público):
+--
+--      insert into public.emp_acesso (email) values ('pessoa@empresa.com.br')
+--        on conflict do nothing;
+--      delete from public.emp_acesso where email = 'pessoa@empresa.com.br';   -- tira a autorização
+--      select email from public.emp_acesso order by 1;                         -- quem está autorizado
+-- ------------------------------------------------------------
+create table if not exists public.emp_acesso (
+  email text primary key
+);
+alter table public.emp_acesso enable row level security;
+revoke all on public.emp_acesso from anon, authenticated;   -- sem política: ninguém lê direto; só as funções abaixo
+
+create or replace function public.emp_pode(p_nivel text default 'ver')
+returns boolean language plpgsql stable security definer set search_path = public as $fn$
+declare p public.perfis; nivel text;
+begin
+  select * into p from public.perfis where id = auth.uid();
+  if not found or p.status <> 'ativo' then return false; end if;
+  if p.papel = 'admin' then return true; end if;
+  if not exists (select 1 from public.emp_acesso x where lower(x.email) = lower(p.email)) then return false; end if;
+  select a.modulos ->> 'apps.emprestimos' into nivel from public.acessos_erp a where a.user_id = p.id;
+  if nivel is null then return false; end if;
+  if p_nivel = 'ver' then return nivel in ('ver', 'editar'); end if;
+  return nivel = 'editar';
+end; $fn$;
+
+-- a tela Contas (só administrador) usa isto para saber em quem a caixinha destrava
+create or replace function public.emp_liberaveis()
+returns text[] language plpgsql stable security definer set search_path = public as $fn$
+begin
+  if not public.eh_admin() then return '{}'::text[]; end if;
+  return array(select lower(email) from public.emp_acesso order by 1);
+end; $fn$;
+
+revoke all on function public.emp_pode(text) from public, anon;
+revoke all on function public.emp_liberaveis() from public, anon;
+grant execute on function public.emp_pode(text) to authenticated;
+grant execute on function public.emp_liberaveis() to authenticated;
+
+-- ------------------------------------------------------------
+-- 5. REGRAS DE ACESSO (RLS)
+--    ler: emp_pode('ver');  gravar: emp_pode('editar').
 -- ------------------------------------------------------------
 alter table public.emp_config       enable row level security;
 alter table public.emp_funcionarios enable row level security;
@@ -122,19 +167,19 @@ begin
     execute format('drop policy if exists %I on public.%I', t || '_inserir', t);
     execute format('drop policy if exists %I on public.%I', t || '_alterar', t);
     execute format('drop policy if exists %I on public.%I', t || '_apagar', t);
-    execute format('create policy %I on public.%I for select to authenticated using (public.tem_acesso(%L, %L))', t || '_ler', t, 'apps.emprestimos', 'ver');
-    execute format('create policy %I on public.%I for insert to authenticated with check (public.tem_acesso(%L, %L))', t || '_inserir', t, 'apps.emprestimos', 'editar');
-    execute format('create policy %I on public.%I for update to authenticated using (public.tem_acesso(%L, %L)) with check (public.tem_acesso(%L, %L))', t || '_alterar', t, 'apps.emprestimos', 'editar', 'apps.emprestimos', 'editar');
-    execute format('create policy %I on public.%I for delete to authenticated using (public.tem_acesso(%L, %L))', t || '_apagar', t, 'apps.emprestimos', 'editar');
+    execute format('create policy %I on public.%I for select to authenticated using (public.emp_pode(%L))', t || '_ler', t, 'ver');
+    execute format('create policy %I on public.%I for insert to authenticated with check (public.emp_pode(%L))', t || '_inserir', t, 'editar');
+    execute format('create policy %I on public.%I for update to authenticated using (public.emp_pode(%L)) with check (public.emp_pode(%L))', t || '_alterar', t, 'editar', 'editar');
+    execute format('create policy %I on public.%I for delete to authenticated using (public.emp_pode(%L))', t || '_apagar', t, 'editar');
   end loop;
 end $$;
 
 drop policy if exists emp_log_ler on public.emp_log;
 drop policy if exists emp_log_inserir on public.emp_log;
 create policy emp_log_ler on public.emp_log for select to authenticated
-  using (public.tem_acesso('apps.emprestimos', 'ver'));
+  using (public.emp_pode('ver'));
 create policy emp_log_inserir on public.emp_log for insert to authenticated
-  with check (public.tem_acesso('apps.emprestimos', 'editar'));
+  with check (public.emp_pode('editar'));
 
 -- sem sessão (anon) não chega nada; o login já faz o resto
 revoke all on public.emp_config, public.emp_funcionarios, public.emp_emprestimos, public.emp_log from anon;
@@ -152,4 +197,7 @@ revoke all on function public.emp_log_imutavel() from public, anon, authenticate
 --
 --   select tablename, policyname, cmd from pg_policies where tablename like 'emp\_%' order by 1, 2;
 --     -> ler/inserir/alterar/apagar nas 3 primeiras, ler/inserir no log
+--
+--   select email from public.emp_acesso order by 1;
+--     -> as contas autorizadas além dos administradores (vazio = só administrador)
 -- ------------------------------------------------------------

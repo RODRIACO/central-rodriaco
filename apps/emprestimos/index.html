@@ -1000,10 +1000,15 @@ async function iniciar(){
       telaMensagem('Aguardando liberação','A conta <b>'+esc(emailLogado)+'</b> ainda não foi liberada. Peça ao administrador da Central.',
         '<button class="btn pri" id="acNovo">Verificar de novo</button><button class="btn" id="acSair">Sair</button>'); return;
     }
-    const m=a.modulos||{}, nivel=a.admin?'editar':(m['apps.emprestimos']||m['apps']||'');
-    if(nivel!=='editar'){
+    // a liberação é decidida pelo banco: administrador ou conta autorizada (o módulo "Apps de suporte" inteiro não vale)
+    let pode=!!a.admin;
+    if(!pode){
+      const rp=await api('POST','/rest/v1/rpc/emp_pode',{p_nivel:'editar'});
+      pode=rp.ok&&(await rp.json())===true;
+    }
+    if(!pode){
       telaMensagem('Sem permissão','A conta <b>'+esc(emailLogado)+'</b> não tem acesso ao Controle de Empréstimos. '+
-        'O administrador libera em <b>Central › Contas › Permissões › Apps de suporte › Controle de Empréstimos</b>.',
+        'Este acesso é restrito: só administradores e contas autorizadas no banco podem recebê-lo.',
         '<button class="btn pri" id="acNovo">Verificar de novo</button><button class="btn" id="acSair">Sair</button>'); return;
     }
     // nome de quem está lançando: sai do cadastro da conta e fica gravado no log
