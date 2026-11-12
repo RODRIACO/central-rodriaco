@@ -31,67 +31,46 @@ create index if not exists denuncias_aviso_idx  on public.denuncias(criado_em)  
 create index if not exists denuncia_msgs_aviso_idx on public.denuncia_msgs(em) where aviso_em is null;
 
 -- 2. Quem recebe aviso: marca "avisar" em cada pessoa de denuncia_acesso.
+--    Quem está com avisar = true recebe o aviso de TODA denúncia e de TODA resposta,
+--    inclusive das que envolvem o RH (o aviso só diz que existe algo novo; o que cada um
+--    consegue ABRIR no painel continua sendo decidido por papel, como sempre).
 --    Começa ligada para todos. Para pausar a Direção (só o RH recebe):
 --        update public.denuncia_acesso set avisar = false where papel = 'direcao';
 --    Para religar:
 --        update public.denuncia_acesso set avisar = true  where papel = 'direcao';
---    O que ficou sem destinatário continua pendente e é avisado quando a pessoa for religada.
+--    Sem ninguém com avisar ligado, o que chegar fica pendente e é avisado quando alguém for ligado.
 alter table public.denuncia_acesso add column if not exists avisar boolean not null default true;
 
 -- 3. O que está pendente, por destinatário (só contagens)
---    RH não recebe aviso do que envolve o RH; Direção recebe de tudo.
 create or replace function public.denuncia_avisos_pendentes()
 returns jsonb language plpgsql security definer set search_path = public as $$
 declare
   v_corte timestamptz := now();
+  v_novas bigint;
+  v_resp  bigint;
   v_dest  jsonb;
-  v_total bigint;
 begin
-  select coalesce(jsonb_agg(to_jsonb(x)), '[]'::jsonb) into v_dest
-    from (
-      select u.email as email,
-             (select count(*) from public.denuncias d
-               where d.aviso_em is null and d.criado_em <= v_corte
-                 and (a.papel = 'direcao' or not d.envolve_rh)) as novas,
-             (select count(*) from public.denuncia_msgs m
-                join public.denuncias d on d.id = m.denuncia_id
-               where m.autor = 'denunciante' and m.aviso_em is null and m.em <= v_corte
-                 and (a.papel = 'direcao' or not d.envolve_rh)) as respostas
-        from public.denuncia_acesso a
-        join auth.users u on u.id = a.user_id
-       where u.email is not null and a.avisar
-    ) x
-   where x.novas > 0 or x.respostas > 0;
+  select count(*) into v_novas from public.denuncias
+   where aviso_em is null and criado_em <= v_corte;
+  select count(*) into v_resp from public.denuncia_msgs
+   where aviso_em is null and autor = 'denunciante' and em <= v_corte;
 
-  -- só conta o que alguém com "avisar" ligado pode ver
-  select (select count(*) from public.denuncias d
-           where d.aviso_em is null and d.criado_em <= v_corte
-             and exists (select 1 from public.denuncia_acesso a
-                          where a.avisar and (a.papel = 'direcao' or not d.envolve_rh)))
-       + (select count(*) from public.denuncia_msgs m
-            join public.denuncias d on d.id = m.denuncia_id
-           where m.autor = 'denunciante' and m.aviso_em is null and m.em <= v_corte
-             and exists (select 1 from public.denuncia_acesso a
-                          where a.avisar and (a.papel = 'direcao' or not d.envolve_rh)))
-    into v_total;
+  select coalesce(jsonb_agg(jsonb_build_object('email', u.email, 'novas', v_novas, 'respostas', v_resp)), '[]'::jsonb)
+    into v_dest
+    from public.denuncia_acesso a
+    join auth.users u on u.id = a.user_id
+   where u.email is not null and a.avisar
+     and (v_novas > 0 or v_resp > 0);
 
-  return jsonb_build_object('corte', v_corte, 'pendentes', v_total, 'destinatarios', v_dest);
+  return jsonb_build_object('corte', v_corte, 'pendentes', v_novas + v_resp, 'destinatarios', v_dest);
 end $$;
 
--- Depois de enviar, o robô marca como avisado o que já tinha destinatário (até o "corte")
+-- Depois de enviar, o robô marca como avisado tudo até o "corte"
 create or replace function public.denuncia_avisos_baixar(p_corte timestamptz)
-returns void language plpgsql security definer set search_path = public as $$
-begin
-  update public.denuncias d set aviso_em = now()
-   where d.aviso_em is null and d.criado_em <= p_corte
-     and exists (select 1 from public.denuncia_acesso a
-                  where a.avisar and (a.papel = 'direcao' or not d.envolve_rh));
-  update public.denuncia_msgs m set aviso_em = now()
-    from public.denuncias d
-   where d.id = m.denuncia_id and m.aviso_em is null and m.em <= p_corte
-     and exists (select 1 from public.denuncia_acesso a
-                  where a.avisar and (a.papel = 'direcao' or not d.envolve_rh));
-end $$;
+returns void language sql security definer set search_path = public as $$
+  update public.denuncias     set aviso_em = now() where aviso_em is null and criado_em <= p_corte;
+  update public.denuncia_msgs set aviso_em = now() where aviso_em is null and em        <= p_corte;
+$$;
 
 -- 4. Só a chave service_role executa (revoga também de anon e authenticated,
 --    porque o Supabase concede a eles por padrão)
