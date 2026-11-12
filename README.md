@@ -330,3 +330,7 @@ bucket e do arquivo.
 `service_role` executa; elas devolvem **contagens** e os e-mails de `denuncia_acesso`, nunca o conteúdo. Quem envia é a
 rotina do repositório privado `ROBO-COSMOS` (`avisos_canal.py`, veja o README de lá). O aviso diz só "Você tem uma nova
 denúncia" / "Você tem uma resposta" e traz o link do painel.
+
+**Quem recebe o aviso:** coluna `avisar` de `denuncia_acesso` (liga/desliga por papel, direto no SQL Editor; instruções no
+cabeçalho da seção 2 do `banco_canal_denuncia_avisos.sql`). Quem está com `avisar = false` não recebe nada e o que só ele
+poderia ver continua pendente até ser religado.
