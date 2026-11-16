@@ -459,6 +459,53 @@
   .mf-mais { padding: 8px; color: var(--muted); font-size: 11.5px; }
   .mf-rodape { display: flex; gap: 8px; }
   .mf-rodape .btn { flex: 1; justify-content: center; }
+
+  /* ===== PREMIAÇÃO ===== */
+  .prem-barra { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-bottom: 14px; }
+  .prem-barra .campo { margin-bottom: 0; flex: 0 1 200px; min-width: 140px; }
+  .prem-barra .espaco { flex: 1 1 auto; }
+  .prem-aviso { background: var(--accent-soft); color: var(--accent-strong); padding: 8px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 8px; line-height: 1.5; }
+  .prem-aviso.perigo { background: var(--danger-soft); color: var(--danger); }
+  .prem-aviso.ok { background: var(--good-soft); color: var(--good); }
+  .prem-tab th, .prem-tab td { padding: 7px 9px; white-space: nowrap; }
+  .prem-tab td.num, .prem-tab th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .prem-tab tr.prem-total td { font-weight: 700; color: var(--ink-strong); background: var(--surface-2); border-top: 2px solid var(--accent); }
+  .prem-tab input[type=text], .prem-tab select { padding: 5px 6px; font-size: 12px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--ink); font-family: inherit; max-width: 100%; }
+  .prem-tab input.curto { width: 72px; text-align: right; }
+  .prem-tab input.medio { width: 130px; }
+  .prem-tab input.nome { width: 250px; }
+  .prem-tab input:disabled, .prem-tab select:disabled { opacity: .55; }
+  .prem-chip { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 10px; margin-right: 4px; background: var(--surface-2); color: var(--muted); }
+  .prem-chip.ferias { background: var(--accent-soft); color: var(--accent-strong); }
+  .prem-chip.afastado { background: var(--danger-soft); color: var(--danger); }
+  .prem-chip.lider { background: var(--good-soft); color: var(--good); }
+  .prem-alerta { color: var(--danger); font-size: 11.5px; white-space: normal; }
+  .prem-cartoes { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 14px; margin: 14px 0; }
+  .prem-nota { min-width: 78px; }
+  .prem-nota.n4 { border-color: var(--good) !important; }
+  .prem-nota.n3 { border-color: #9BC77F !important; }
+  .prem-nota.n2 { border-color: var(--accent) !important; }
+  .prem-nota.n1 { border-color: var(--danger) !important; }
+  .prem-nota.n0 { color: var(--muted); border-style: dashed !important; }
+  .prem-barras { display: flex; flex-direction: column; gap: 6px; }
+  .prem-barra-linha { display: grid; grid-template-columns: 70px 1fr 110px; gap: 10px; align-items: center; font-size: 12px; }
+  .prem-barra-fundo { background: var(--surface-2); border-radius: 6px; height: 14px; overflow: hidden; }
+  .prem-barra-valor { background: var(--accent); height: 100%; border-radius: 6px; }
+  .prem-barra-linha.larga { grid-template-columns: 170px 1fr 220px; }
+  .prem-svg { width: 100%; height: auto; display: block; }
+  .prem-svg text { fill: var(--muted); font-size: 11px; font-family: inherit; }
+  .prem-svg text.v { fill: var(--ink); font-weight: 600; }
+  .prem-legenda { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: 11.5px; color: var(--muted); margin: -4px 0 8px; }
+  .prem-legenda i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }
+  .prem-calor td.num { color: var(--ink-strong); min-width: 52px; }
+  .prem-tab.prem-regras th, .prem-tab.prem-regras td { white-space: normal; vertical-align: top; }
+  .prem-linha-tempo { display: flex; flex-direction: column; gap: 10px; }
+  .prem-evento { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+  .prem-evento.regra { border-left-color: var(--danger); background: var(--danger-soft); }
+  .prem-evento-cab { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-strong); }
+  .prem-evento-txt { margin: 8px 0 4px; font-size: 12.5px; line-height: 1.55; white-space: pre-wrap; color: var(--ink); }
+  .prem-evento-rodape { font-size: 11px; margin-top: 4px; display: flex; align-items: center; gap: 8px; }
+  @media (max-width: 700px) { .prem-barra-linha, .prem-barra-linha.larga { grid-template-columns: 1fr; gap: 4px; } }
 </style></head><body><div id="shell" class="app-shell">
   <aside class="sidebar" id="sidebar">
     <div class="navbar-marca"><img class="selo" src="icones/icone-192.png" alt="Rodriaço"><strong>RODRIAÇO</strong></div>
@@ -512,11 +559,12 @@ var MODULOS = [
   { chave: 'qualidade', nome: 'Qualidade', disponivel: false, descricao: 'Inspeção e controle de não conformidades na fabricação.' },
   { chave: 'financeiro', nome: 'Financeiro', disponivel: false, descricao: 'Contas a pagar/receber, faturamento, fluxo de caixa.' },
   { chave: 'manutencao', nome: 'Manutenção', disponivel: false, descricao: 'Máquinas e equipamentos da fábrica.' },
+  { chave: 'premiacao', nome: 'Premiação', disponivel: true, descricao: 'Premiação por assiduidade e pontualidade: resultado do mês, lançamento do ponto, notas dos setores e histórico. Só quem for liberado.' },
   { chave: 'apps', nome: 'Apps de suporte', disponivel: true, descricao: 'Apps da casa dentro da Central: Estoque Livre e os próximos.' },
   { chave: 'contas', nome: 'Contas', disponivel: true, somenteAdmin: true, descricao: 'Quem entra na Central e quais módulos cada pessoa pode usar.' }
 ];
 
-var ICONES_SVG = {"inicio": "<path d=\"M3 11.5L12 4l9 7.5\"/><path d=\"M5.5 10v10h13V10\"/><path d=\"M10 20v-5.5h4V20\"/>", "cadastros": "<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>", "comercial": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7\"/><path d=\"M3 13h18M11 13v2h2v-2\"/>", "compras": "<circle cx=\"9\" cy=\"20\" r=\"1.4\"/><circle cx=\"18\" cy=\"20\" r=\"1.4\"/><path d=\"M2.5 3.5H5l2.4 11a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L20.5 7.5H6\"/>", "pcp": "<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M8 3v4M16 3v4M4 10h16\"/><path d=\"M8.5 14h2M13.5 14h2M8.5 17.5h2\"/>", "producao": "<path d=\"M3 21V11l6 3.5V11l6 3.5V5h4v16z\"/><path d=\"M3 21h18M8 18h1M13 18h1\"/>", "estoque": "<path d=\"M12 3l8 4.5v9L12 21l-8-4.5v-9z\"/><path d=\"M4 7.5l8 4.5 8-4.5M12 12v9\"/>", "logistica": "<rect x=\"2\" y=\"6.5\" width=\"12\" height=\"9.5\" rx=\"1\"/><path d=\"M14 9.5h4.2L22 13v3h-8\"/><circle cx=\"7\" cy=\"18\" r=\"1.8\"/><circle cx=\"17.5\" cy=\"18\" r=\"1.8\"/>", "qualidade": "<path d=\"M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z\"/><path d=\"M8.8 12l2.2 2.2 4.2-4.4\"/>", "financeiro": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M14.6 9.3c-.5-.8-1.4-1.3-2.6-1.3-1.4 0-2.5.8-2.5 1.9 0 2.7 5.1 1.4 5.1 4.1 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.5-2.6-1.3M12 6.3V8M12 16v1.7\"/>", "manutencao": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z\"/>", "operador": "<rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2.5\"/><path d=\"M10.5 18.5h3\"/>", "apps": "<rect x=\"4\" y=\"4\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/><rect x=\"13.5\" y=\"4\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/><rect x=\"4\" y=\"13.5\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/><rect x=\"13.5\" y=\"13.5\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/>", "contas": "<circle cx=\"9\" cy=\"8\" r=\"3.2\"/><path d=\"M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6\"/><circle cx=\"17\" cy=\"9\" r=\"2.5\"/><path d=\"M16.5 14.2c2.6.3 4.5 2.4 4.5 5\"/>", "sair": "<path d=\"M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>"};
+var ICONES_SVG = {"inicio": "<path d=\"M3 11.5L12 4l9 7.5\"/><path d=\"M5.5 10v10h13V10\"/><path d=\"M10 20v-5.5h4V20\"/>", "cadastros": "<path d=\"M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/>", "comercial": "<rect x=\"3\" y=\"7\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7\"/><path d=\"M3 13h18M11 13v2h2v-2\"/>", "compras": "<circle cx=\"9\" cy=\"20\" r=\"1.4\"/><circle cx=\"18\" cy=\"20\" r=\"1.4\"/><path d=\"M2.5 3.5H5l2.4 11a1 1 0 0 0 1 .8h9.2a1 1 0 0 0 1-.8L20.5 7.5H6\"/>", "pcp": "<rect x=\"4\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M8 3v4M16 3v4M4 10h16\"/><path d=\"M8.5 14h2M13.5 14h2M8.5 17.5h2\"/>", "producao": "<path d=\"M3 21V11l6 3.5V11l6 3.5V5h4v16z\"/><path d=\"M3 21h18M8 18h1M13 18h1\"/>", "estoque": "<path d=\"M12 3l8 4.5v9L12 21l-8-4.5v-9z\"/><path d=\"M4 7.5l8 4.5 8-4.5M12 12v9\"/>", "logistica": "<rect x=\"2\" y=\"6.5\" width=\"12\" height=\"9.5\" rx=\"1\"/><path d=\"M14 9.5h4.2L22 13v3h-8\"/><circle cx=\"7\" cy=\"18\" r=\"1.8\"/><circle cx=\"17.5\" cy=\"18\" r=\"1.8\"/>", "qualidade": "<path d=\"M12 3l7 3v5.5c0 4.4-3 7.8-7 9.5-4-1.7-7-5.1-7-9.5V6z\"/><path d=\"M8.8 12l2.2 2.2 4.2-4.4\"/>", "financeiro": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M14.6 9.3c-.5-.8-1.4-1.3-2.6-1.3-1.4 0-2.5.8-2.5 1.9 0 2.7 5.1 1.4 5.1 4.1 0 1.1-1.1 1.9-2.6 1.9-1.2 0-2.1-.5-2.6-1.3M12 6.3V8M12 16v1.7\"/>", "manutencao": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.77 3.77z\"/>", "operador": "<rect x=\"6\" y=\"2.5\" width=\"12\" height=\"19\" rx=\"2.5\"/><path d=\"M10.5 18.5h3\"/>", "premiacao": "<path d=\"M8 4h8v5a4 4 0 0 1-8 0z\"/><path d=\"M8 6H5.5a1 1 0 0 0-1 1c0 2 1.5 3.5 3.5 3.5M16 6h2.5a1 1 0 0 1 1 1c0 2-1.5 3.5-3.5 3.5\"/><path d=\"M12 13v4M9 20h6M10 17h4\"/>", "apps": "<rect x=\"4\" y=\"4\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/><rect x=\"13.5\" y=\"4\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/><rect x=\"4\" y=\"13.5\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/><rect x=\"13.5\" y=\"13.5\" width=\"6.5\" height=\"6.5\" rx=\"1.5\"/>", "contas": "<circle cx=\"9\" cy=\"8\" r=\"3.2\"/><path d=\"M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6\"/><circle cx=\"17\" cy=\"9\" r=\"2.5\"/><path d=\"M16.5 14.2c2.6.3 4.5 2.4 4.5 5\"/>", "sair": "<path d=\"M9 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h3\"/><path d=\"M16 8l4 4-4 4M20 12H9\"/>"};
 function icoSvg(chave) { return '<svg class="ico" viewBox="0 0 24 24" aria-hidden="true">' + (ICONES_SVG[chave] || '') + '</svg>'; }
 MODULOS.forEach(function (m) { m.icone = icoSvg(m.chave); });
 
@@ -671,6 +719,7 @@ var SUBMENUS = {
   comercial: [['clientes', 'Clientes'], ['oportunidades', 'Oportunidades'], ['orcamentos', 'Orçamentos'], ['pedidos', 'Pedidos'], ['analisePedidos', 'Análise de Pedidos'], ['interacoes', 'Interações'], ['config', 'Configurações']],
   pcp: [['ordens', 'Ordens'], ['mapa', 'Mapa de Produção'], ['configPcp', 'Configurações']],
   logistica: [['csv', 'Análise CSV']],
+  premiacao: [['dashboard', 'Dashboard'], ['resultado', 'Resultado do mês'], ['lancar', 'Lançar mês'], ['notas', 'Notas dos setores'], ['funcionarios', 'Funcionários'], ['historico', 'Histórico'], ['log', 'Log']],
   apps: [['estoque_livre', 'Estoque Livre'], ['ferramentas', 'Controle de Ferramentas'], ['emprestimos', 'Controle de Empréstimos'], ['canal_denuncia', 'Canal de Denúncia']]
 };
 var NAVEGAR_SUB = {
@@ -678,6 +727,7 @@ var NAVEGAR_SUB = {
   comercial: function (s) { mudarAbaComercial(s); },
   pcp: function (s) { mudarAbaPcp(s); },
   logistica: function (s) { mudarAbaLogistica(s); },
+  premiacao: function (s) { mudarAbaPremiacao(s); },
   apps: function (s) { abrirApp(s); }
 };
 var SUB_ATUAL = {
@@ -685,6 +735,7 @@ var SUB_ATUAL = {
   comercial: function () { return abaComAtual; },
   pcp: function () { return abaPcpAtual; },
   logistica: function () { return abaLogAtual; },
+  premiacao: function () { return abaPremAtual; },
   apps: function () { return null; }
 };
 function montarNavbar() {
@@ -2945,6 +2996,1234 @@ function apExportarCsv() {
   setTimeout(function () { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 500);
 }
 
+/* =====================================================================
+   PREMIAÇÃO (assiduidade / pontualidade)
+   Dados no Supabase (premiacao_meses / premiacao_apelidos), leitura e gravação só para quem
+   tiver o módulo "Premiação" em Contas (o banco confere: banco_premiacao.sql). Nenhum nome,
+   valor ou e-mail fica escrito neste arquivo, que é público.
+   Regras = as da planilha PREMIAÇÃO MM-AA.xlsx (conferidas contra 08/26, 09/26 e 10/26).
+   ===================================================================== */
+var MARCACAO_PREMIACAO = '<div class="painel"><div id="premRaiz"></div></div>';
+var abaPremAtual = 'dashboard';
+var PREM = { base: 250, baseLider: 500, atestado1: 32400, atestado2: 64800, atraso1: 300, atraso2: 900 };  /* tempos em segundos: 9 h, 18 h, 5 min, 15 min */
+var PREM_GRUPOS = {
+  ap: { nome: 'Aproveitamento no setor', max: 2, rot: ['Atividade feita sem retrabalho', 'Atividade feita sem geração de sucata', 'Ajuda aos colegas de trabalho', 'Utilização de EPI', 'Utilização de uniforme', 'Sabe ler desenho', 'Perfeição de acabamento'] },
+  ci: { nome: 'Atendimento ao cliente interno', max: 1.5, rot: ['Entrega no prazo previsto', 'Entrega dos itens com qualidade', 'Trata o outro setor com cordialidade e respeito'] },
+  co: { nome: 'Atendimento aos setores em comum', max: 1.5, rot: ['Higiene do banheiro', 'Limpeza do setor', 'Organização do setor', 'Limpeza das máq. e equip.', 'Manut. preventiva das máq. e equip.'] }
+};
+var PREM_NOTAS = [[4, 'Ótimo'], [3, 'Bom'], [2, 'Regular'], [1, 'Ruim']];
+var PREM_XLSX_URL = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+var PREM_XLSX_SRI = 'sha384-vtjasyidUo0kW94K5MXDXntzOJpQgBKXmE7e2Ga4LG0skTTLeBi97eFAXsqewJjw';
+
+var premMeses = null;          /* [{mes, periodo, itens, setores, conf, fechado, atualizado_em, atualizado_por}], mais novo primeiro */
+var premApelidos = {};         /* nome do ponto (chave) -> nome no cadastro */
+var premSel = '';
+var premErro = '';
+var premCarregando = false;
+var premFiltro = { busca: '', setor: '', cc: '' };
+var premOrdem = { k: 'nome', dir: 1 };
+var premHistN = 3;
+var premHistOrdem = { k: 'nome', dir: 1 };
+var premImport = null;         /* arquivo do ponto lido, ainda não aplicado */
+var premMsg = null;            /* {texto, tipo} mostrado no alto da tela */
+var premTimerSalvar = null;
+var premXlsxPromise = null;
+
+/* ---------- utilitários ---------- */
+function premChave(s) {
+  var t = String(s === null || s === undefined ? '' : s).toUpperCase();
+  try { t = t.normalize('NFD').replace(/[̀-ͯ]/g, ''); } catch (e) {}
+  return t.replace(/[^A-Z0-9]+/g, ' ').trim();
+}
+function premP2(n) { return (n < 10 ? '0' : '') + n; }
+function premHMS(seg) {
+  seg = Math.round(seg || 0);
+  return Math.floor(seg / 3600) + ':' + premP2(Math.floor((seg % 3600) / 60)) + ':' + premP2(seg % 60);
+}
+function premParseHMS(txt) {
+  var t = String(txt || '').trim();
+  if (!t) return 0;
+  var m = /^(\d+):(\d{1,2})(?::(\d{1,2}))?$/.exec(t);
+  if (!m) return null;
+  return (+m[1]) * 3600 + (+m[2]) * 60 + (m[3] ? +m[3] : 0);
+}
+function premHoraSeg(v) {                 /* célula do Excel (fração do dia) ou texto H:MM */
+  if (v === null || v === undefined || v === '') return 0;
+  if (typeof v === 'number') return Math.round(v * 86400);
+  var s = premParseHMS(v);
+  return s === null ? 0 : s;
+}
+function premMesRot(mes) { return mes ? mes.slice(5, 7) + '/' + mes.slice(0, 4) : ''; }
+function premNum(v, c) { return (v || 0).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c }); }
+function premMoeda(v) { return 'R$ ' + formatarMoeda(v); }
+function premMes(mes) {
+  if (!premMeses) return null;
+  for (var i = 0; i < premMeses.length; i++) { if (premMeses[i].mes === mes) return premMeses[i]; }
+  return null;
+}
+function premOpcoes(lista, atual, vazio) {
+  var h = vazio !== undefined ? '<option value="">' + escaparHTML(vazio) + '</option>' : '';
+  lista.forEach(function (x) {
+    var v = Array.isArray(x) ? x[0] : x, r = Array.isArray(x) ? x[1] : x;
+    h += '<option value="' + escaparHTML(v) + '"' + (String(v) === String(atual) ? ' selected' : '') + '>' + escaparHTML(r) + '</option>';
+  });
+  return h;
+}
+function premClonar(o) { return JSON.parse(JSON.stringify(o)); }
+
+/* ---------- regras (iguais às da planilha) ---------- */
+function premMapaSetores(m) {
+  var o = {};
+  Object.keys(m.setores || {}).forEach(function (k) { o[premChave(k)] = m.setores[k]; });
+  return o;
+}
+function premPctGrupo(s, g) {
+  var v = s && s[g];
+  if (!v) return null;
+  var soma = 0;
+  for (var i = 0; i < v.length; i++) soma += (v[i] || 0);
+  return soma / (4 * PREM_GRUPOS[g].rot.length);
+}
+/* O mês guarda a versão da regra que usou (premiacao_meses.regra) para o histórico nunca mudar sozinho:
+   regra 1 = piloto de 08/2025 (75% a 99% parcial, só 100% cheio; falta zera também o horário; 5 min exatos = 0,5);
+   regra 2 = desde 09/2025 (a atual). Mudou de novo? Crie a regra 3 aqui e registre no Log. */
+/* aproveitamento — regra 2: acima de 89% = 2 pts, de 70 a 89% = 1 */
+function premPontosAp(p, regra) {
+  if (p === null) return 0;
+  if (regra === 1) return p >= 0.999999 ? 2 : (p > 0.74 ? 1 : 0);
+  return (p > 0.69 && p <= 0.89) ? 1 : (p > 0.89 ? 2 : 0);
+}
+/* cliente interno e setores em comum — regra 2: 90% ou mais = 1,5 pt, de 70 a 89% = 0,5 */
+function premPontosMeta(p, regra) {
+  if (p === null) return 0;
+  if (regra === 1) return p >= 0.999999 ? 1.5 : (p > 0.74 ? 0.5 : 0);
+  return (p > 0.69 && p < 0.9) ? 0.5 : (p > 0.89 ? 1.5 : 0);
+}
+function premCalcItem(it, mapa, regra) {
+  var avisos = [], f = 0, h = 0, p = it.ponto;
+  regra = regra || 2;
+  if (p) {
+    f = p.falta > 0 ? 0 : (p.atestado < PREM.atestado1 ? 3.5 : (p.atestado < PREM.atestado2 ? 1.5 : 0));
+    if (regra === 1) h = p.falta > 0 ? 0 : ((p.atraso >= PREM.atraso1 && p.atraso <= PREM.atraso2) ? 0.5 : (p.atraso < PREM.atraso1 ? 1.5 : 0));
+    else h = (p.atraso > PREM.atraso1 && p.atraso <= PREM.atraso2) ? 0.5 : (p.atraso <= PREM.atraso1 ? 1.5 : 0);
+  } else if (!it.afastado) {
+    avisos.push('sem registro no ponto');
+  }
+  var s = mapa[premChave(it.setor)];
+  if (!it.setor) avisos.push('sem setor');
+  else if (!s) avisos.push('setor sem avaliação');
+  else {
+    ['ap', 'ci', 'co'].forEach(function (g) {
+      if (!s[g] || s[g].some(function (x) { return !x; })) { if (avisos.indexOf('nota do setor incompleta') < 0) avisos.push('nota do setor incompleta'); }
+    });
+  }
+  var ap = premPontosAp(premPctGrupo(s, 'ap'), regra), ci = premPontosMeta(premPctGrupo(s, 'ci'), regra), co = premPontosMeta(premPctGrupo(s, 'co'), regra);
+  var nota = (f + h + ap + ci + co) / 10;
+  var base = (it.lider ? PREM.baseLider : PREM.base) * nota;
+  var valor = it.afastado ? 0 : (it.ferias ? base / 2 : base);
+  return { f: f, h: h, ap: ap, ci: ci, co: co, nota: nota, valor: valor, avisos: avisos };
+}
+function premLinhas(m) {
+  var mapa = premMapaSetores(m);
+  return m.itens.map(function (it, i) {
+    var v;
+    if (m.fechado && it.snap && typeof it.snap.valor === 'number') {
+      var s = it.snap;
+      v = { f: s.f || 0, h: s.h || 0, ap: s.ap || 0, ci: s.ci || 0, co: s.co || 0, nota: s.nota || 0, valor: s.valor, avisos: [] };
+    } else v = premCalcItem(it, mapa, m.regra);
+    return { i: i, it: it, v: v };
+  });
+}
+function premAvisosMes(m) {
+  var l = [];
+  if (!m.conf || !m.conf.ponto) l.push({ t: 'perigo', x: 'O arquivo do ponto ainda não foi importado neste mês (Lançar mês).' });
+  if (!m.conf || !m.conf.setores) l.push({ t: 'perigo', x: 'As notas dos setores ainda não foram conferidas (Notas dos setores).' });
+  var n = premLinhas(m).filter(function (x) { return x.v.avisos.length; }).length;
+  if (n) l.push({ t: '', x: n + ' funcionário(s) com pendência — veja a coluna "Atenção" no Resultado do mês.' });
+  return l;
+}
+
+/* ---------- Supabase ---------- */
+function premApi(caminho, opcoes) {
+  return logFetchAut('/rest/v1/' + caminho, opcoes).then(function (r) {
+    if (!r.ok) {
+      return r.text().then(function (t) { var e = new Error('http'); e.status = r.status; e.corpo = t; throw e; });
+    }
+    return r.text().then(function (t) { return t ? JSON.parse(t) : null; });
+  });
+}
+function premTextoErro(e) {
+  if (e && e.message === 'sem sessão') return 'Sua sessão expirou. Entre de novo.';
+  if (e && (e.status === 404 || (e.corpo && /PGRST20[0-9]|does not exist|relation/.test(e.corpo)))) return 'As tabelas da Premiação ainda não existem no Supabase. Rode o arquivo banco_premiacao.sql no SQL Editor.';
+  if (e && (e.status === 401 || e.status === 403)) return 'Sua conta não tem permissão para a Premiação (peça ao administrador em Contas > Permissões).';
+  return 'Não consegui falar com o Supabase' + (e && e.status ? ' (erro ' + e.status + ')' : '') + '.';
+}
+function premCarregar(forcar) {
+  if (premMeses && !forcar) return Promise.resolve();
+  premCarregando = true;
+  premErro = '';
+  return Promise.all([premApi('premiacao_meses?select=*&order=mes.desc'), premApi('premiacao_apelidos?select=*'), premApi('premiacao_log?select=*&order=em.desc&limit=1000')]).then(function (r) {
+    premMeses = (r[0] || []).map(function (m) { m.conf = m.conf || {}; m.itens = m.itens || []; m.setores = m.setores || {}; m.regra = m.regra || 2; return m; });
+    premApelidos = {};
+    (r[1] || []).forEach(function (a) { premApelidos[a.chave] = a.nome; });
+    premLogs = r[2] || [];
+    if (!premSel || !premMes(premSel)) premSel = premMeses.length ? premMeses[0].mes : '';
+  }).catch(function (e) {
+    premMeses = null;
+    premErro = premTextoErro(e);
+  }).then(function () { premCarregando = false; });
+}
+function premStatus(texto, erro) {
+  var el = document.getElementById('premStatus');
+  if (!el) return;
+  el.textContent = texto || '';
+  el.style.color = erro ? 'var(--danger)' : '';
+}
+function premSalvarMes(m) {
+  var corpo = [{ mes: m.mes, periodo: m.periodo || '', regra: m.regra || 2, itens: m.itens, setores: m.setores, conf: m.conf || {}, fechado: !!m.fechado,
+    atualizado_em: new Date().toISOString(), atualizado_por: (logObterSessao() || {}).email || '' }];
+  premStatus('Salvando...');
+  return premApi('premiacao_meses?on_conflict=mes', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(corpo) })
+    .then(function () { var d = new Date(); premStatus('Salvo às ' + premP2(d.getHours()) + ':' + premP2(d.getMinutes())); return true; })
+    .catch(function (e) { premStatus('NÃO salvou: ' + premTextoErro(e), true); return false; });
+}
+function premAgendarSalvar(m) {
+  premStatus('Alterado, salvando...');
+  clearTimeout(premTimerSalvar);
+  premTimerSalvar = setTimeout(function () { premSalvarMes(m); }, 700);
+}
+function premSalvarApelidos(lista) {
+  if (!lista.length) return Promise.resolve(true);
+  return premApi('premiacao_apelidos?on_conflict=chave', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify(lista) })
+    .then(function () { lista.forEach(function (a) { premApelidos[a.chave] = a.nome; }); return true; })
+    .catch(function () { return false; });
+}
+
+/* ---------- navegação ---------- */
+function mudarAbaPremiacao(sub) {
+  if (!podeSub('premiacao', sub)) return;
+  abaPremAtual = sub;
+  atualizarSubmenuAtivo();
+  premRenderizar();
+}
+function premRenderizar() {
+  var el = document.getElementById('premRaiz');
+  if (!el) return;
+  if (!el.getAttribute('data-ligado')) {
+    el.setAttribute('data-ligado', '1');
+    el.addEventListener('click', premClique);
+    el.addEventListener('change', premMudou);
+    el.addEventListener('input', premDigitou);
+  }
+  if (premMeses === null) {
+    if (premErro && !premCarregando) {
+      el.innerHTML = '<div class="log-login"><h3>Premiação</h3><div class="modal-aviso">' + escaparHTML(premErro) + '</div>' +
+        '<div class="detalhe-acoes"><button type="button" class="btn btn-primario" data-pa="recarregar">Tentar de novo</button></div></div>';
+      return;
+    }
+    el.innerHTML = '<div class="lista-vazia">Carregando a Premiação do Supabase...</div>';
+    if (!premCarregando) premCarregar(true).then(premRenderizar);
+    return;
+  }
+  var corpo;
+  if (abaPremAtual === 'dashboard') corpo = premTelaDashboard();
+  else if (abaPremAtual === 'log') corpo = premTelaLog();
+  else if (abaPremAtual === 'resultado') corpo = premTelaResultado();
+  else if (abaPremAtual === 'lancar') corpo = premTelaLancar();
+  else if (abaPremAtual === 'notas') corpo = premTelaNotas();
+  else if (abaPremAtual === 'funcionarios') corpo = premTelaFuncionarios();
+  else corpo = premTelaHistorico();
+  var msg = '';
+  if (premMsg) { msg = '<div class="prem-aviso ' + (premMsg.tipo || '') + '">' + escaparHTML(premMsg.texto) + '</div>'; premMsg = null; }
+  el.innerHTML = msg + corpo;
+}
+function premSeletorMes(extra) {
+  var opts = premMeses.map(function (m) { return [m.mes, premMesRot(m.mes) + (m.fechado ? ' — fechado' : ' — em aberto')]; });
+  return '<div class="campo"><label>Mês da premiação</label><select id="premSelMes">' + premOpcoes(opts, premSel) + '</select></div>' + (extra || '');
+}
+function premVazio(titulo) {
+  return '<h3 style="margin:0 0 8px;">' + escaparHTML(titulo) + '</h3><div class="lista-vazia">Nenhum mês cadastrado ainda. ' +
+    (podeSub('premiacao', 'lancar') ? 'Vá em <strong>Lançar mês</strong> para criar o primeiro.' : 'Peça a quem lança o mês para criar o primeiro.') + '</div>';
+}
+function premBanner(m) {
+  return m.fechado ? '<div class="prem-aviso">Mês <strong>fechado</strong>: os valores abaixo são os que foram gravados no fechamento. Para alterar, reabra em <em>Resultado do mês</em>.</div>' : '';
+}
+
+/* ---------- 1. RESULTADO DO MÊS ---------- */
+function premTelaResultado() {
+  var m = premMes(premSel);
+  if (!m) return premVazio('Resultado do mês');
+  var linhas = premLinhas(m);
+  var pagos = 0, total = 0, somaNota = 0, cheios = 0, ferias = 0, afast = 0;
+  var porCc = {}, porSetor = {};
+  linhas.forEach(function (l) {
+    total += l.v.valor; somaNota += l.v.nota;
+    if (l.v.valor > 0) pagos++;
+    if (l.v.nota >= 0.9999) cheios++;
+    if (l.it.afastado) afast++; else if (l.it.ferias) ferias++;
+    var cc = l.it.cc || '(sem centro de custo)', st = l.it.setor || '(sem setor)';
+    var a = porCc[cc] || (porCc[cc] = { n: 0, v: 0, nota: 0 }); a.n++; a.v += l.v.valor; a.nota += l.v.nota;
+    var b = porSetor[st] || (porSetor[st] = { n: 0, v: 0, nota: 0 }); b.n++; b.v += l.v.valor; b.nota += l.v.nota;
+  });
+  function tab(o, rot) {
+    var ks = Object.keys(o).sort(function (x, y) { return o[y].v - o[x].v; });
+    return '<div class="log-card"><h4>' + rot + '</h4><div class="tabela-wrap"><table class="prem-tab"><thead><tr><th>' + (rot.indexOf('setor') >= 0 ? 'Setor' : 'Centro de custo') + '</th><th class="num">Pessoas</th><th class="num">Nota média</th><th class="num">Total</th></tr></thead><tbody>' +
+      ks.map(function (k) { return '<tr><td>' + escaparHTML(k) + '</td><td class="num">' + o[k].n + '</td><td class="num">' + premNum(o[k].nota / o[k].n * 100, 0) + '%</td><td class="num">' + premMoeda(o[k].v) + '</td></tr>'; }).join('') +
+      '</tbody></table></div></div>';
+  }
+  var setores = []; var ccs = [];
+  linhas.forEach(function (l) {
+    if (l.it.setor && setores.indexOf(l.it.setor) < 0) setores.push(l.it.setor);
+    if (l.it.cc && ccs.indexOf(l.it.cc) < 0) ccs.push(l.it.cc);
+  });
+  setores.sort(); ccs.sort();
+  var h = '<div class="prem-barra">' + premSeletorMes() +
+    '<div class="campo"><label>Buscar</label><input type="text" id="premBusca" placeholder="Nome do funcionário" value="' + escaparHTML(premFiltro.busca) + '"></div>' +
+    '<div class="campo"><label>Setor</label><select id="premFSetor">' + premOpcoes(setores, premFiltro.setor, 'Todos') + '</select></div>' +
+    '<div class="campo"><label>Centro de custo</label><select id="premFCc">' + premOpcoes(ccs, premFiltro.cc, 'Todos') + '</select></div>' +
+    '<span class="espaco"></span><span class="log-meta" id="premStatus"></span>' +
+    '<button type="button" class="btn btn-contorno" data-pa="csv">Exportar pagamento (CSV)</button>' +
+    (m.fechado ? '<button type="button" class="btn btn-contorno" data-pa="reabrir">Reabrir mês</button>' : '<button type="button" class="btn btn-primario" data-pa="fechar">Fechar mês</button>') +
+    '</div>';
+  h += premBanner(m);
+  premAvisosMes(m).forEach(function (a) { if (!m.fechado) h += '<div class="prem-aviso ' + a.t + '">' + escaparHTML(a.x) + '</div>'; });
+  h += '<div class="log-kpis">' +
+    logKpiHTML(null, 'Total a pagar', premMoeda(total), 'período ' + escaparHTML(m.periodo || '—') + ' · regra ' + (m.regra || 2)) +
+    logKpiHTML(null, 'Pessoas no programa', linhas.length, pagos + ' recebem') +
+    logKpiHTML(null, 'Nota média', premNum(linhas.length ? somaNota / linhas.length * 100 : 0, 0) + '%', cheios + ' com nota máxima') +
+    logKpiHTML(null, 'Em férias', ferias, 'recebem metade') +
+    logKpiHTML(null, 'Afastados', afast, 'não recebem') + '</div>';
+  h += '<div class="prem-cartoes">' + tab(porCc, 'Por centro de custo') + tab(porSetor, 'Por setor') + '</div>';
+  h += '<div class="log-card log-card-largo"><div class="log-tabela-cab"><h4>Funcionários</h4></div><div id="premTabela">' + premTabelaResultado(m) + '</div></div>';
+  return h;
+}
+function premLinhasFiltradas(m) {
+  var b = premChave(premFiltro.busca), s = premChave(premFiltro.setor);
+  return premLinhas(m).filter(function (l) {
+    if (b && premChave(l.it.nome).indexOf(b) < 0) return false;
+    if (s && premChave(l.it.setor) !== s) return false;
+    if (premFiltro.cc && l.it.cc !== premFiltro.cc) return false;
+    return true;
+  });
+}
+function premTabelaResultado(m) {
+  var linhas = premLinhasFiltradas(m);
+  var k = premOrdem.k, d = premOrdem.dir;
+  linhas.sort(function (x, y) {
+    var a, b;
+    if (k === 'nome' || k === 'setor' || k === 'cc') { a = premChave(x.it[k]); b = premChave(y.it[k]); return a < b ? -d : (a > b ? d : 0); }
+    a = x.v[k]; b = y.v[k]; return (a - b) * d;
+  });
+  var cols = [['nome', 'Funcionário', ''], ['setor', 'Setor', ''], ['cc', 'C. custo', ''], ['f', 'Faltas', 'num'], ['h', 'Horário', 'num'], ['ap', 'Aproveit.', 'num'], ['ci', 'Cliente int.', 'num'], ['co', 'Setores com.', 'num'], ['nota', 'Nota', 'num'], ['valor', 'Valor', 'num']];
+  var h = '<div class="tabela-wrap"><table class="prem-tab log-tabela"><thead><tr>' + cols.map(function (c) {
+    return '<th class="th-ordenavel ' + c[2] + '" data-ord="' + c[0] + '">' + c[1] + (premOrdem.k === c[0] ? (premOrdem.dir > 0 ? ' &#9650;' : ' &#9660;') : '') + '</th>';
+  }).join('') + '<th>Situação</th><th>Atenção</th></tr></thead><tbody>';
+  var tot = 0;
+  linhas.forEach(function (l) {
+    var v = l.v, it = l.it; tot += v.valor;
+    h += '<tr><td>' + escaparHTML(it.nome) + '</td><td>' + escaparHTML(it.setor) + '</td><td>' + escaparHTML(it.cc) + '</td>' +
+      '<td class="num">' + premNum(v.f, 1) + '</td><td class="num">' + premNum(v.h, 1) + '</td><td class="num">' + premNum(v.ap, 1) + '</td><td class="num">' + premNum(v.ci, 1) + '</td><td class="num">' + premNum(v.co, 1) + '</td>' +
+      '<td class="num">' + premNum(v.nota * 100, 0) + '%</td><td class="num"><strong>' + premMoeda(v.valor) + '</strong></td><td>' +
+      (it.lider ? '<span class="prem-chip lider">Líder</span>' : '') + (it.afastado ? '<span class="prem-chip afastado">Afastado</span>' : (it.ferias ? '<span class="prem-chip ferias" title="' + escaparHTML(it.ferias) + '">Férias</span>' : '')) +
+      '</td><td class="prem-alerta">' + escaparHTML(v.avisos.join('; ')) + '</td></tr>';
+  });
+  if (!linhas.length) h += '<tr><td colspan="12"><div class="lista-vazia-mini">Nenhum funcionário com esse filtro.</div></td></tr>';
+  h += '<tr class="prem-total"><td colspan="9">Total (' + linhas.length + ' pessoas)</td><td class="num">' + premMoeda(tot) + '</td><td colspan="2"></td></tr>';
+  return h + '</tbody></table></div>';
+}
+function premExportarCsv() {
+  var m = premMes(premSel);
+  if (!m) return;
+  var linhas = ['Funcionário;Setor;Centro de custo;Nota;Valor (R$)'];
+  premLinhas(m).filter(function (l) { return l.v.valor > 0; }).sort(function (a, b) { return premChave(a.it.nome) < premChave(b.it.nome) ? -1 : 1; }).forEach(function (l) {
+    linhas.push([l.it.nome, l.it.setor, l.it.cc, premNum(l.v.nota * 100, 0) + '%', l.v.valor.toFixed(2).replace('.', ',')].map(logCsvCel).join(';'));
+  });
+  var blob = new Blob(['﻿' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  var a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'premiacao-' + m.mes.slice(0, 7) + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 500);
+}
+function premFecharMes() {
+  var m = premMes(premSel);
+  if (!m || m.fechado) return;
+  var linhas = premLinhas(m), total = 0;
+  linhas.forEach(function (l) { total += l.v.valor; });
+  var av = premAvisosMes(m);
+  var corpo = '<p>Fechar <strong>' + premMesRot(m.mes) + '</strong>: ' + linhas.length + ' pessoas, total <strong>' + premMoeda(total) + '</strong>.</p>' +
+    '<p class="dica">Ao fechar, os valores ficam gravados e não mudam mais se as regras ou as notas forem alteradas depois. Dá para reabrir.</p>' +
+    av.map(function (a) { return '<div class="prem-aviso ' + a.t + '">' + escaparHTML(a.x) + '</div>'; }).join('');
+  abrirModalBase('Fechar o mês', corpo, [
+    { texto: 'Cancelar', classe: 'btn-contorno', aoClicar: function () { return true; } },
+    { texto: 'Fechar mês', classe: 'btn-primario', aoClicar: function () {
+        clearTimeout(premTimerSalvar);
+        linhas.forEach(function (l) { l.it.snap = { f: l.v.f, h: l.v.h, ap: l.v.ap, ci: l.v.ci, co: l.v.co, nota: l.v.nota, valor: l.v.valor }; });
+        m.fechado = true;
+        premSalvarMes(m).then(function (ok) {
+          if (!ok) { m.fechado = false; return; }
+          return premRegistrarLog('sistema', 'Mês ' + premMesRot(m.mes) + ' fechado', linhas.length + ' pessoas, total ' + premMoeda(total) + ', regra ' + (m.regra || 2) + '.', m.mes);
+        }).then(premRenderizar);
+        return true;
+      } }
+  ]);
+}
+function premReabrirMes() {
+  var m = premMes(premSel);
+  if (!m || !m.fechado) return;
+  abrirModalBase('Reabrir o mês', '<p>Reabrir <strong>' + premMesRot(m.mes) + '</strong>? Os valores voltam a ser calculados com as regras e notas de hoje até fechar de novo.</p>', [
+    { texto: 'Cancelar', classe: 'btn-contorno', aoClicar: function () { return true; } },
+    { texto: 'Reabrir', classe: 'btn-primario', aoClicar: function () {
+        m.fechado = false;
+        premSalvarMes(m).then(function (ok) {
+          if (!ok) { m.fechado = true; return; }
+          return premRegistrarLog('sistema', 'Mês ' + premMesRot(m.mes) + ' reaberto', 'Os valores voltam a ser calculados até fechar de novo.', m.mes);
+        }).then(premRenderizar);
+        return true;
+      } }
+  ]);
+}
+
+/* ---------- 2. LANÇAR MÊS ---------- */
+function premTelaLancar() {
+  var m = premMes(premSel);
+  var h = '<div class="prem-barra">' + (m ? premSeletorMes() : '') + '<span class="espaco"></span><span class="log-meta" id="premStatus"></span>' +
+    '<button type="button" class="btn btn-primario" data-pa="novo-mes">Novo mês</button></div>';
+  if (!m) return h + premVazio('Lançar mês');
+  h += premBanner(m);
+  h += '<div class="log-card log-card-largo"><h4>Situação de ' + premMesRot(m.mes) + (m.periodo ? ' — ponto de ' + escaparHTML(m.periodo) : '') + '</h4>' +
+    '<div class="prem-aviso ' + (m.conf.ponto ? 'ok' : 'perigo') + '">1. Arquivo do ponto: ' + (m.conf.ponto ? 'importado.' : 'ainda não importado.') + '</div>' +
+    '<div class="prem-aviso ' + (m.conf.setores ? 'ok' : 'perigo') + '">2. Notas dos setores: ' + (m.conf.setores ? 'conferidas.' : 'ainda não conferidas (aba Notas dos setores).') + '</div>' +
+    '<div class="prem-aviso">3. Conferir o Resultado do mês e fechar.</div></div>';
+  if (m.fechado) return h;
+  h += '<div class="log-card log-card-largo"><h4>Importar o arquivo do ponto</h4>' +
+    '<p class="dica">Escolha o <code>ABSENTEISMO ....xlsx</code> do mês (abas <strong>faltas</strong>, <strong>atestados</strong> e <strong>ferias</strong>). O arquivo é lido aqui no navegador; nada é enviado a lugar nenhum. ' +
+    'Ele <strong>substitui</strong> o ponto, as férias e os afastados (nome com "- INSS") deste mês. Nomes que não batem com o cadastro aparecem para você resolver.</p>' +
+    '<div class="campo" style="max-width:420px;"><input type="file" id="premArquivo" accept=".xlsx,.xls"></div><div id="premImportacao">' + (premImport ? premHtmlImport(m) : '') + '</div></div>';
+  return h;
+}
+function premCarregarXlsx() {
+  if (window.XLSX) return Promise.resolve();
+  if (premXlsxPromise) return premXlsxPromise;
+  premXlsxPromise = new Promise(function (ok, erro) {
+    var s = document.createElement('script');
+    s.src = PREM_XLSX_URL;
+    s.integrity = PREM_XLSX_SRI;
+    s.crossOrigin = 'anonymous';
+    s.onload = function () { ok(); };
+    s.onerror = function () { premXlsxPromise = null; erro(new Error('Não consegui carregar a biblioteca de planilhas (sem internet?).')); };
+    document.head.appendChild(s);
+  });
+  return premXlsxPromise;
+}
+function premLerPlanilha(wb) {
+  function aba(prefixo) {
+    for (var i = 0; i < wb.SheetNames.length; i++) { if (premChave(wb.SheetNames[i]).indexOf(prefixo) === 0) return wb.Sheets[wb.SheetNames[i]]; }
+    return null;
+  }
+  function linhas(ws) { return XLSX.utils.sheet_to_json(ws, { header: 1, raw: true, defval: null }); }
+  function cabecalho(L, nomes) {          /* acha a linha que tem todas as colunas e devolve {r, c:{NOME:col}} */
+    for (var r = 0; r < Math.min(L.length, 20); r++) {
+      var c = {};
+      for (var j = 0; j < (L[r] || []).length; j++) { var t = premChave(L[r][j]); if (nomes.indexOf(t) >= 0 && c[t] === undefined) c[t] = j; }
+      if (Object.keys(c).length === nomes.length) return { r: r, c: c };
+    }
+    return null;
+  }
+  var f = aba('FALTAS'), a = aba('ATESTADOS'), v = aba('FERIAS');
+  if (!f) throw new Error('O arquivo não tem a aba "faltas".');
+  var out = { periodo: '', ponto: [], atestados: [], ferias: [] };
+  var LF = linhas(f);
+  for (var r0 = 0; r0 < Math.min(LF.length, 4) && !out.periodo; r0++) {
+    (LF[r0] || []).forEach(function (x) {
+      var mm = /(\d{1,2}\/\d{1,2})\s*-\s*(\d{1,2}\/\d{1,2})/.exec(String(x || ''));
+      if (mm && !out.periodo) out.periodo = mm[1] + ' - ' + mm[2];
+    });
+  }
+  var hf = cabecalho(LF, ['NOME', 'ATRASOS', 'FALTAS']);
+  if (!hf) throw new Error('Não achei as colunas Nome / atrasos / Faltas na aba "faltas".');
+  for (var i = hf.r + 1; i < LF.length; i++) {
+    var nome = LF[i] && LF[i][hf.c.NOME];
+    if (!nome || !String(nome).trim()) continue;
+    var bruto = String(nome).trim(), inss = /\s*-\s*INSS\s*$/i.test(bruto), limpo = bruto.replace(/\s*-\s*INSS\s*$/i, '').trim();
+    out.ponto.push({ exibe: limpo, chave: premChave(limpo), atraso: premHoraSeg(LF[i][hf.c.ATRASOS]), falta: premHoraSeg(LF[i][hf.c.FALTAS]), inss: inss });
+  }
+  if (a) {
+    var LA = linhas(a), ha = cabecalho(LA, ['DESCRICAO', 'AUSENCIAS']);
+    if (ha) for (var j = ha.r + 1; j < LA.length; j++) {
+      var n2 = LA[j] && LA[j][ha.c.DESCRICAO];
+      if (!n2 || !String(n2).trim() || /TOTAL/i.test(String(n2))) continue;
+      var sg = premHoraSeg(LA[j][ha.c.AUSENCIAS]);
+      if (sg > 0) out.atestados.push({ exibe: String(n2).trim(), chave: premChave(n2), seg: sg });
+    }
+  }
+  if (v) {
+    var LV = linhas(v), hv = cabecalho(LV, ['NOME', 'DATA']);
+    if (hv) for (var k = hv.r + 1; k < LV.length; k++) {
+      var n3 = LV[k] && LV[k][hv.c.NOME];
+      if (!n3 || !String(n3).trim()) continue;
+      out.ferias.push({ exibe: String(n3).trim(), chave: premChave(n3), txt: String(LV[k][hv.c.DATA] || '').trim() });
+    }
+  }
+  return out;
+}
+function premAcharFunc(m, chave) {
+  for (var i = 0; i < m.itens.length; i++) { if (premChave(m.itens[i].nome) === chave) return i; }
+  var ap = premApelidos[chave];
+  if (ap) { var ck = premChave(ap); for (var j = 0; j < m.itens.length; j++) { if (premChave(m.itens[j].nome) === ck) return j; } }
+  return -1;
+}
+function premSugerir(m, chave, usados) {
+  var t = chave.split(' ').filter(function (x) { return x.length > 2; });
+  var res = [];
+  m.itens.forEach(function (it, i) {
+    var u = premChave(it.nome).split(' ').filter(function (x) { return x.length > 2; });
+    if (!t.length || !u.length) return;
+    var comuns = 0;
+    t.forEach(function (x) { if (u.indexOf(x) >= 0) comuns++; });
+    var sc = comuns / Math.min(t.length, u.length);
+    if (comuns && sc > 0.5) res.push({ i: i, sc: sc });
+  });
+  res.sort(function (a, b) { return b.sc - a.sc; });
+  return res.slice(0, 3).map(function (x) { return x.i; });
+}
+function premPrepararImport(dados, nomeArquivo) {
+  var m = premMes(premSel);
+  var vistos = {}, nomes = [];
+  [dados.ponto, dados.atestados, dados.ferias].forEach(function (lista) {
+    lista.forEach(function (x) {
+      if (vistos[x.chave]) return;
+      vistos[x.chave] = 1;
+      nomes.push({ chave: x.chave, exibe: x.exibe, idx: premAcharFunc(m, x.chave), escolha: '' });
+    });
+  });
+  dados.nomes = nomes;
+  dados.arquivo = nomeArquivo;
+  dados.zero = {};
+  premImport = dados;
+}
+function premIdxResolvidos(m) {
+  var alvo = {};
+  premImport.nomes.forEach(function (n) {
+    if (n.idx >= 0) alvo[n.chave] = n.idx;
+    else if (n.escolha.indexOf('i:') === 0) alvo[n.chave] = +n.escolha.slice(2);
+  });
+  return alvo;
+}
+function premHtmlImport(m) {
+  var imp = premImport;
+  var pend = imp.nomes.filter(function (n) { return n.idx < 0; });
+  var alvo = premIdxResolvidos(m);
+  var h = '<div class="prem-aviso ok">Arquivo <strong>' + escaparHTML(imp.arquivo) + '</strong>: ' + imp.ponto.length + ' linhas no ponto, ' + imp.atestados.length + ' com atestado, ' + imp.ferias.length + ' em férias' +
+    (imp.periodo ? ', período ' + escaparHTML(imp.periodo) : '') + '; ' + imp.ponto.filter(function (p) { return p.inss; }).length + ' com "- INSS" (afastados).</div>';
+  var abertas = 0;
+  if (pend.length) {
+    h += '<h4 style="margin:12px 0 6px;">Nomes que não batem com o cadastro (' + pend.length + ')</h4>' +
+      '<p class="dica">Escolha a quem cada nome do arquivo se refere. A escolha fica gravada e o próximo mês já reconhece sozinho.</p>' +
+      '<div class="tabela-wrap"><table class="prem-tab"><thead><tr><th>Nome no arquivo</th><th>É a pessoa do cadastro</th></tr></thead><tbody>';
+    pend.forEach(function (n) {
+      if (!n.escolha) abertas++;
+      var sug = premSugerir(m, n.chave);
+      var opts = '<option value="">— escolher —</option><option value="ignorar"' + (n.escolha === 'ignorar' ? ' selected' : '') + '>Ignorar (não participa do programa)</option><option value="novo"' + (n.escolha === 'novo' ? ' selected' : '') + '>Cadastrar como funcionário novo</option>';
+      if (sug.length) opts += '<optgroup label="Parecidos">' + sug.map(function (i) { return '<option value="i:' + i + '"' + (n.escolha === 'i:' + i ? ' selected' : '') + '>' + escaparHTML(m.itens[i].nome) + '</option>'; }).join('') + '</optgroup>';
+      opts += '<optgroup label="Todos">' + m.itens.map(function (it, i) { return '<option value="i:' + i + '"' + (n.escolha === 'i:' + i && sug.indexOf(i) < 0 ? ' selected' : '') + '>' + escaparHTML(it.nome) + '</option>'; }).join('') + '</optgroup>';
+      h += '<tr><td><strong>' + escaparHTML(n.exibe) + '</strong></td><td><select data-imp="' + escaparHTML(n.chave) + '">' + opts + '</select></td></tr>';
+    });
+    h += '</tbody></table></div>';
+  }
+  var noPonto = {};
+  imp.ponto.forEach(function (p) { if (alvo[p.chave] !== undefined) noPonto[alvo[p.chave]] = 1; });
+  var sem = [];
+  m.itens.forEach(function (it, i) { if (!noPonto[i] && !it.afastado) sem.push(i); });
+  if (sem.length) {
+    h += '<h4 style="margin:12px 0 6px;">Funcionários sem linha no ponto (' + sem.length + ')</h4>' +
+      '<p class="dica">Sem registro eles ficam com <strong>0 ponto em faltas e horário</strong> e pendência no Resultado. Se a pessoa não teve ocorrência nenhuma, marque para tratar como "sem ocorrências".</p>';
+    sem.forEach(function (i) {
+      h += '<label class="ap-check" style="display:inline-block;margin:0 14px 6px 0;"><input type="checkbox" data-zero="' + i + '"' + (imp.zero[i] ? ' checked' : '') + '> ' + escaparHTML(m.itens[i].nome) + '</label>';
+    });
+  }
+  h += '<div class="detalhe-acoes" style="margin-top:14px;"><button type="button" class="btn btn-primario" data-pa="aplicar-import"' + (abertas ? ' disabled' : '') + '>Aplicar ao mês ' + premMesRot(m.mes) + '</button>' +
+    '<button type="button" class="btn btn-contorno" data-pa="cancelar-import">Cancelar</button>' + (abertas ? ' <span class="muted">Falta resolver ' + abertas + ' nome(s).</span>' : '') + '</div>';
+  return h;
+}
+function premAplicarImport() {
+  var m = premMes(premSel), imp = premImport;
+  if (!m || !imp || m.fechado) return;
+  var novosApelidos = [], alvo = {};
+  imp.nomes.forEach(function (n) {
+    if (n.idx >= 0) { alvo[n.chave] = n.idx; return; }
+    if (n.escolha.indexOf('i:') === 0) {
+      var i = +n.escolha.slice(2);
+      alvo[n.chave] = i;
+      novosApelidos.push({ chave: n.chave, nome: m.itens[i].nome });
+    } else if (n.escolha === 'novo') {
+      m.itens.push({ nome: n.exibe, setor: '', cc: '', lider: false, afastado: false, ferias: '', ponto: null });
+      alvo[n.chave] = m.itens.length - 1;
+    }
+  });
+  m.itens.forEach(function (it) { it.ponto = null; it.ferias = ''; delete it.snap; });
+  imp.ponto.forEach(function (p) {
+    var i = alvo[p.chave];
+    if (i === undefined) return;
+    var it = m.itens[i];
+    it.ponto = { atraso: p.atraso, falta: p.falta, atestado: 0 };
+    it.afastado = !!p.inss;
+  });
+  imp.atestados.forEach(function (a) {
+    var i = alvo[a.chave];
+    if (i === undefined) return;
+    var it = m.itens[i];
+    if (!it.ponto) it.ponto = { atraso: 0, falta: 0, atestado: 0 };
+    it.ponto.atestado += a.seg;
+  });
+  imp.ferias.forEach(function (f) {
+    var i = alvo[f.chave];
+    if (i === undefined) return;
+    var it = m.itens[i];
+    it.ferias = it.ferias ? it.ferias + ' + ' + f.txt : (f.txt || 'sim');
+  });
+  Object.keys(imp.zero).forEach(function (i) {
+    if (imp.zero[i] && !m.itens[i].ponto) m.itens[i].ponto = { atraso: 0, falta: 0, atestado: 0 };
+  });
+  m.conf.ponto = true;
+  if (imp.periodo) m.periodo = imp.periodo;
+  premImport = null;
+  var resumoImp = 'Arquivo ' + imp.arquivo + ': ' + imp.ponto.length + ' linhas no ponto, ' + imp.atestados.length + ' com atestado, ' + imp.ferias.length + ' em férias, ' +
+    imp.ponto.filter(function (p) { return p.inss; }).length + ' afastados (INSS), ' + novosApelidos.length + ' nome(s) associado(s) ao cadastro' +
+    (imp.periodo ? ', período ' + imp.periodo : '') + '.';
+  premSalvarApelidos(novosApelidos).then(function () { return premSalvarMes(m); }).then(function (ok) {
+    if (ok) premRegistrarLog('sistema', 'Ponto importado em ' + premMesRot(m.mes), resumoImp, m.mes);
+    premMsg = ok ? { texto: 'Ponto aplicado e salvo. Confira em Resultado do mês e em Funcionários.', tipo: 'ok' } : { texto: 'O ponto foi aplicado na tela mas NÃO foi salvo. Tente salvar de novo (mexa em qualquer campo) ou recarregue.', tipo: 'perigo' };
+    premRenderizar();
+  });
+}
+function premNovoMes() {
+  var ult = premMeses.length ? premMeses[0] : null;
+  var prox = '';
+  if (ult) {
+    var a = +ult.mes.slice(0, 4), mm = +ult.mes.slice(5, 7) + 1;
+    if (mm > 12) { mm = 1; a++; }
+    prox = a + '-' + premP2(mm);
+  } else prox = new Date().getFullYear() + '-' + premP2(new Date().getMonth() + 1);
+  abrirModalBase('Novo mês', '<div class="campo"><label>Mês da premiação</label><input type="month" id="premNovoMes" value="' + prox + '"></div>' +
+    '<div class="campo"><label>Período do ponto (opcional)</label><input type="text" id="premNovoPeriodo" placeholder="ex.: 15/10 - 14/11"></div>' +
+    '<p class="dica">O mês novo nasce com os funcionários, setores e notas do último mês (sem ponto e sem férias). Depois é só importar o ponto e conferir as notas.</p>', [
+    { texto: 'Cancelar', classe: 'btn-contorno', aoClicar: function () { return true; } },
+    { texto: 'Criar', classe: 'btn-primario', aoClicar: function () {
+        var v = document.getElementById('premNovoMes').value;
+        if (!/^\d{4}-\d{2}$/.test(v)) { mostrarAvisoModal('Escolha o mês.'); return false; }
+        var mes = v + '-01';
+        if (premMes(mes)) { mostrarAvisoModal('Esse mês já existe.'); return false; }
+        var base = null;
+        premMeses.forEach(function (x) { if (x.mes < mes && (!base || x.mes > base.mes)) base = x; });
+        if (!base) base = ult;
+        var m = { mes: mes, periodo: document.getElementById('premNovoPeriodo').value.trim(), regra: 2, fechado: false, conf: { ponto: false, setores: false }, itens: [], setores: {} };
+        if (base) {
+          m.itens = premClonar(base.itens).map(function (it) { it.ponto = null; it.ferias = ''; delete it.snap; return it; });
+          m.setores = premClonar(base.setores);
+        }
+        premMeses.push(m);
+        premMeses.sort(function (a, b) { return a.mes < b.mes ? 1 : -1; });
+        premSel = mes;
+        premImport = null;
+        premSalvarMes(m).then(function (ok) {
+          if (ok) premRegistrarLog('sistema', 'Mês ' + premMesRot(mes) + ' criado', 'Criado a partir de ' + (base ? premMesRot(base.mes) : 'zero') + ' com a regra ' + m.regra + '.', mes);
+          premMsg = ok ? { texto: 'Mês ' + premMesRot(mes) + ' criado a partir de ' + (base ? premMesRot(base.mes) : 'zero') + '. Importe o ponto e confira as notas.', tipo: 'ok' } : { texto: 'O mês foi criado na tela mas NÃO foi salvo no Supabase.', tipo: 'perigo' };
+          premRenderizar();
+        });
+        return true;
+      } }
+  ]);
+}
+
+/* ---------- 3. NOTAS DOS SETORES ---------- */
+function premNomesSetores(m) {
+  var nomes = Object.keys(m.setores || {});
+  var chaves = nomes.map(premChave);
+  m.itens.forEach(function (it) {
+    if (it.setor && chaves.indexOf(premChave(it.setor)) < 0) { nomes.push(it.setor); chaves.push(premChave(it.setor)); }
+  });
+  return nomes.sort(function (a, b) { return premChave(a) < premChave(b) ? -1 : 1; });
+}
+function premChaveSetor(m, nome) {          /* a chave com que o setor está guardado em m.setores (ou a do próprio nome) */
+  var c = premChave(nome), ks = Object.keys(m.setores || {});
+  for (var i = 0; i < ks.length; i++) { if (premChave(ks[i]) === c) return ks[i]; }
+  return nome;
+}
+function premTelaNotas() {
+  var m = premMes(premSel);
+  if (!m) return premVazio('Notas dos setores');
+  var nomes = premNomesSetores(m);
+  var h = '<div class="prem-barra">' + premSeletorMes() + '<span class="espaco"></span><span class="log-meta" id="premStatus"></span>' +
+    (m.fechado ? '' : '<button type="button" class="btn ' + (m.conf.setores ? 'btn-contorno' : 'btn-primario') + '" data-pa="conferir-notas">' + (m.conf.setores ? 'Notas conferidas ✔ (desmarcar)' : 'Marcar notas como conferidas') + '</button>') + '</div>';
+  h += premBanner(m);
+  if (!m.conf.setores && !m.fechado) h += '<div class="prem-aviso perigo">As notas abaixo ainda não foram conferidas neste mês. Se o mês nasceu do anterior, elas são as do mês passado: revise cada setor e depois marque como conferidas.</div>';
+  h += '<p class="dica">Cada critério recebe <strong>Ótimo (4), Bom (3), Regular (2) ou Ruim (1)</strong>. A % do setor é a soma dos pontos dividida pelo máximo; a pontuação segue a regra da planilha.</p>';
+  ['ap', 'ci', 'co'].forEach(function (g) {
+    var G = PREM_GRUPOS[g];
+    h += '<div class="log-card log-card-largo"><h4>' + G.nome + ' (até ' + premNum(G.max, 1) + ' pt)</h4><div class="tabela-wrap"><table class="prem-tab"><thead><tr><th>Setor</th>' +
+      G.rot.map(function (r) { return '<th>' + escaparHTML(r) + '</th>'; }).join('') + '<th class="num">%</th><th class="num">Pontos</th></tr></thead><tbody>';
+    nomes.forEach(function (n) {
+      var ch = premChaveSetor(m, n), arr = (m.setores[ch] && m.setores[ch][g]) || [];
+      h += '<tr data-lin="' + g + '|' + escaparHTML(n) + '"><td><strong>' + escaparHTML(n) + '</strong></td>';
+      G.rot.forEach(function (r, i) {
+        var v = arr[i] || 0;
+        h += '<td><select class="prem-nota n' + v + '" data-nota="' + g + '|' + i + '|' + escaparHTML(n) + '"' + (m.fechado ? ' disabled' : '') + '>' +
+          '<option value="0"' + (v === 0 ? ' selected' : '') + '>—</option>' + PREM_NOTAS.map(function (x) { return '<option value="' + x[0] + '"' + (v === x[0] ? ' selected' : '') + '>' + x[1] + '</option>'; }).join('') + '</select></td>';
+      });
+      h += premCelulasResultadoSetor(m, n, g) + '</tr>';
+    });
+    h += '</tbody></table></div></div>';
+  });
+  return h;
+}
+function premCelulasResultadoSetor(m, nome, g) {
+  var s = m.setores[premChaveSetor(m, nome)];
+  var p = premPctGrupo(s, g);
+  var pts = g === 'ap' ? premPontosAp(p, m.regra) : premPontosMeta(p, m.regra);
+  return '<td class="num">' + (p === null ? '—' : premNum(p * 100, 1) + '%') + '</td><td class="num"><strong>' + premNum(pts, 1) + '</strong></td>';
+}
+function premMudouNota(sel) {
+  var m = premMes(premSel);
+  if (!m || m.fechado) return;
+  var p = sel.getAttribute('data-nota').split('|');
+  var g = p[0], i = +p[1], nome = p.slice(2).join('|');
+  var ch = premChaveSetor(m, nome);
+  if (!m.setores[ch]) m.setores[ch] = {};
+  if (!m.setores[ch][g]) { m.setores[ch][g] = []; for (var k = 0; k < PREM_GRUPOS[g].rot.length; k++) m.setores[ch][g].push(0); }
+  m.setores[ch][g][i] = +sel.value;
+  sel.className = 'prem-nota n' + (+sel.value);
+  var tr = sel.closest('tr');
+  var n = PREM_GRUPOS[g].rot.length;
+  var tds = tr.querySelectorAll('td');
+  tr.removeChild(tds[tds.length - 1]); tr.removeChild(tds[tds.length - 2]);
+  tr.insertAdjacentHTML('beforeend', premCelulasResultadoSetor(m, nome, g));
+  m.conf.setores = false;
+  premAgendarSalvar(m);
+}
+
+/* ---------- 4. FUNCIONÁRIOS ---------- */
+function premTelaFuncionarios() {
+  var m = premMes(premSel);
+  if (!m) return premVazio('Funcionários');
+  var dis = m.fechado ? ' disabled' : '';
+  var setores = premNomesSetores(m);
+  var ccs = ['RODRIAÇO', 'CENTERINOX'];
+  m.itens.forEach(function (it) { if (it.cc && ccs.indexOf(it.cc) < 0) ccs.push(it.cc); });
+  var h = '<div class="prem-barra">' + premSeletorMes() +
+    '<div class="campo"><label>Buscar</label><input type="text" id="premBuscaF" placeholder="Nome" value="' + escaparHTML(premFiltro.busca) + '"></div>' +
+    '<span class="espaco"></span><span class="log-meta" id="premStatus"></span>' +
+    (m.fechado ? '' : '<button type="button" class="btn btn-primario" data-pa="add-func">Adicionar funcionário</button>') + '</div>';
+  h += premBanner(m);
+  h += '<p class="dica">Tempos no formato <code>H:MM:SS</code> (ex.: <code>0:14:00</code> = 14 minutos). Deixe em branco quando a pessoa não está no ponto. As alterações são salvas sozinhas.</p>';
+  var b = premChave(premFiltro.busca);
+  h += '<div class="tabela-wrap"><table class="prem-tab"><thead><tr><th>Nome</th><th>Setor</th><th>C. custo</th><th>Líder</th><th>Situação</th><th>Período das férias</th><th>Atrasos</th><th>Faltas</th><th>Atestados</th><th></th></tr></thead><tbody id="premFuncCorpo">';
+  m.itens.forEach(function (it, i) {
+    if (b && premChave(it.nome).indexOf(b) < 0) return;
+    var sit = it.afastado ? 'afastado' : (it.ferias ? 'ferias' : 'normal');
+    var p = it.ponto;
+    var optSetor = setores.slice();
+    if (it.setor && optSetor.map(premChave).indexOf(premChave(it.setor)) < 0) optSetor.push(it.setor);
+    h += '<tr data-i="' + i + '"><td><input type="text" class="nome" data-f="nome" value="' + escaparHTML(it.nome) + '"' + dis + '></td>' +
+      '<td><select data-f="setor"' + dis + '>' + premOpcoes(optSetor, it.setor, '— setor —') + '</select></td>' +
+      '<td><select data-f="cc"' + dis + '>' + premOpcoes(ccs, it.cc, '—') + '</select></td>' +
+      '<td><input type="checkbox" data-f="lider"' + (it.lider ? ' checked' : '') + dis + '></td>' +
+      '<td><select data-f="sit"' + dis + '>' + premOpcoes([['normal', 'Normal'], ['ferias', 'Férias'], ['afastado', 'Afastado']], sit) + '</select></td>' +
+      '<td><input type="text" class="medio" data-f="ferias" placeholder="ex.: 09/11 - 08/12" value="' + escaparHTML(it.ferias || '') + '"' + (sit === 'ferias' && !m.fechado ? '' : ' disabled') + '></td>' +
+      '<td><input type="text" class="curto" data-f="atraso" value="' + (p ? premHMS(p.atraso) : '') + '"' + dis + '></td>' +
+      '<td><input type="text" class="curto" data-f="falta" value="' + (p ? premHMS(p.falta) : '') + '"' + dis + '></td>' +
+      '<td><input type="text" class="curto" data-f="atestado" value="' + (p ? premHMS(p.atestado) : '') + '"' + dis + '></td>' +
+      '<td>' + (m.fechado ? '' : '<button type="button" class="btn btn-contorno btn-sm" data-pa="del-func" data-i="' + i + '">Remover</button>') + '</td></tr>';
+  });
+  return h + '</tbody></table></div>';
+}
+function premMudouFunc(campo) {
+  var m = premMes(premSel);
+  if (!m || m.fechado) return;
+  var tr = campo.closest('tr'), i = +tr.getAttribute('data-i'), it = m.itens[i], f = campo.getAttribute('data-f');
+  if (f === 'nome') it.nome = campo.value.trim().toUpperCase();
+  else if (f === 'setor') it.setor = campo.value;
+  else if (f === 'cc') it.cc = campo.value;
+  else if (f === 'lider') it.lider = campo.checked;
+  else if (f === 'sit') {
+    it.afastado = campo.value === 'afastado';
+    if (campo.value !== 'ferias') it.ferias = '';
+    else if (!it.ferias) it.ferias = 'sim';
+    var fi = tr.querySelector('[data-f="ferias"]');
+    fi.disabled = campo.value !== 'ferias';
+    fi.value = it.ferias === 'sim' ? '' : it.ferias;
+  } else if (f === 'ferias') it.ferias = campo.value.trim() || 'sim';
+  else {                                         /* atraso / falta / atestado */
+    var v = premParseHMS(campo.value);
+    if (v === null) { campo.style.borderColor = 'var(--danger)'; return; }
+    campo.style.borderColor = '';
+    var vazio = !campo.value.trim();
+    if (vazio) {
+      var outros = ['atraso', 'falta', 'atestado'].filter(function (x) { return x !== f && tr.querySelector('[data-f="' + x + '"]').value.trim(); });
+      if (!outros.length) { it.ponto = null; premAgendarSalvar(m); return; }
+    }
+    if (!it.ponto) it.ponto = { atraso: 0, falta: 0, atestado: 0 };
+    it.ponto[f] = v;
+    ['atraso', 'falta', 'atestado'].forEach(function (x) { var c = tr.querySelector('[data-f="' + x + '"]'); if (!c.value.trim()) c.value = premHMS(it.ponto[x]); });
+  }
+  m.conf.ponto = m.conf.ponto || false;
+  premAgendarSalvar(m);
+}
+function premAdicionarFunc() {
+  var m = premMes(premSel);
+  if (!m || m.fechado) return;
+  var setores = premNomesSetores(m), ccs = ['RODRIAÇO', 'CENTERINOX'];
+  abrirModalBase('Adicionar funcionário', '<div class="campo"><label>Nome (como no ponto)</label><input type="text" id="premAddNome"></div>' +
+    '<div class="campo-linha"><div class="campo"><label>Setor</label><select id="premAddSetor">' + premOpcoes(setores, '', '— setor —') + '</select></div>' +
+    '<div class="campo"><label>Centro de custo</label><select id="premAddCc">' + premOpcoes(ccs, '', '—') + '</select></div></div>' +
+    '<label class="ap-check"><input type="checkbox" id="premAddLider"> Líder (prêmio de R$ ' + PREM.baseLider + ')</label>', [
+    { texto: 'Cancelar', classe: 'btn-contorno', aoClicar: function () { return true; } },
+    { texto: 'Adicionar', classe: 'btn-primario', aoClicar: function () {
+        var nome = document.getElementById('premAddNome').value.trim().toUpperCase();
+        if (!nome) { mostrarAvisoModal('Informe o nome.'); return false; }
+        if (premAcharFunc(m, premChave(nome)) >= 0) { mostrarAvisoModal('Já existe alguém com esse nome neste mês.'); return false; }
+        m.itens.push({ nome: nome, setor: document.getElementById('premAddSetor').value, cc: document.getElementById('premAddCc').value, lider: document.getElementById('premAddLider').checked, afastado: false, ferias: '', ponto: null });
+        premSalvarMes(m).then(function () { premRenderizar(); });
+        return true;
+      } }
+  ]);
+}
+function premRemoverFunc(i) {
+  var m = premMes(premSel);
+  if (!m || m.fechado || !m.itens[i]) return;
+  abrirModalBase('Remover funcionário', '<p>Remover <strong>' + escaparHTML(m.itens[i].nome) + '</strong> de ' + premMesRot(m.mes) + '? Os outros meses não mudam.</p>', [
+    { texto: 'Cancelar', classe: 'btn-contorno', aoClicar: function () { return true; } },
+    { texto: 'Remover', classe: 'btn-perigo', aoClicar: function () {
+        m.itens.splice(i, 1);
+        premSalvarMes(m).then(function () { premRenderizar(); });
+        return true;
+      } }
+  ]);
+}
+
+/* ---------- 5. HISTÓRICO ---------- */
+function premTelaHistorico() {
+  if (!premMeses.length) return premVazio('Histórico');
+  var meses = (premHistN === 0 ? premMeses.slice() : premMeses.slice(0, premHistN)).slice().reverse();     /* do mais antigo ao mais novo */
+  var pessoas = {}, totais = {};
+  meses.forEach(function (m) {
+    totais[m.mes] = 0;
+    premLinhas(m).forEach(function (l) {
+      var c = premChave(l.it.nome);
+      var p = pessoas[c] || (pessoas[c] = { nome: l.it.nome, setor: '', cells: {}, total: 0, soma: 0, n: 0 });
+      p.nome = l.it.nome; p.setor = l.it.setor || p.setor;
+      p.cells[m.mes] = { nota: l.v.nota, valor: l.v.valor };
+      p.total += l.v.valor; p.soma += l.v.nota; p.n++;
+      totais[m.mes] += l.v.valor;
+    });
+  });
+  var lista = Object.keys(pessoas).map(function (k) { var p = pessoas[k]; p.media = p.n ? p.soma / p.n : 0; return p; });
+  var b = premChave(premFiltro.busca), s = premChave(premFiltro.setor);
+  lista = lista.filter(function (p) { return (!b || premChave(p.nome).indexOf(b) >= 0) && (!s || premChave(p.setor) === s); });
+  var k = premHistOrdem.k, d = premHistOrdem.dir;
+  lista.sort(function (x, y) {
+    if (k === 'nome' || k === 'setor') { var a = premChave(x[k]), c = premChave(y[k]); return a < c ? -d : (a > c ? d : 0); }
+    return (x[k] - y[k]) * d;
+  });
+  var setores = [];
+  premMeses.forEach(function (m) { m.itens.forEach(function (it) { if (it.setor && setores.indexOf(it.setor) < 0) setores.push(it.setor); }); });
+  setores.sort();
+  var maxT = 0;
+  meses.forEach(function (m) { if (totais[m.mes] > maxT) maxT = totais[m.mes]; });
+  var h = '<div class="prem-barra"><div class="campo"><label>Período</label><select id="premHistN">' + premOpcoes([['3', 'Últimos 3 meses'], ['6', 'Últimos 6 meses'], ['12', 'Últimos 12 meses'], ['0', 'Todos']], String(premHistN)) + '</select></div>' +
+    '<div class="campo"><label>Buscar</label><input type="text" id="premBuscaH" placeholder="Nome" value="' + escaparHTML(premFiltro.busca) + '"></div>' +
+    '<div class="campo"><label>Setor</label><select id="premHSetor">' + premOpcoes(setores, premFiltro.setor, 'Todos') + '</select></div></div>';
+  h += '<div class="log-card log-card-largo"><h4>Total pago por mês</h4><div class="prem-barras">' + meses.map(function (m) {
+    return '<div class="prem-barra-linha"><span>' + premMesRot(m.mes) + '</span><div class="prem-barra-fundo"><div class="prem-barra-valor" style="width:' + (maxT ? Math.round(totais[m.mes] / maxT * 100) : 0) + '%"></div></div><strong style="text-align:right;">' + premMoeda(totais[m.mes]) + '</strong></div>';
+  }).join('') + '</div></div>';
+  function th(chave, rot, cls) { return '<th class="th-ordenavel ' + (cls || '') + '" data-hord="' + chave + '">' + rot + (premHistOrdem.k === chave ? (premHistOrdem.dir > 0 ? ' &#9650;' : ' &#9660;') : '') + '</th>'; }
+  h += '<div class="log-card log-card-largo"><h4>Por funcionário</h4><div class="tabela-wrap"><table class="prem-tab log-tabela"><thead><tr>' + th('nome', 'Funcionário') + th('setor', 'Setor') +
+    meses.map(function (m) { return '<th class="num">' + premMesRot(m.mes) + '</th>'; }).join('') + th('total', 'Total', 'num') + th('media', 'Nota média', 'num') + '</tr></thead><tbody>';
+  lista.forEach(function (p) {
+    h += '<tr><td>' + escaparHTML(p.nome) + '</td><td>' + escaparHTML(p.setor) + '</td>' + meses.map(function (m) {
+      var c = p.cells[m.mes];
+      return '<td class="num">' + (c ? premNum(c.valor, 2) + ' <span class="muted">(' + premNum(c.nota * 100, 0) + '%)</span>' : '<span class="muted">—</span>') + '</td>';
+    }).join('') + '<td class="num"><strong>' + premMoeda(p.total) + '</strong></td><td class="num">' + premNum(p.media * 100, 0) + '%</td></tr>';
+  });
+  if (!lista.length) h += '<tr><td colspan="' + (meses.length + 4) + '"><div class="lista-vazia-mini">Nada com esse filtro.</div></td></tr>';
+  h += '<tr class="prem-total"><td colspan="2">Total do período (' + lista.length + ' pessoas)</td>' + meses.map(function (m) { return '<td class="num">' + premMoeda(totais[m.mes]) + '</td>'; }).join('') +
+    '<td class="num">' + premMoeda(lista.reduce(function (a, p) { return a + p.total; }, 0)) + '</td><td></td></tr>';
+  return h + '</tbody></table></div></div>';
+}
+
+/* ---------- LOG (mudanças de regra, de dados e o que o app faz) ---------- */
+var premLogs = [];             /* linhas de premiacao_log, mais novas primeiro */
+var premLogFiltro = { tipo: '', busca: '' };
+var PREM_TIPOS_LOG = [['regra', 'Regra'], ['dados', 'Dados'], ['cadastro', 'Cadastro'], ['planilha', 'Planilha'], ['documentacao', 'Documentação'], ['sistema', 'Sistema'], ['manual', 'Manual']];
+function premRotuloTipo(t) {
+  for (var i = 0; i < PREM_TIPOS_LOG.length; i++) { if (PREM_TIPOS_LOG[i][0] === t) return PREM_TIPOS_LOG[i][1]; }
+  return t;
+}
+function premRegistrarLog(tipo, titulo, descricao, mes) {
+  var linha = { mes: mes || null, tipo: tipo, titulo: titulo, descricao: descricao || '', autor: (logObterSessao() || {}).email || '', origem: 'sistema' };
+  return premApi('premiacao_log', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' }, body: JSON.stringify([linha]) })
+    .then(function (r) { if (r && r[0]) premLogs.unshift(r[0]); })
+    .catch(function () {});
+}
+function premMesesDaRegra(v) {
+  var ms = premMeses.filter(function (m) { return (m.regra || 2) === v; }).map(function (m) { return m.mes; }).sort();
+  if (!ms.length) return '—';
+  return ms.length === 1 ? premMesRot(ms[0]) : premMesRot(ms[0]) + ' a ' + premMesRot(ms[ms.length - 1]);
+}
+function premTelaLog() {
+  var porTipo = {};
+  premLogs.forEach(function (l) { porTipo[l.tipo] = (porTipo[l.tipo] || 0) + 1; });
+  var b = premChave(premLogFiltro.busca);
+  var lista = premLogs.filter(function (l) {
+    if (premLogFiltro.tipo && l.tipo !== premLogFiltro.tipo) return false;
+    if (b && premChave(l.titulo + ' ' + l.descricao).indexOf(b) < 0) return false;
+    return true;
+  });
+  var h = '<div class="prem-barra"><div class="campo"><label>Buscar no log</label><input type="text" id="premLogBusca" placeholder="Palavra do título ou da descrição" value="' + escaparHTML(premLogFiltro.busca) + '"></div>' +
+    '<span class="espaco"></span><span class="log-meta" id="premStatus"></span><button type="button" class="btn btn-primario" data-pa="log-novo">Registrar alteração</button></div>';
+  h += '<div class="log-chips" style="margin-bottom:12px;"><button type="button" class="btn btn-sm ' + (!premLogFiltro.tipo ? 'btn-primario' : 'btn-contorno') + '" data-logtipo="">Tudo (' + premLogs.length + ')</button> ' +
+    PREM_TIPOS_LOG.filter(function (t) { return porTipo[t[0]]; }).map(function (t) {
+      return '<button type="button" class="btn btn-sm ' + (premLogFiltro.tipo === t[0] ? 'btn-primario' : 'btn-contorno') + '" data-logtipo="' + t[0] + '">' + t[1] + ' (' + porTipo[t[0]] + ')</button>';
+    }).join(' ') + '</div>';
+  h += '<div class="log-card log-card-largo"><h4>Regras de pontuação</h4><div class="tabela-wrap"><table class="prem-tab prem-regras"><thead><tr><th>Critério</th>' +
+    '<th>Regra 1 — piloto (' + premMesesDaRegra(1) + ')</th><th>Regra 2 — atual (' + premMesesDaRegra(2) + ')</th></tr></thead><tbody>' +
+    '<tr><td>Aproveitamento no setor (até 2 pts)</td><td>2 pts só com 100%; 1 pt de 75% a 99%</td><td>2 pts acima de 89%; 1 pt de 70% a 89%</td></tr>' +
+    '<tr><td>Cliente interno e setores em comum (até 1,5 pt cada)</td><td>1,5 pt só com 100%; 0,5 pt de 75% a 99%</td><td>1,5 pt com 90% ou mais; 0,5 pt de 70% a 89%</td></tr>' +
+    '<tr><td>Quem tem falta</td><td>perde os pontos de faltas <strong>e</strong> de horário</td><td>perde só os pontos de faltas</td></tr>' +
+    '<tr><td>Atraso de exatamente 5 min</td><td>0,5 pt</td><td>1,5 pt</td></tr>' +
+    '<tr><td>Igual nas duas</td><td colspan="2">faltas 3,5 · horário 1,5 · soma 10 (produtividade fora) · prêmio = nota × R$ 250 (líder × R$ 500) · metade em férias · zero se afastado · atestado até 9 h = 3,5 pts, até 18 h = 1,5 pt · atraso até 5 min = 1,5 pt, até 15 min = 0,5 pt</td></tr>' +
+    '</tbody></table></div></div>';
+  h += '<div class="prem-linha-tempo">';
+  lista.forEach(function (l) {
+    var d = new Date(l.em);
+    h += '<div class="prem-evento ' + (l.tipo === 'regra' ? 'regra' : '') + '"><div class="prem-evento-cab"><span class="prem-chip ' + (l.tipo === 'regra' ? 'afastado' : (l.tipo === 'dados' ? 'ferias' : '')) + '">' + escaparHTML(premRotuloTipo(l.tipo)) + '</span>' +
+      '<strong>' + escaparHTML(l.titulo) + '</strong><span class="muted" style="margin-left:auto;">' + d.toLocaleDateString('pt-BR') + (l.mes ? ' · mês ' + premMesRot(String(l.mes).slice(0, 7) + '-01') : '') + '</span></div>' +
+      (l.descricao ? '<div class="prem-evento-txt">' + escaparHTML(l.descricao) + '</div>' : '') +
+      '<div class="prem-evento-rodape muted">' + (l.origem === 'carga' ? 'histórico carregado das planilhas' : escaparHTML(l.autor || 'sistema')) +
+      (l.origem === 'manual' ? ' <button type="button" class="btn btn-contorno btn-sm" data-pa="log-del" data-id="' + l.id + '">Apagar</button>' : '') + '</div></div>';
+  });
+  if (!lista.length) h += '<div class="lista-vazia">Nada no log com esse filtro.</div>';
+  return h + '</div>';
+}
+function premLogNovo() {
+  var tipos = PREM_TIPOS_LOG.filter(function (t) { return t[0] !== 'sistema'; });
+  abrirModalBase('Registrar alteração', '<div class="campo-linha"><div class="campo"><label>Tipo</label><select id="premLogTipo">' + premOpcoes(tipos, 'regra') + '</select></div>' +
+    '<div class="campo"><label>Mês a que se refere (opcional)</label><input type="month" id="premLogMes"></div></div>' +
+    '<div class="campo"><label>Título</label><input type="text" id="premLogTitulo" placeholder="ex.: Mudou o limite de atraso"></div>' +
+    '<div class="campo"><label>O que mudou</label><textarea id="premLogDesc" rows="5" placeholder="Antes, depois, quem decidiu, a partir de que mês..."></textarea></div>', [
+    { texto: 'Cancelar', classe: 'btn-contorno', aoClicar: function () { return true; } },
+    { texto: 'Registrar', classe: 'btn-primario', aoClicar: function () {
+        var titulo = document.getElementById('premLogTitulo').value.trim();
+        if (!titulo) { mostrarAvisoModal('Dê um título.'); return false; }
+        var mes = document.getElementById('premLogMes').value;
+        var linha = { mes: /^\d{4}-\d{2}$/.test(mes) ? mes + '-01' : null, tipo: document.getElementById('premLogTipo').value, titulo: titulo,
+          descricao: document.getElementById('premLogDesc').value.trim(), autor: (logObterSessao() || {}).email || '', origem: 'manual' };
+        premApi('premiacao_log', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Prefer': 'return=representation' }, body: JSON.stringify([linha]) })
+          .then(function (r) { if (r && r[0]) premLogs.unshift(r[0]); premLogs.sort(function (a, b) { return a.em < b.em ? 1 : -1; }); premMsg = { texto: 'Registrado no log.', tipo: 'ok' }; premRenderizar(); })
+          .catch(function (e) { premMsg = { texto: 'Não registrou: ' + premTextoErro(e), tipo: 'perigo' }; premRenderizar(); });
+        return true;
+      } }
+  ]);
+}
+function premLogApagar(id) {
+  abrirModalBase('Apagar registro', '<p>Apagar este registro manual do log?</p>', [
+    { texto: 'Cancelar', classe: 'btn-contorno', aoClicar: function () { return true; } },
+    { texto: 'Apagar', classe: 'btn-perigo', aoClicar: function () {
+        premApi('premiacao_log?id=eq.' + encodeURIComponent(id) + '&origem=eq.manual', { method: 'DELETE', headers: { 'Prefer': 'return=minimal' } })
+          .then(function () { premLogs = premLogs.filter(function (l) { return String(l.id) !== String(id); }); premRenderizar(); })
+          .catch(function (e) { premMsg = { texto: 'Não apagou: ' + premTextoErro(e), tipo: 'perigo' }; premRenderizar(); });
+        return true;
+      } }
+  ]);
+}
+
+/* ---------- DASHBOARD ---------- */
+var premDash = { n: 0, setor: '', cc: '' };       /* n = quantos meses mostrar (0 = todos) */
+var PREM_CRIT = [['f', 'Faltas', 3.5], ['h', 'Horário', 1.5], ['ap', 'Aproveitamento no setor', 2], ['ci', 'Cliente interno', 1.5], ['co', 'Setores em comum', 1.5]];
+function premMesCurto(mes) { return mes.slice(5, 7) + '/' + mes.slice(2, 4); }
+function premK(v) { return premNum(v / 1000, 1) + ' mil'; }
+function premSvgBarras(cols, series, o) {
+  o = o || {};
+  var W = 720, H = o.h || 220, pl = 6, pr = 6, pt = 22, pb = 26, n = cols.length;
+  var max = 0;
+  cols.forEach(function (c) {
+    var t = o.empilhado ? c.v.reduce(function (a, b) { return a + b; }, 0) : Math.max.apply(null, c.v);
+    if (t > max) max = t;
+  });
+  if (!max) max = 1;
+  var banda = (W - pl - pr) / Math.max(n, 1), ns = o.empilhado ? 1 : series.length, bw = Math.min(46, banda * 0.78 / ns);
+  var y0 = H - pb, alt = y0 - pt;
+  var s = '<svg class="prem-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + escaparHTML(o.titulo || 'gráfico') + '"><line x1="' + pl + '" y1="' + y0 + '" x2="' + (W - pr) + '" y2="' + y0 + '" stroke="var(--border)"/>';
+  cols.forEach(function (c, i) {
+    var cx = pl + banda * i + banda / 2, acum = 0;
+    if (c.marca) s += '<line x1="' + (pl + banda * i) + '" y1="' + (pt - 6) + '" x2="' + (pl + banda * i) + '" y2="' + y0 + '" stroke="var(--danger)" stroke-dasharray="3 3"/><text x="' + (pl + banda * i + 3) + '" y="' + (pt - 9) + '" style="fill:var(--danger)">' + escaparHTML(c.marca) + '</text>';
+    c.v.forEach(function (v, k) {
+      var hh = Math.round(v / max * alt);
+      var x = o.empilhado ? cx - bw / 2 : cx - (bw * ns) / 2 + bw * k;
+      var y = o.empilhado ? y0 - Math.round((acum + v) / max * alt) : y0 - hh;
+      if (o.empilhado) acum += v;
+      if (hh > 0) s += '<rect x="' + x.toFixed(1) + '" y="' + y + '" width="' + (bw - 2).toFixed(1) + '" height="' + hh + '" rx="2" fill="' + series[k].cor + '"><title>' + escaparHTML(c.rot + ' — ' + series[k].rot + ': ' + (o.fmt ? o.fmt(v) : v)) + '</title></rect>';
+      if (!o.empilhado && n <= 16 && o.rotulos !== false) s += '<text class="v" x="' + (x + (bw - 2) / 2).toFixed(1) + '" y="' + (y - 4) + '" text-anchor="middle">' + escaparHTML(o.fmtCurto ? o.fmtCurto(v) : (o.fmt ? o.fmt(v) : v)) + '</text>';
+    });
+    if (o.empilhado && o.total !== false && n <= 16) s += '<text class="v" x="' + cx.toFixed(1) + '" y="' + (y0 - Math.round(acum / max * alt) - 4) + '" text-anchor="middle">' + escaparHTML(o.fmtCurto ? o.fmtCurto(acum) : acum) + '</text>';
+    s += '<text x="' + cx.toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle">' + escaparHTML(c.rot) + '</text>';
+  });
+  return s + '</svg>';
+}
+function premSvgLinha(cols, o) {
+  o = o || {};
+  var W = 720, H = o.h || 200, pl = 34, pr = 14, pt = 18, pb = 26, n = cols.length;
+  var lo = o.min !== undefined ? o.min : 0, hi = o.max !== undefined ? o.max : 1;
+  var y0 = H - pb, alt = y0 - pt, passo = n > 1 ? (W - pl - pr) / (n - 1) : 0;
+  function Y(v) { return y0 - (v - lo) / (hi - lo) * alt; }
+  var s = '<svg class="prem-svg" viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + escaparHTML(o.titulo || 'gráfico') + '">';
+  [0, 0.25, 0.5, 0.75, 1].forEach(function (f) {
+    var v = lo + (hi - lo) * f;
+    s += '<line x1="' + pl + '" y1="' + Y(v).toFixed(1) + '" x2="' + (W - pr) + '" y2="' + Y(v).toFixed(1) + '" stroke="var(--border)"/><text x="' + (pl - 5) + '" y="' + (Y(v) + 4).toFixed(1) + '" text-anchor="end">' + escaparHTML(o.fmt(v)) + '</text>';
+  });
+  var d = '';
+  cols.forEach(function (c, i) {
+    var x = pl + passo * i;
+    if (c.marca) s += '<line x1="' + x.toFixed(1) + '" y1="' + (pt - 4) + '" x2="' + x.toFixed(1) + '" y2="' + y0 + '" stroke="var(--danger)" stroke-dasharray="3 3"/><text x="' + (x + 3).toFixed(1) + '" y="' + (pt - 6) + '" style="fill:var(--danger)">' + escaparHTML(c.marca) + '</text>';
+    d += (i ? ' L ' : 'M ') + x.toFixed(1) + ' ' + Y(c.v).toFixed(1);
+  });
+  s += '<path d="' + d + '" fill="none" stroke="var(--accent)" stroke-width="2.5"/>';
+  cols.forEach(function (c, i) {
+    var x = pl + passo * i;
+    s += '<circle cx="' + x.toFixed(1) + '" cy="' + Y(c.v).toFixed(1) + '" r="3.5" fill="var(--accent)"><title>' + escaparHTML(c.rot + ': ' + o.fmt(c.v)) + '</title></circle>';
+    if (n <= 16) s += '<text class="v" x="' + x.toFixed(1) + '" y="' + (Y(c.v) - 8).toFixed(1) + '" text-anchor="middle">' + escaparHTML(o.fmt(c.v)) + '</text>';
+    s += '<text x="' + x.toFixed(1) + '" y="' + (H - 8) + '" text-anchor="middle">' + escaparHTML(c.rot) + '</text>';
+  });
+  return s + '</svg>';
+}
+function premLegenda(series) {
+  return '<div class="prem-legenda">' + series.map(function (s) { return '<span><i style="background:' + s.cor + '"></i>' + escaparHTML(s.rot) + '</span>'; }).join('') + '</div>';
+}
+function premTelaDashboard() {
+  if (!premMeses.length) return premVazio('Dashboard');
+  var asc = premMeses.slice().sort(function (a, b) { return a.mes < b.mes ? -1 : 1; });
+  /* quem estava em cada mês (sem filtro): para entradas e saídas */
+  var presentes = {};
+  asc.forEach(function (m) { presentes[m.mes] = {}; m.itens.forEach(function (it) { presentes[m.mes][premChave(it.nome)] = it.nome; }); });
+  var meses = premDash.n ? asc.slice(-premDash.n) : asc;
+  var fs = premChave(premDash.setor);
+  var setoresOpc = [], ccsOpc = [];
+  asc.forEach(function (m) { m.itens.forEach(function (it) {
+    if (it.setor && setoresOpc.map(premChave).indexOf(premChave(it.setor)) < 0) setoresOpc.push(it.setor);
+    if (it.cc && ccsOpc.indexOf(it.cc) < 0) ccsOpc.push(it.cc);
+  }); });
+  setoresOpc.sort(function (a, b) { return premChave(a) < premChave(b) ? -1 : 1; }); ccsOpc.sort();
+  var pessoas = {};
+  var stats = meses.map(function (m, idx) {
+    var todas = premLinhas(m);
+    var ls = todas.filter(function (l) { return (!fs || premChave(l.it.setor) === fs) && (!premDash.cc || l.it.cc === premDash.cc); });
+    var o = { mes: m.mes, regra: m.regra || 2, n: ls.length, total: 0, nota: 0, ativos: 0, ferias: 0, afast: 0, falta: 0, atraso: 0, crit: { f: 0, h: 0, ap: 0, ci: 0, co: 0 }, cc: {}, set: {} };
+    todas.forEach(function (l) {   /* mapa de calor: sem o filtro de setor */
+      if (premDash.cc && l.it.cc !== premDash.cc) return;
+      var k = premChave(l.it.setor) || '(sem setor)', a = o.set[k] || (o.set[k] = { nome: l.it.setor || '(sem setor)', n: 0, s: 0 });
+      if (!l.it.afastado) { a.n++; a.s += l.v.nota; }
+    });
+    ls.forEach(function (l) {
+      o.total += l.v.valor;
+      if (l.it.afastado) { o.afast++; return; }
+      o.ativos++;
+      o.nota += l.v.nota;
+      if (l.it.ferias) o.ferias++;
+      if (l.it.ponto && l.it.ponto.falta > 0) o.falta++;
+      if (l.it.ponto && l.it.ponto.atraso > 900) o.atraso++;
+      PREM_CRIT.forEach(function (c) { o.crit[c[0]] += l.v[c[0]]; });
+      var cc = l.it.cc || '(sem centro de custo)';
+      o.cc[cc] = (o.cc[cc] || 0) + l.v.valor;
+      var p = pessoas[premChave(l.it.nome)] || (pessoas[premChave(l.it.nome)] = { nome: l.it.nome, setor: l.it.setor, soma: 0, n: 0, valor: 0 });
+      p.soma += l.v.nota; p.n++; p.valor += l.v.valor; p.setor = l.it.setor || p.setor;
+    });
+    o.notaMedia = o.ativos ? o.nota / o.ativos : 0;
+    return o;
+  });
+  var ult = stats[stats.length - 1], ant = stats.length > 1 ? stats[stats.length - 2] : null;
+  function delta(a, b, fmt) { if (!ant) return ''; var d = a - b; return (d >= 0 ? '+' : '−') + fmt(Math.abs(d)) + ' vs mês anterior'; }
+  var totalPeriodo = stats.reduce(function (a, s) { return a + s.total; }, 0);
+  var h = '<div class="prem-barra"><div class="campo"><label>Período</label><select id="premDN">' + premOpcoes([['0', 'Todos os meses (' + asc.length + ')'], ['12', 'Últimos 12 meses'], ['6', 'Últimos 6 meses'], ['3', 'Últimos 3 meses']], String(premDash.n)) + '</select></div>' +
+    '<div class="campo"><label>Setor</label><select id="premDSetor">' + premOpcoes(setoresOpc, premDash.setor, 'Todos') + '</select></div>' +
+    '<div class="campo"><label>Centro de custo</label><select id="premDCc">' + premOpcoes(ccsOpc, premDash.cc, 'Todos') + '</select></div><span class="espaco"></span>' +
+    '<span class="log-meta">' + premMesRot(meses[0].mes) + ' a ' + premMesRot(ult.mes) + '</span></div>';
+  h += '<div class="log-kpis">' +
+    logKpiHTML(null, 'Pago em ' + premMesRot(ult.mes), premMoeda(ult.total), delta(ult.total, ant ? ant.total : 0, premMoeda)) +
+    logKpiHTML(null, 'Média por mês no período', premMoeda(totalPeriodo / stats.length), stats.length + ' meses · ' + premMoeda(totalPeriodo) + ' no total') +
+    logKpiHTML(null, 'Pessoas em ' + premMesRot(ult.mes), ult.n, ult.ferias + ' em férias · ' + ult.afast + ' afastados') +
+    logKpiHTML(null, 'Nota média', premNum(ult.notaMedia * 100, 0) + '%', delta(ult.notaMedia * 100, ant ? ant.notaMedia * 100 : 0, function (v) { return premNum(v, 1) + ' p.p.'; })) +
+    logKpiHTML(null, 'Com falta', ult.falta, premNum(ult.ativos ? ult.falta / ult.ativos * 100 : 0, 0) + '% das pessoas') +
+    logKpiHTML(null, 'Atraso acima de 15 min', ult.atraso, premNum(ult.ativos ? ult.atraso / ult.ativos * 100 : 0, 0) + '% das pessoas') + '</div>';
+  var cols = stats.map(function (s, i) { return { rot: premMesCurto(s.mes), v: [s.total], marca: (i > 0 && s.regra !== stats[i - 1].regra) ? 'regra mudou' : '' }; });
+  h += '<div class="prem-cartoes"><div class="log-card"><h4>Total pago por mês</h4>' + premSvgBarras(cols, [{ cor: 'var(--accent)', rot: 'Total pago' }], { fmt: premMoeda, fmtCurto: premK, titulo: 'Total pago por mês' }) + '</div>';
+  h += '<div class="log-card"><h4>Nota média das pessoas</h4>' + premSvgLinha(stats.map(function (s, i) { return { rot: premMesCurto(s.mes), v: s.notaMedia, marca: (i > 0 && s.regra !== stats[i - 1].regra) ? 'regra mudou' : '' }; }), { min: 0, max: 1, fmt: function (v) { return premNum(v * 100, 0) + '%'; }, titulo: 'Nota média' }) + '</div></div>';
+  var serP = [{ cor: 'var(--accent)', rot: 'Ativas (sem férias)' }, { cor: 'var(--muted)', rot: 'Em férias' }, { cor: 'var(--danger)', rot: 'Afastadas' }];
+  var serO = [{ cor: 'var(--danger)', rot: 'Com falta' }, { cor: 'var(--accent)', rot: 'Atraso acima de 15 min' }];
+  h += '<div class="prem-cartoes"><div class="log-card"><h4>Pessoas por mês</h4>' + premLegenda(serP) +
+    premSvgBarras(stats.map(function (s) { return { rot: premMesCurto(s.mes), v: [s.ativos - s.ferias, s.ferias, s.afast] }; }), serP, { empilhado: true, fmtCurto: function (v) { return String(v); }, titulo: 'Pessoas por mês' }) + '</div>' +
+    '<div class="log-card"><h4>Ocorrências do ponto (pessoas por mês)</h4>' + premLegenda(serO) +
+    premSvgBarras(stats.map(function (s) { return { rot: premMesCurto(s.mes), v: [s.falta, s.atraso] }; }), serO, { fmtCurto: function (v) { return String(v); }, titulo: 'Ocorrências do ponto' }) + '</div></div>';
+  /* onde os pontos se perdem */
+  var ativosTot = stats.reduce(function (a, s) { return a + s.ativos; }, 0) || 1;
+  h += '<div class="prem-cartoes"><div class="log-card"><h4>Onde os pontos se perdem (média do período)</h4><div class="prem-barras">' + PREM_CRIT.map(function (c) {
+    var soma = stats.reduce(function (a, s) { return a + s.crit[c[0]]; }, 0), med = soma / ativosTot, pc = med / c[2] * 100;
+    return '<div class="prem-barra-linha larga"><span>' + c[1] + '</span><div class="prem-barra-fundo"><div class="prem-barra-valor" style="width:' + Math.round(pc) + '%"></div></div><strong style="text-align:right;">' + premNum(pc, 0) + '% <span class="muted">(perde ' + premNum(c[2] - med, 2) + ' de ' + premNum(c[2], 1) + ')</span></strong></div>';
+  }).join('') + '</div><p class="dica" style="margin-top:10px;">Quanto da pontuação máxima de cada critério as pessoas ativas conseguem, em média. Quanto menor a barra, mais pontos se perdem ali.</p></div>';
+  /* por centro de custo */
+  var ccs = {};
+  stats.forEach(function (s) { Object.keys(s.cc).forEach(function (k) { ccs[k] = (ccs[k] || 0) + s.cc[k]; }); });
+  var ccLista = Object.keys(ccs).sort(function (a, b) { return ccs[b] - ccs[a]; });
+  var cores = ['var(--accent)', 'var(--good)', 'var(--muted)', 'var(--danger)'];
+  var serC = ccLista.map(function (k, i) { return { cor: cores[i % cores.length], rot: k }; });
+  h += '<div class="log-card"><h4>Total pago por centro de custo</h4>' + premLegenda(serC) +
+    premSvgBarras(stats.map(function (s) { return { rot: premMesCurto(s.mes), v: ccLista.map(function (k) { return s.cc[k] || 0; }) }; }), serC, { empilhado: true, fmt: premMoeda, fmtCurto: premK, titulo: 'Total pago por centro de custo' }) + '</div></div>';
+  /* mapa de calor setor x mês */
+  var setSet = {};
+  stats.forEach(function (s) { Object.keys(s.set).forEach(function (k) { if (!setSet[k]) setSet[k] = { nome: s.set[k].nome, n: 0, s: 0 }; setSet[k].n += s.set[k].n; setSet[k].s += s.set[k].s; }); });
+  var setLista = Object.keys(setSet).sort(function (a, b) { return setSet[b].s / (setSet[b].n || 1) - setSet[a].s / (setSet[a].n || 1); });
+  h += '<div class="log-card log-card-largo"><h4>Nota média por setor e mês</h4><div class="tabela-wrap"><table class="prem-tab prem-calor"><thead><tr><th>Setor</th>' +
+    stats.map(function (s) { return '<th class="num">' + premMesCurto(s.mes) + '</th>'; }).join('') + '<th class="num">Período</th></tr></thead><tbody>' + setLista.map(function (k) {
+      return '<tr><td>' + escaparHTML(setSet[k].nome) + '</td>' + stats.map(function (s) {
+        var a = s.set[k];
+        if (!a || !a.n) return '<td class="num muted">—</td>';
+        var v = a.s / a.n;
+        return '<td class="num" style="background:rgba(235,120,50,' + (0.08 + 0.6 * v).toFixed(2) + ');" title="' + escaparHTML(a.nome + ' · ' + a.n + ' pessoas') + '">' + premNum(v * 100, 0) + '%</td>';
+      }).join('') + '<td class="num"><strong>' + premNum(setSet[k].s / (setSet[k].n || 1) * 100, 0) + '%</strong></td></tr>';
+    }).join('') + '</tbody></table></div></div>';
+  /* entradas e saídas */
+  h += '<div class="log-card log-card-largo"><h4>Quem entrou e quem saiu da lista a cada mês</h4><div class="tabela-wrap"><table class="prem-tab"><thead><tr><th>Mês</th><th class="num">Entraram</th><th class="num">Saíram</th><th>Nomes</th></tr></thead><tbody>';
+  var temMov = false;
+  meses.forEach(function (m) {
+    var i = asc.indexOf(m);
+    if (i < 1) return;
+    var cur = presentes[m.mes], prev = presentes[asc[i - 1].mes];
+    var ent = Object.keys(cur).filter(function (k) { return !prev[k]; }), sai = Object.keys(prev).filter(function (k) { return !cur[k]; });
+    if (!ent.length && !sai.length) return;
+    temMov = true;
+    h += '<tr><td>' + premMesRot(m.mes) + '</td><td class="num">' + ent.length + '</td><td class="num">' + sai.length + '</td><td style="white-space:normal;font-size:11.5px;">' +
+      (ent.length ? '<strong>+</strong> ' + escaparHTML(ent.map(function (k) { return cur[k]; }).join(', ')) : '') + (ent.length && sai.length ? '<br>' : '') +
+      (sai.length ? '<strong>−</strong> ' + escaparHTML(sai.map(function (k) { return prev[k]; }).join(', ')) : '') + '</td></tr>';
+  });
+  if (!temMov) h += '<tr><td colspan="4"><div class="lista-vazia-mini">Sem entradas nem saídas no período.</div></td></tr>';
+  h += '</tbody></table></div><p class="dica" style="margin-top:8px;">Compara a lista de cada mês com a do mês anterior (inclui quem entrou no programa depois da experiência e quem foi desligado).</p></div>';
+  /* ranking de pessoas */
+  var minM = Math.min(3, stats.length);
+  var rk = Object.keys(pessoas).map(function (k) { var p = pessoas[k]; p.media = p.soma / p.n; return p; }).filter(function (p) { return p.n >= minM; });
+  function tabRank(titulo, arr) {
+    return '<div class="log-card"><h4>' + titulo + '</h4><div class="tabela-wrap"><table class="prem-tab"><thead><tr><th>Funcionário</th><th>Setor</th><th class="num">Meses</th><th class="num">Nota média</th><th class="num">Recebeu</th></tr></thead><tbody>' +
+      arr.map(function (p) { return '<tr><td>' + escaparHTML(p.nome) + '</td><td>' + escaparHTML(p.setor) + '</td><td class="num">' + p.n + '</td><td class="num"><strong>' + premNum(p.media * 100, 0) + '%</strong></td><td class="num">' + premMoeda(p.valor) + '</td></tr>'; }).join('') + '</tbody></table></div></div>';
+  }
+  rk.sort(function (a, b) { return b.media - a.media || b.n - a.n; });
+  h += '<div class="prem-cartoes">' + tabRank('Maiores notas médias (' + minM + '+ meses)', rk.slice(0, 8)) + tabRank('Menores notas médias (' + minM + '+ meses)', rk.slice(-8).reverse()) + '</div>';
+  return h;
+}
+
+/* eventos das telas Dashboard e Log; devolve true se tratou */
+function premEventoExtra(tipo, e) {
+  var t = e.target, b;
+  if (tipo === 'click') {
+    b = t.closest ? t.closest('[data-logtipo]') : null;
+    if (b) { premLogFiltro.tipo = b.getAttribute('data-logtipo'); premRenderizar(); return true; }
+    b = t.closest ? t.closest('[data-pa]') : null;
+    if (b && b.getAttribute('data-pa') === 'log-novo') { premLogNovo(); return true; }
+    if (b && b.getAttribute('data-pa') === 'log-del') { premLogApagar(b.getAttribute('data-id')); return true; }
+  } else if (tipo === 'change') {
+    if (t.id === 'premDN') { premDash.n = +t.value; premRenderizar(); return true; }
+    if (t.id === 'premDSetor') { premDash.setor = t.value; premRenderizar(); return true; }
+    if (t.id === 'premDCc') { premDash.cc = t.value; premRenderizar(); return true; }
+  } else if (tipo === 'input') {
+    if (t.id === 'premLogBusca') {
+      premLogFiltro.busca = t.value;
+      var pos = t.selectionStart;
+      premRenderizar();
+      var novo = document.getElementById('premLogBusca');
+      if (novo) { novo.focus(); try { novo.setSelectionRange(pos, pos); } catch (er) {} }
+      return true;
+    }
+  }
+  return false;
+}
+
+/* ---------- eventos ---------- */
+function premClique(e) {
+  if (premEventoExtra('click', e)) return;
+  var t = e.target;
+  var th = t.closest ? t.closest('[data-ord]') : null;
+  if (th) {
+    var k = th.getAttribute('data-ord');
+    premOrdem = { k: k, dir: premOrdem.k === k ? -premOrdem.dir : ((k === 'nome' || k === 'setor' || k === 'cc') ? 1 : -1) };
+    var mm = premMes(premSel);
+    if (mm) document.getElementById('premTabela').innerHTML = premTabelaResultado(mm);
+    return;
+  }
+  var hh = t.closest ? t.closest('[data-hord]') : null;
+  if (hh) {
+    var kh = hh.getAttribute('data-hord');
+    premHistOrdem = { k: kh, dir: premHistOrdem.k === kh ? -premHistOrdem.dir : ((kh === 'nome' || kh === 'setor') ? 1 : -1) };
+    premRenderizar();
+    return;
+  }
+  var b = t.closest ? t.closest('[data-pa]') : null;
+  if (!b || b.disabled) return;
+  var a = b.getAttribute('data-pa'), m = premMes(premSel);
+  if (a === 'recarregar') { premMeses = null; premErro = ''; premRenderizar(); }
+  else if (a === 'csv') premExportarCsv();
+  else if (a === 'fechar') premFecharMes();
+  else if (a === 'reabrir') premReabrirMes();
+  else if (a === 'novo-mes') premNovoMes();
+  else if (a === 'cancelar-import') { premImport = null; premRenderizar(); }
+  else if (a === 'aplicar-import') premAplicarImport();
+  else if (a === 'conferir-notas' && m) { m.conf.setores = !m.conf.setores; premSalvarMes(m).then(function () { premRenderizar(); }); }
+  else if (a === 'add-func') premAdicionarFunc();
+  else if (a === 'del-func') premRemoverFunc(+b.getAttribute('data-i'));
+}
+function premMudou(e) {
+  if (premEventoExtra('change', e)) return;
+  var t = e.target, m = premMes(premSel);
+  if (t.id === 'premSelMes') { premSel = t.value; premImport = null; premRenderizar(); return; }
+  if (t.id === 'premFSetor') { premFiltro.setor = t.value; if (m) document.getElementById('premTabela').innerHTML = premTabelaResultado(m); return; }
+  if (t.id === 'premFCc') { premFiltro.cc = t.value; if (m) document.getElementById('premTabela').innerHTML = premTabelaResultado(m); return; }
+  if (t.id === 'premHistN') { premHistN = +t.value; premRenderizar(); return; }
+  if (t.id === 'premHSetor') { premFiltro.setor = t.value; premRenderizar(); return; }
+  if (t.id === 'premArquivo') {
+    var f = t.files && t.files[0];
+    if (!f) return;
+    var alvo = document.getElementById('premImportacao');
+    alvo.innerHTML = '<div class="lista-vazia-mini">Lendo o arquivo...</div>';
+    premCarregarXlsx().then(function () { return f.arrayBuffer(); }).then(function (buf) {
+      var wb = XLSX.read(buf, { type: 'array' });
+      premPrepararImport(premLerPlanilha(wb), f.name);
+      alvo.innerHTML = premHtmlImport(premMes(premSel));
+    }).catch(function (err) {
+      premImport = null;
+      alvo.innerHTML = '<div class="prem-aviso perigo">' + escaparHTML(err && err.message ? err.message : 'Não consegui ler o arquivo.') + '</div>';
+    });
+    return;
+  }
+  if (t.hasAttribute && t.hasAttribute('data-imp') && premImport) {
+    var n = null;
+    premImport.nomes.forEach(function (x) { if (x.chave === t.getAttribute('data-imp')) n = x; });
+    if (n) { n.escolha = t.value; document.getElementById('premImportacao').innerHTML = premHtmlImport(m); }
+    return;
+  }
+  if (t.hasAttribute && t.hasAttribute('data-zero') && premImport) { premImport.zero[t.getAttribute('data-zero')] = t.checked; return; }
+  if (t.hasAttribute && t.hasAttribute('data-nota')) { premMudouNota(t); return; }
+  if (t.hasAttribute && t.hasAttribute('data-f')) { premMudouFunc(t); return; }
+}
+function premDigitou(e) {
+  if (premEventoExtra('input', e)) return;
+  var t = e.target, m = premMes(premSel);
+  if (t.id === 'premBusca') { premFiltro.busca = t.value; if (m) document.getElementById('premTabela').innerHTML = premTabelaResultado(m); }
+  else if (t.id === 'premBuscaF' || t.id === 'premBuscaH') {
+    premFiltro.busca = t.value;
+    var pos = t.selectionStart;
+    premRenderizar();
+    var novo = document.getElementById(t.id);
+    if (novo) { novo.focus(); try { novo.setSelectionRange(pos, pos); } catch (er) {} }
+  }
+}
+
 function abrirAba(chave) {
   var existente = null;
   for (var i = 0; i < abas.length; i++) { if (abas[i].id === chave) { existente = abas[i]; break; } }
@@ -2977,6 +4256,11 @@ function abrirAba(chave) {
     painel.innerHTML = MARCACAO_LOGISTICA;
     document.getElementById('areaAbas').appendChild(painel);
     mudarAbaLogistica(primeiraSub('logistica'));
+  } else if (chave === 'premiacao') {
+    painel.className = 'painel-aba painel-largo';
+    painel.innerHTML = MARCACAO_PREMIACAO;
+    document.getElementById('areaAbas').appendChild(painel);
+    mudarAbaPremiacao(primeiraSub('premiacao'));
   } else if (chave === 'apps') {
     painel.className = 'painel-aba painel-largo';
     painel.innerHTML = marcacaoApps();
