@@ -3282,6 +3282,7 @@ function premTelaResultado() {
     '<div class="campo"><label>Setor</label><select id="premFSetor">' + premOpcoes(setores, premFiltro.setor, 'Todos') + '</select></div>' +
     '<div class="campo"><label>Centro de custo</label><select id="premFCc">' + premOpcoes(ccs, premFiltro.cc, 'Todos') + '</select></div>' +
     '<span class="espaco"></span><span class="log-meta" id="premStatus"></span>' +
+    '<button type="button" class="btn btn-contorno" data-pa="imprimir-res">Imprimir</button>' +
     '<button type="button" class="btn btn-contorno" data-pa="csv">Exportar pagamento (CSV)</button>' +
     (m.fechado ? '<button type="button" class="btn btn-contorno" data-pa="reabrir">Reabrir mês</button>' : '<button type="button" class="btn btn-primario" data-pa="fechar">Fechar mês</button>') +
     '</div>';
@@ -3345,6 +3346,78 @@ function premExportarCsv() {
   document.body.appendChild(a);
   a.click();
   setTimeout(function () { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 500);
+}
+/* ---------- IMPRESSÃO (Resultado do mês e Dashboard) ----------
+   Reaproveita o HTML da própria tela (sem a barra de filtros), mostra o que está filtrado
+   na tela e abre numa janela clara, própria para papel (A4 paisagem). */
+var PREM_CSS_IMPRESSAO =
+  ':root{--ink:#111;--ink-strong:#000;--muted:#666;--border:#d4d4d8;--accent:#EB7832;--accent-strong:#B8500F;--accent-soft:#FFEDD5;--good:#2E8B57;--good-soft:#E3F4EA;--danger:#C73E2E;--danger-soft:#FBE7E3;--surface:#fff;--surface-2:#f4f4f5;}' +
+  '*{box-sizing:border-box;}html{-webkit-print-color-adjust:exact;print-color-adjust:exact;}' +
+  'body{font-family:Arial,sans-serif;color:#111;font-size:10.5px;margin:0;padding:12px;background:#fff;}' +
+  '.toolbar{margin-bottom:10px;}.btn-print{padding:10px 20px;background:#F97316;color:#fff;border:none;border-radius:6px;font-weight:700;cursor:pointer;}' +
+  '.cab{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid #0F0F0F;padding-bottom:8px;margin-bottom:10px;}' +
+  '.marca{font-size:20px;font-weight:800;color:#F97316;}h1{font-size:15px;margin:2px 0 0;}.meta{font-size:10px;color:#555;text-align:right;line-height:1.5;}' +
+  '.filtros{margin:0 0 8px;font-size:10.5px;}.filtros span{display:inline-block;border:1px solid #bbb;border-radius:10px;padding:1px 8px;margin:0 4px 3px 0;}' +
+  '.log-kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin-bottom:10px;}' +
+  '.log-kpi{border:1px solid #ccc;border-radius:8px;padding:8px 10px;break-inside:avoid;}.log-kpi-valor{font-size:17px;font-weight:800;line-height:1.1;}' +
+  '.log-kpi-rotulo{font-size:9.5px;color:#555;margin-top:4px;}.log-kpi-sub{font-size:9px;color:#B8500F;margin-top:2px;font-weight:600;}' +
+  '.prem-cartoes{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;align-items:start;}' +
+  '.log-card{border:1px solid #ccc;border-radius:8px;padding:10px;break-inside:avoid;}.log-card-largo{break-inside:auto;margin-bottom:10px;}' +
+  '.log-card h4,.log-tabela-cab h4{margin:0 0 8px;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;break-after:avoid;}' +
+  'table{width:100%;border-collapse:collapse;}thead{display:table-header-group;}tr{break-inside:avoid;}' +
+  'th,td{border-bottom:1px solid #ddd;padding:3px 5px;text-align:left;font-size:9.5px;vertical-align:top;white-space:normal;}' +
+  'th{background:#f1f1f1;text-transform:uppercase;font-size:8.5px;letter-spacing:.03em;}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}' +
+  'tr.prem-total td{font-weight:800;background:#FFEDD5;border-top:2px solid #F97316;font-size:10.5px;}' +
+  '.prem-chip{display:inline-block;font-size:8.5px;font-weight:700;padding:1px 6px;border-radius:9px;margin-right:3px;background:#eee;color:#555;}' +
+  '.prem-chip.ferias{background:#FFEDD5;color:#B8500F;}.prem-chip.afastado{background:#FBE7E3;color:#C73E2E;}.prem-chip.lider{background:#E3F4EA;color:#2E8B57;}' +
+  '.prem-alerta{color:#C73E2E;font-size:9px;}.muted{color:#777;}.dica{font-size:9px;color:#666;margin:6px 0 0;}' +
+  '.prem-svg{width:100%;height:auto;display:block;}.prem-svg text{fill:#666;font-size:11px;font-family:Arial,sans-serif;}.prem-svg text.v{fill:#111;font-weight:600;}' +
+  '.prem-legenda{display:flex;flex-wrap:wrap;gap:3px 12px;font-size:9.5px;color:#555;margin:0 0 6px;}.prem-legenda i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px;}' +
+  '.prem-barras{display:flex;flex-direction:column;gap:5px;}.prem-barra-linha{display:grid;grid-template-columns:150px 1fr 190px;gap:8px;align-items:center;font-size:10px;}' +
+  '.prem-barra-fundo{background:#eee;border-radius:5px;height:11px;overflow:hidden;}.prem-barra-valor{background:#EB7832;height:100%;border-radius:5px;}' +
+  '.prem-calor td.num{min-width:34px;padding:3px 3px;}.lista-vazia-mini{color:#777;padding:6px 0;}' +
+  '@media print{.toolbar{display:none;}body{padding:0;}}';
+function premImprimir(titulo, filtros, corpoHtml, orient, meta) {
+  var agora = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  var win = window.open('', '_blank');
+  if (!win) { alert('O navegador bloqueou a janela de impressão. Libere pop-ups para este site e tente de novo.'); return; }
+  win.document.write(
+    '<!doctype html><html lang="pt-BR"><head><meta charset="UTF-8"><title>' + escaparHTML(titulo) + ' — Rodriaço</title><style>' +
+    '@page{size:A4 ' + (orient || 'landscape') + ';margin:10mm 10mm 14mm 10mm;@bottom-right{content:"Página " counter(page) " de " counter(pages);font:9px Arial,sans-serif;color:#666;}@bottom-left{content:"Rodriaço — Premiação · uso interno";font:9px Arial,sans-serif;color:#666;}}' +
+    PREM_CSS_IMPRESSAO + '</style></head><body>' +
+    '<div class="toolbar"><button class="btn-print" onclick="window.print()">Imprimir</button></div>' +
+    '<div class="cab"><div><div class="marca">' + logoImpressao() + 'RODRIAÇO</div><h1>' + escaparHTML(titulo) + '</h1></div>' +
+    '<div class="meta">' + (meta || '') + 'Impresso em ' + escaparHTML(agora) + '</div></div>' +
+    (filtros.length ? '<div class="filtros"><b>Filtros:</b> ' + filtros.map(function (f) { return '<span>' + escaparHTML(f) + '</span>'; }).join('') + '</div>' : '') +
+    corpoHtml + '</body></html>'
+  );
+  win.document.close();
+}
+/* pega o HTML da tela e tira o que não vai ao papel (barra de filtros, avisos, setinhas de ordenação) */
+function premHtmlParaPapel(html) {
+  var d = document.createElement('div');
+  d.innerHTML = html;
+  Array.prototype.slice.call(d.querySelectorAll('.prem-barra, .prem-aviso, .btn')).forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+  Array.prototype.slice.call(d.querySelectorAll('th')).forEach(function (th) { th.innerHTML = th.innerHTML.replace(/\s*[▲▼]/g, ''); });
+  return d.innerHTML;
+}
+function premImprimirResultado() {
+  var m = premMes(premSel);
+  if (!m) return;
+  var f = [];
+  if (premFiltro.busca) f.push('Nome: ' + premFiltro.busca);
+  if (premFiltro.setor) f.push('Setor: ' + premFiltro.setor);
+  if (premFiltro.cc) f.push('Centro de custo: ' + premFiltro.cc);
+  if (!f.length) f.push('Sem filtros: todos os funcionários');
+  premImprimir('Premiação — resultado de ' + premMesRot(m.mes), f, premHtmlParaPapel(premTelaResultado()), 'landscape',
+    'Ponto de ' + escaparHTML(m.periodo || '—') + ' · regra ' + (m.regra || 2) + '<br>Mês ' + (m.fechado ? 'fechado' : 'em aberto') + '<br>');
+}
+function premImprimirDashboard() {
+  if (!premMeses || !premMeses.length) return;
+  var asc = premMeses.slice().sort(function (a, b) { return a.mes < b.mes ? -1 : 1; });
+  var meses = premDash.n ? asc.slice(-premDash.n) : asc;
+  var f = ['Período: ' + premMesRot(meses[0].mes) + ' a ' + premMesRot(meses[meses.length - 1].mes) + ' (' + meses.length + ' meses)', premDash.setor ? 'Setor: ' + premDash.setor : 'Todos os setores', premDash.cc ? 'Centro de custo: ' + premDash.cc : 'Todos os centros de custo'];
+  premImprimir('Premiação — dashboard', f, premHtmlParaPapel(premTelaDashboard()), 'landscape', '');
 }
 function premFecharMes() {
   var m = premMes(premSel);
@@ -4047,7 +4120,8 @@ function premTelaDashboard() {
   var h = '<div class="prem-barra"><div class="campo"><label>Período</label><select id="premDN">' + premOpcoes([['0', 'Todos os meses (' + asc.length + ')'], ['12', 'Últimos 12 meses'], ['6', 'Últimos 6 meses'], ['3', 'Últimos 3 meses']], String(premDash.n)) + '</select></div>' +
     '<div class="campo"><label>Setor</label><select id="premDSetor">' + premOpcoes(setoresOpc, premDash.setor, 'Todos') + '</select></div>' +
     '<div class="campo"><label>Centro de custo</label><select id="premDCc">' + premOpcoes(ccsOpc, premDash.cc, 'Todos') + '</select></div><span class="espaco"></span>' +
-    '<span class="log-meta">' + premMesRot(meses[0].mes) + ' a ' + premMesRot(ult.mes) + '</span></div>';
+    '<span class="log-meta">' + premMesRot(meses[0].mes) + ' a ' + premMesRot(ult.mes) + '</span>' +
+    '<button type="button" class="btn btn-contorno" data-pa="imprimir-dash">Imprimir</button></div>';
   h += '<div class="log-kpis">' +
     logKpiHTML(null, 'Pago em ' + premMesRot(ult.mes), premMoeda(ult.total), delta(ult.total, ant ? ant.total : 0, premMoeda)) +
     logKpiHTML(null, 'Média por mês no período', premMoeda(totalPeriodo / stats.length), stats.length + ' meses · ' + premMoeda(totalPeriodo) + ' no total') +
@@ -4126,6 +4200,8 @@ function premEventoExtra(tipo, e) {
     b = t.closest ? t.closest('[data-logtipo]') : null;
     if (b) { premLogFiltro.tipo = b.getAttribute('data-logtipo'); premRenderizar(); return true; }
     b = t.closest ? t.closest('[data-pa]') : null;
+    if (b && b.getAttribute('data-pa') === 'imprimir-dash') { premImprimirDashboard(); return true; }
+    if (b && b.getAttribute('data-pa') === 'imprimir-res') { premImprimirResultado(); return true; }
     if (b && b.getAttribute('data-pa') === 'log-novo') { premLogNovo(); return true; }
     if (b && b.getAttribute('data-pa') === 'log-del') { premLogApagar(b.getAttribute('data-id')); return true; }
   } else if (tipo === 'change') {
