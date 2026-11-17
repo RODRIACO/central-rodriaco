@@ -3253,7 +3253,9 @@ function premBanner(m) {
 function premTelaResultado() {
   var m = premMes(premSel);
   if (!m) return premVazio('Resultado do mês');
-  var linhas = premLinhas(m);
+  var todas = premLinhas(m);              /* todas: só para as listas dos filtros */
+  var linhas = premLinhasFiltradas(m);    /* cartões e tabelas acompanham os filtros */
+  var filtrado = !!(premFiltro.busca || premFiltro.setor || premFiltro.cc);
   var pagos = 0, total = 0, somaNota = 0, cheios = 0, ferias = 0, afast = 0;
   var porCc = {}, porSetor = {};
   linhas.forEach(function (l) {
@@ -3272,7 +3274,7 @@ function premTelaResultado() {
       '</tbody></table></div></div>';
   }
   var setores = []; var ccs = [];
-  linhas.forEach(function (l) {
+  todas.forEach(function (l) {
     if (l.it.setor && setores.indexOf(l.it.setor) < 0) setores.push(l.it.setor);
     if (l.it.cc && ccs.indexOf(l.it.cc) < 0) ccs.push(l.it.cc);
   });
@@ -3289,7 +3291,7 @@ function premTelaResultado() {
   h += premBanner(m);
   premAvisosMes(m).forEach(function (a) { if (!m.fechado) h += '<div class="prem-aviso ' + a.t + '">' + escaparHTML(a.x) + '</div>'; });
   h += '<div class="log-kpis">' +
-    logKpiHTML(null, 'Total a pagar', premMoeda(total), 'período ' + escaparHTML(m.periodo || '—') + ' · regra ' + (m.regra || 2)) +
+    logKpiHTML(null, 'Total a pagar', premMoeda(total), (filtrado ? 'filtrado · ' : '') + 'período ' + escaparHTML(m.periodo || '—') + ' · regra ' + (m.regra || 2)) +
     logKpiHTML(null, 'Pessoas no programa', linhas.length, pagos + ' recebem') +
     logKpiHTML(null, 'Nota média', premNum(linhas.length ? somaNota / linhas.length * 100 : 0, 0) + '%', cheios + ' com nota máxima') +
     logKpiHTML(null, 'Em férias', ferias, 'recebem metade') +
@@ -4258,8 +4260,8 @@ function premMudou(e) {
   if (premEventoExtra('change', e)) return;
   var t = e.target, m = premMes(premSel);
   if (t.id === 'premSelMes') { premSel = t.value; premImport = null; premRenderizar(); return; }
-  if (t.id === 'premFSetor') { premFiltro.setor = t.value; if (m) document.getElementById('premTabela').innerHTML = premTabelaResultado(m); return; }
-  if (t.id === 'premFCc') { premFiltro.cc = t.value; if (m) document.getElementById('premTabela').innerHTML = premTabelaResultado(m); return; }
+  if (t.id === 'premFSetor') { premFiltro.setor = t.value; premRenderizar(); return; }
+  if (t.id === 'premFCc') { premFiltro.cc = t.value; premRenderizar(); return; }
   if (t.id === 'premHistN') { premHistN = +t.value; premRenderizar(); return; }
   if (t.id === 'premHSetor') { premFiltro.setor = t.value; premRenderizar(); return; }
   if (t.id === 'premArquivo') {
@@ -4290,8 +4292,7 @@ function premMudou(e) {
 function premDigitou(e) {
   if (premEventoExtra('input', e)) return;
   var t = e.target, m = premMes(premSel);
-  if (t.id === 'premBusca') { premFiltro.busca = t.value; if (m) document.getElementById('premTabela').innerHTML = premTabelaResultado(m); }
-  else if (t.id === 'premBuscaF' || t.id === 'premBuscaH') {
+  if (t.id === 'premBusca' || t.id === 'premBuscaF' || t.id === 'premBuscaH') {
     premFiltro.busca = t.value;
     var pos = t.selectionStart;
     premRenderizar();
