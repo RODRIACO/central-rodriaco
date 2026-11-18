@@ -476,6 +476,8 @@
   .prem-aviso.perigo { background: var(--danger-soft); color: var(--danger); }
   .prem-aviso.ok { background: var(--good-soft); color: var(--good); }
   .prem-tab th, .prem-tab td { padding: 7px 9px; white-space: nowrap; }
+  @keyframes premNovo { 0%, 70% { background: rgba(255, 183, 0, .28); } 100% { background: transparent; } }
+  .prem-tab tr.prem-novo td { animation: premNovo 3.5s ease-out; }
   .prem-tab td.num, .prem-tab th.num { text-align: right; font-variant-numeric: tabular-nums; }
   .prem-tab tr.prem-total td { font-weight: 700; color: var(--ink-strong); background: var(--surface-2); border-top: 2px solid var(--accent); }
   .prem-tab input[type=text], .prem-tab select { padding: 5px 6px; font-size: 12px; border: 1px solid var(--border); border-radius: 5px; background: var(--surface); color: var(--ink); font-family: inherit; max-width: 100%; }
@@ -3833,13 +3835,19 @@ function premTelaFuncionarios() {
   h += '<p class="dica">Tempos no formato <code>H:MM:SS</code> (ex.: <code>0:14:00</code> = 14 minutos). Deixe em branco quando a pessoa não está no ponto. As alterações são salvas sozinhas.</p>';
   var b = premChave(premFiltro.busca);
   h += '<div class="tabela-wrap"><table class="prem-tab"><thead><tr><th>Nome</th><th>Setor</th><th>C. custo</th><th>Líder</th><th>Situação</th><th>Período das férias</th><th>Atrasos</th><th>Faltas</th><th>Atestados</th><th></th></tr></thead><tbody id="premFuncCorpo">';
-  m.itens.forEach(function (it, i) {
+  /* em ordem alfabética (só na tela: data-i continua sendo a posição real em m.itens) */
+  var ordem = m.itens.map(function (it, i) { return i; }).sort(function (x, y) {
+    var a = premChave(m.itens[x].nome), c = premChave(m.itens[y].nome);
+    return a < c ? -1 : (a > c ? 1 : x - y);
+  });
+  ordem.forEach(function (i) {
+    var it = m.itens[i];
     if (b && premChave(it.nome).indexOf(b) < 0) return;
     var sit = it.afastado ? 'afastado' : (it.ferias ? 'ferias' : 'normal');
     var p = it.ponto;
     var optSetor = setores.slice();
     if (it.setor && optSetor.map(premChave).indexOf(premChave(it.setor)) < 0) optSetor.push(it.setor);
-    h += '<tr data-i="' + i + '"><td><input type="text" class="nome" data-f="nome" value="' + escaparHTML(it.nome) + '"' + dis + '></td>' +
+    h += '<tr data-i="' + i + '" data-k="' + escaparHTML(premChave(it.nome)) + '"><td><input type="text" class="nome" data-f="nome" value="' + escaparHTML(it.nome) + '"' + dis + '></td>' +
       '<td><select data-f="setor"' + dis + '>' + premOpcoes(optSetor, it.setor, '— setor —') + '</select></td>' +
       '<td><select data-f="cc"' + dis + '>' + premOpcoes(ccs, it.cc, '—') + '</select></td>' +
       '<td><input type="checkbox" data-f="lider"' + (it.lider ? ' checked' : '') + dis + '></td>' +
@@ -3898,10 +3906,19 @@ function premAdicionarFunc() {
         if (!nome) { mostrarAvisoModal('Informe o nome.'); return false; }
         if (premAcharFunc(m, premChave(nome)) >= 0) { mostrarAvisoModal('Já existe alguém com esse nome neste mês.'); return false; }
         m.itens.push({ nome: nome, setor: document.getElementById('premAddSetor').value, cc: document.getElementById('premAddCc').value, lider: document.getElementById('premAddLider').checked, afastado: false, ferias: '', ponto: null });
-        premSalvarMes(m).then(function () { premRenderizar(); });
+        premFiltro.busca = '';   /* o filtro não pode esconder quem acabou de entrar */
+        premSalvarMes(m).then(function () { premRenderizar(); premRealcarFunc(premChave(nome)); });
         return true;
       } }
   ]);
+}
+/* rola até a linha da pessoa em Funcionários e a destaca por alguns segundos */
+function premRealcarFunc(chave) {
+  var tr = document.querySelector('#premFuncCorpo tr[data-k="' + chave + '"]');
+  if (!tr) return;
+  tr.classList.add('prem-novo');
+  try { tr.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (e) { tr.scrollIntoView(); }
+  setTimeout(function () { tr.classList.remove('prem-novo'); }, 4000);
 }
 function premRemoverFunc(i) {
   var m = premMes(premSel);
