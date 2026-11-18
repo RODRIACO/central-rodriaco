@@ -1046,8 +1046,13 @@ var LOG_COLUNAS = [
   { k: 'qtd', r: 'Qtd.', num: true, t: 'num' }, { k: 'tipo', r: 'Tipo', t: 'texto' }, { k: 'etapa', r: 'Etapa atual', t: 'texto' },
   { k: 'embarque', r: 'Embarque', t: 'data' }, { k: 'entrega', r: 'Entrega', t: 'data' }, { k: 'local', r: 'Local de entrega', t: 'texto' },
   { k: 'endereco', r: 'Endereço', t: 'texto' }, { k: 'cidade', r: 'Cidade', t: 'texto' }, { k: 'uf', r: 'UF', t: 'texto' },
-  { k: 'vendedor', r: 'Vendedor', t: 'texto' }, { k: 'nf', r: 'NF', t: 'texto' }, { k: 'faturamento', r: 'Faturamento', t: 'data' }
+  { k: 'vendedor', r: 'Vendedor', t: 'texto' }, { k: 'nf', r: 'NF', t: 'texto' }, { k: 'faturamento', r: 'Faturamento', t: 'data' },
+  { k: 'conclusao', r: 'Conclusão da OP', t: 'data' }
 ];
+/* histórico das OPs concluídas (robô na nuvem): carregado só quando alguém pede "concluídas", para não gastar tráfego à toa */
+var logConcRows = null;
+var logConcEstado = '';
+var logAvisoConc = '';
 
 var logSessao = null;
 var logDados = null;
@@ -1312,13 +1317,15 @@ function logFimDoMes(chaveMes) {
 }
 function logFmtData(iso) { return iso ? iso.slice(8, 10) + '/' + iso.slice(5, 7) + '/' + iso.slice(0, 4) : '—'; }
 function logNum(n) { return Number(n || 0).toLocaleString('pt-BR'); }
-function logRotuloCampo(c) { return c === 'entrega' ? 'Entrega' : (c === 'abertura' ? 'Abertura da OP' : (c === 'faturamento' ? 'Faturamento' : 'Embarque')); }
+function logRotuloCampo(c) { return c === 'entrega' ? 'Entrega' : (c === 'abertura' ? 'Abertura da OP' : (c === 'faturamento' ? 'Faturamento' : (c === 'conclusao' ? 'Conclusão da OP' : 'Embarque'))); }
 
 /* ---------- filtros ---------- */
 function logFiltrosPadrao(campo) {
-  return { campoData: campo || 'embarque', de: '', ate: '', uf: '', cidade: '', local: '', cliente: '', vendedor: '', tipo: '', etapa: '', busca: '', vencidas: false, semLocal: false, semEmbarque: false, comNf: false, cols: {} };
+  return { campoData: campo || 'embarque', situacao: 'abertas', de: '', ate: '', uf: '', cidade: '', local: '', cliente: '', vendedor: '', tipo: '', etapa: '', busca: '', vencidas: false, semLocal: false, semEmbarque: false, comNf: false, cols: {} };
 }
 function logPassa(r, f, ign) {
+  /* situacao: 'abertas' (padrão), 'todas' (abertas + concluídas) ou 'concluidas' */
+  if (f.situacao === 'concluidas' ? !r.conc : (f.situacao !== 'todas' && r.conc)) return false;
   if (ign !== 'data' && (f.de || f.ate)) {
     var d = r[f.campoData];
     if (!d) return false;
@@ -1340,16 +1347,16 @@ function logPassa(r, f, ign) {
     if (f.cols[ck].indexOf(logValorCol(r, ck)) === -1) return false;
   }
   if (f.busca && r.busca.indexOf(f.busca) === -1) return false;
-  if (f.vencidas && !(r.embarque && r.embarque < logHoje)) return false;
-  if (f.semLocal && r.local) return false;
-  if (f.semEmbarque && r.embarque) return false;
+  if (f.vencidas && !(!r.conc && r.embarque && r.embarque < logHoje)) return false;
+  if (f.semLocal && (r.local || r.conc)) return false;
+  if (f.semEmbarque && (r.embarque || r.conc)) return false;
   if (f.comNf && !r.nf) return false;
   return true;
 }
 function logValorCol(r, k) { return k === 'qtd' ? String(r.qtd) : (r[k] || ''); }
 function logRotuloCol(k, v) {
   if (v === '') return '(vazio)';
-  if (k === 'embarque' || k === 'entrega' || k === 'faturamento') return logFmtData(v);
+  if (k === 'embarque' || k === 'entrega' || k === 'faturamento' || k === 'conclusao') return logFmtData(v);
   if (k === 'qtd') return v.replace('.', ',');
   return v;
 }
@@ -1447,17 +1454,24 @@ function logUnirClientes(rows) {
   });
   rows.forEach(function (r) { r.cliente = nome[r._ck]; delete r._ck; });
 }
-function logAplicar(texto, meta) {
-  logDados = logProcessarCsv(texto);
+/* junta as OPs abertas com as concluídas já carregadas (se houver); uma OP aberta nunca é duplicada pela concluída */
+function logReunir(abertas) {
+  var ops = {};
+  abertas.forEach(function (o) { ops[o.op] = 1; });
+  if (logConcRows) logConcRows.forEach(function (c) { if (!ops[c.op]) abertas.push(c); });
+  logDados = abertas;
   logUnirClientes(logDados);
-  logMeta = meta;
-  if (!logFiltros) logFiltros = logFiltrosPadrao();
-  logPagina = 0;
   var cont = {};
   ['local', 'cliente', 'tipo', 'cidade', 'vendedor'].forEach(function (dim) {
     cont[dim] = logContar(logDados, dim).map(function (x) { return x.chave; });
   });
   logOpcoes = cont;
+}
+function logAplicar(texto, meta) {
+  logReunir(logProcessarCsv(texto));
+  logMeta = meta;
+  if (!logFiltros) logFiltros = logFiltrosPadrao();
+  logPagina = 0;
   logMontarDashboard();
   logAgendarAuto();
 }
@@ -1466,7 +1480,83 @@ function logCarregar(silencioso) {
   if (el && !silencioso) el.innerHTML = '<div class="lista-vazia">Carregando o arquivo do Supabase...</div>';
   return Promise.all([logBaixarArquivo(), logListarArquivo().catch(function () { return null; })]).then(function (r) {
     logAplicar(logDecodificar(r[0]), { atualizadoEm: r[1] || '', origem: 'Supabase' });
+    /* "Atualizar" descartou o histórico: se a tela está mostrando concluídas, busca de novo */
+    if (logFiltros.situacao !== 'abertas' && !logConcRows) logCarregarConcluidas();
   }).catch(function (e) { logTratarErro(e, silencioso); });
+}
+
+/* ---------- OPs concluídas (histórico do robô) + faturamento do Relatório de Pedidos ---------- */
+/* o histórico traz cliente, item, quantidade, tipo e as datas; cidade, UF, vendedor, NF e faturamento vêm do Relatório de Pedidos, quando ele está disponível */
+function logProcessarConcluidasMapa(texto, pedidos) {
+  var linhas = texto.split('\n');
+  var cab = linhas[0].replace(/\r/g, '').split(';');
+  var idx = {};
+  for (var h = 0; h < cab.length; h++) idx[cab[h].trim()] = h;
+  if (idx.MPPOPId === undefined) throw new Error('O arquivo de OPs concluídas está sem a coluna MPPOPId.');
+  var out = [];
+  for (var i = 1; i < linhas.length; i++) {
+    var ln = linhas[i].replace(/\r/g, '');
+    if (!ln.trim()) continue;
+    var c = apSeparar(ln);
+    var opId = String(c[idx.MPPOPId] || '').trim();
+    if (!/^\d{4,}$/.test(opId)) continue;
+    var g = function (nome) { var p = idx[nome]; return p === undefined ? '' : String(c[p] || '').trim(); };
+    var ped = opId.slice(0, -3);
+    var pd = pedidos && pedidos[ped];
+    var r = {
+      conc: true,
+      pedido: ped,
+      op: opId,
+      linha: opId.slice(-3),
+      cliente: g('Cliente') || (pd && pd.cliente) || '',
+      itemId: g('ItemId'),
+      item: g('ItemNome'),
+      qtd: parseFloat(String(g('OPQtd') || '0').replace(',', '.')) || 0,
+      un: g('UnidadeId'),
+      tipo: g('Tipo') || '(sem tipo)',
+      etapa: g('UltimaEtapa') || 'Concluída',
+      abertura: logDataISO(g('OPDataAbertura')),
+      embarque: logDataISO(g('PedidoDataEmbarque')),
+      entrega: pd ? pd.entrega : '',
+      faturamento: pd ? pd.faturamento : '',
+      conclusao: logDataISO(g('OPDataConclusao')),
+      obs: g('OPObs'),
+      local: '',
+      endereco: '',
+      cidade: pd ? pd.cidade : '',
+      uf: pd ? pd.uf : '',
+      vendedor: (pd && pd.vendedor) || '(sem vendedor)',
+      nf: pd ? pd.nfLista.join(', ') : '',
+      serie: ''
+    };
+    r.busca = (r.pedido + ' ' + r.op + ' ' + r.cliente + ' ' + r.item + ' ' + r.tipo + ' ' + r.etapa + ' ' + r.cidade + ' ' + r.vendedor + ' ' + r.nf + ' ' + r.obs).toLowerCase();
+    out.push(r);
+  }
+  return out;
+}
+function logCarregarConcluidas() {
+  if (logConcEstado === 'carregando') return;
+  logConcEstado = 'carregando';
+  logAvisoConc = '';
+  logAtualizar(true);
+  return Promise.all([
+    apBaixar(AP_ARQ_CONCLUIDAS),
+    apBaixar(AP_ARQ_PEDIDOS).then(function (b) { return apProcessarPedidos(logDecodificar(b)); }).catch(function () { return null; })
+  ]).then(function (r) {
+    var rows = logProcessarConcluidasMapa(logDecodificar(r[0]), r[1]);
+    logConcRows = rows;
+    logConcEstado = '';
+    if (!r[1]) logAvisoConc = 'Não consegui ler o Relatório de Pedidos: as OPs concluídas aparecem sem cidade, UF, vendedor e NF.';
+    var abertas = logDados.filter(function (x) { return !x.conc; });
+    logReunir(abertas);
+    logMontarDashboard();
+  }).catch(function (e) {
+    logConcEstado = '';
+    logFiltros.situacao = 'abertas';
+    logAvisoConc = e && e.status === 404 ? 'O histórico de OPs concluídas (' + AP_ARQ_CONCLUIDAS + ') ainda não está no Supabase.' :
+      'Não consegui ler o histórico de OPs concluídas' + (e && e.status ? ' (erro ' + e.status + ')' : '') + '. Tente de novo em instantes.';
+    logAtualizar(true);
+  });
 }
 function logTratarErro(e, silencioso) {
   var el = document.getElementById('logisticaCsv');
@@ -1559,7 +1649,7 @@ function logMontarDashboard() {
     '<div class="log-filtros">' +
       '<div class="log-linha">' +
         '<div class="campo"><label>Filtrar datas por</label><select id="logCampoData">' +
-          '<option value="embarque">Embarque</option><option value="entrega">Entrega</option><option value="abertura">Abertura da OP</option><option value="faturamento">Faturamento</option></select></div>' +
+          '<option value="embarque">Embarque</option><option value="entrega">Entrega</option><option value="abertura">Abertura da OP</option><option value="conclusao">Conclusão da OP</option><option value="faturamento">Faturamento</option></select></div>' +
         '<div class="campo"><label>De</label><input type="date" id="logDe"></div>' +
         '<div class="campo"><label>Até</label><input type="date" id="logAte"></div>' +
         '<div class="log-rapidos">' +
@@ -1600,7 +1690,7 @@ function logMontarDashboard() {
   logLigarBusca('logFCliente', 'cliente');
   logLigarBusca('logFTipo', 'tipo');
   document.getElementById('logBtnExportar').addEventListener('click', logExportarCsv);
-  document.getElementById('logBtnAtualizar').addEventListener('click', function () { logCarregar(false); });
+  document.getElementById('logBtnAtualizar').addEventListener('click', function () { logConcRows = null; logAvisoConc = ''; logCarregar(false); });
   logAtualizar(true);
 }
 function logSincronizarEntradas() {
@@ -1635,10 +1725,19 @@ function logRenderResultado() {
   var meta = document.getElementById('logMeta');
   if (meta) {
     var quando = logMeta.atualizadoEm ? new Date(logMeta.atualizadoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-    meta.textContent = (quando ? 'Arquivo de ' + quando + ' · ' : '') + logNum(logContarOrdens(logDados)) + ' OPs · ' + logNum(logDados.length) + ' linhas · ' + logMeta.origem;
+    var so = logDados.filter(function (x) { return !x.conc; });
+    var nConc = logDados.length - so.length;
+    meta.textContent = (quando ? 'Arquivo de ' + quando + ' · ' : '') + logNum(logContarOrdens(so)) + ' OPs · ' + logNum(so.length) + ' linhas' +
+      (nConc ? ' (+ ' + logNum(nConc) + ' linhas concluídas)' : '') + ' · ' + logMeta.origem;
+  }
+  var html = logVisoesHTML();
+  if (logAvisoConc) html += '<div class="modal-aviso">' + escaparHTML(logAvisoConc) + '</div>';
+  if (logConcEstado === 'carregando') {
+    el.innerHTML = html + '<div class="lista-vazia">Carregando o histórico de OPs concluídas e o Relatório de Pedidos...</div>';
+    return;
   }
   var rows = logFiltrar('');
-  var html = logVisoesHTML() + logChipsHTML();
+  html += logChipsHTML();
   if (!rows.length) {
     el.innerHTML = html + '<div class="lista-vazia">Nenhuma linha de OP com esses filtros.</div>';
     return;
@@ -1699,13 +1798,19 @@ function logKpiHTML(acao, rotulo, valor, sub, ativo) {
 function logContarChaves(o) { return Object.keys(o).length; }
 function logKpisHTML(rows) {
   /* o embarque, o local e o cliente são da OP inteira: cada indicador conta OPs (pedido) e mostra as linhas na observação */
-  var peds = {}, clis = {}, venc = {}, prox7 = {}, semLocal = {}, semEmb = {}, comNf = {}, nfPorOp = {};
+  var peds = {}, pedsA = {}, pedsC = {}, clis = {}, venc = {}, prox7 = {}, semLocal = {}, semEmb = {}, comNf = {}, nfPorOp = {};
   var vencL = 0, prox7L = 0, semLocalL = 0, semEmbL = 0, comNfL = 0;
   var lim7 = logSomarDias(logHoje, 7);
   rows.forEach(function (r) {
     peds[r.pedido] = 1;
+    (r.conc ? pedsC : pedsA)[r.pedido] = 1;
     clis[r.cliente] = 1;
     if (r.nf) { nfPorOp[r.pedido] = 1; comNf[r.pedido] = 1; comNfL++; }
+    if (r.conc) {
+      /* OP concluída não tem embarque vencido nem falta de local: só entra na contagem de embarque próximo */
+      if (r.embarque && r.embarque >= logHoje && r.embarque <= lim7) { prox7[r.pedido] = 1; prox7L++; }
+      return;
+    }
     if (r.embarque) {
       if (r.embarque < logHoje) { venc[r.pedido] = 1; vencL++; }
       else if (r.embarque <= lim7) { prox7[r.pedido] = 1; prox7L++; }
@@ -1715,17 +1820,19 @@ function logKpisHTML(rows) {
   var vencSemNf = 0;
   Object.keys(venc).forEach(function (p) { if (!nfPorOp[p]) vencSemNf++; });
   var f = logFiltros;
+  var subOps = f.situacao === 'todas' ? logNum(logContarChaves(pedsA)) + ' abertas · ' + logNum(logContarChaves(pedsC)) + ' concluídas' : 'um pedido = uma OP';
   return '<div class="log-kpis">' +
-    logKpiHTML('', 'OPs abertas', logNum(logContarChaves(peds)), 'um pedido = uma OP') +
+    logKpiHTML('', logSitTexto(true), logNum(logContarChaves(peds)), subOps) +
     logKpiHTML('', 'Linhas de OP', logNum(rows.length), 'itens das OPs') +
     logKpiHTML('', 'Clientes', logNum(logContarChaves(clis)), '') +
     logKpiHTML('vencidas', 'OPs com embarque vencido', logNum(logContarChaves(venc)), logNum(vencL) + ' linhas · ' + logNum(vencSemNf) + ' OPs sem NF emitida', f.vencidas) +
     logKpiHTML('prox7', 'OPs com embarque nos próx. 7 dias', logNum(logContarChaves(prox7)), logNum(prox7L) + ' linhas', f.de === logHoje && f.ate === lim7 && f.campoData === 'embarque') +
     logKpiHTML('semLocal', 'OPs sem local de entrega', logNum(logContarChaves(semLocal)), logNum(semLocalL) + ' linhas', f.semLocal) +
     logKpiHTML('semEmbarque', 'OPs sem data de embarque', logNum(logContarChaves(semEmb)), logNum(semEmbL) + ' linhas', f.semEmbarque) +
-    logKpiHTML('comNf', 'OPs com NF emitida', logNum(logContarChaves(comNf)), logNum(comNfL) + ' linhas · ainda abertas no Cosmos', f.comNf) +
+    logKpiHTML('comNf', 'OPs com NF emitida', logNum(logContarChaves(comNf)), logNum(comNfL) + ' linhas' + (f.situacao === 'concluidas' ? ' · faturadas' : (f.situacao === 'todas' ? ' · abertas e concluídas' : ' · ainda abertas no Cosmos')), f.comNf) +
     '</div>' +
-    '<p class="dica">Os indicadores contam <b>OPs</b> (o número de 5 dígitos, igual ao do pedido); as linhas de cada uma aparecem na observação. "Embarque vencido" = OP ainda aberta no Cosmos com embarque antes de hoje. As que já têm NF emitida provavelmente já saíram e só esperam a baixa; as <b>sem NF emitida</b> são os atrasos de verdade. Os números respeitam os filtros acima. A <b>linha</b> são os 3 últimos dígitos do código completo da OP.</p>';
+    '<p class="dica">Os indicadores contam <b>OPs</b> (o número de 5 dígitos, igual ao do pedido); as linhas de cada uma aparecem na observação. "Embarque vencido" = OP ainda aberta no Cosmos com embarque antes de hoje. As que já têm NF emitida provavelmente já saíram e só esperam a baixa; as <b>sem NF emitida</b> são os atrasos de verdade. Os números respeitam os filtros acima. A <b>linha</b> são os 3 últimos dígitos do código completo da OP.' +
+    (f.situacao === 'abertas' ? '' : ' As <b>OPs concluídas</b> vêm do histórico do robô; cidade, UF, vendedor, NF e faturamento delas vêm do Relatório de Pedidos (quando o pedido está lá) e não têm local de entrega. Elas não contam como embarque vencido.') + '</p>';
 }
 /* porOp: as barras contam OPs (dado da OP: UF, cidade, vendedor, local, cliente); sem porOp contam linhas (etapa e tipo variam de item para item) */
 function logBarrasHTML(titulo, dim, rows, max, porOp) {
@@ -1816,7 +1923,7 @@ function logTabelaHTML(rows) {
   if (logPagina >= paginas) logPagina = paginas - 1;
   var ini = logPagina * LOG_POR_PAGINA;
   var fatia = ord.slice(ini, ini + LOG_POR_PAGINA);
-  var html = '<div class="log-tabela-cab"><h4>Linhas de OP (' + logNum(total) + ')</h4></div><div class="tabela-wrap"><table class="log-tabela"><thead><tr>';
+  var html = '<div class="log-tabela-cab"><h4>Linhas de ' + (logFiltros.situacao === 'abertas' ? 'OP' : 'OP — ' + logSitTexto(false)) + ' (' + logNum(total) + ')</h4></div><div class="tabela-wrap"><table class="log-tabela"><thead><tr>';
   LOG_COLUNAS.forEach(function (c) {
     var ativo = logFiltros.cols[c.k] !== undefined || (logOrdem.escolhida && logOrdem.k === c.k);
     html += '<th' + (c.num ? ' class="num"' : '') + '><span class="th-rotulo">' + c.r + '</span> ' +
@@ -1824,7 +1931,7 @@ function logTabelaHTML(rows) {
   });
   html += '</tr></thead><tbody>';
   fatia.forEach(function (r) {
-    var venc = r.embarque && r.embarque < logHoje;
+    var venc = !r.conc && r.embarque && r.embarque < logHoje;
     html += '<tr>' +
       '<td>' + escaparHTML(r.pedido) + '</td>' +
       '<td title="' + escaparHTML(r.obs) + '"><code>' + escaparHTML(r.linha) + '</code></td>' +
@@ -1842,6 +1949,7 @@ function logTabelaHTML(rows) {
       '<td>' + escaparHTML(r.vendedor) + '</td>' +
       '<td>' + (r.nf ? escaparHTML(r.nf) + (r.serie ? ' <span class="muted">/ ' + escaparHTML(r.serie) + '</span>' : '') : '<span class="muted">—</span>') + '</td>' +
       '<td>' + (r.faturamento ? logFmtData(r.faturamento) : '<span class="muted">—</span>') + '</td>' +
+      '<td>' + (r.conclusao ? logFmtData(r.conclusao) : '<span class="muted">—</span>') + '</td>' +
       '</tr>';
   });
   html += '</tbody></table></div><div class="log-paginacao">' +
@@ -1863,11 +1971,19 @@ function logAplicarRapido(tipo) {
 function logClique(e) {
   var t = e.target;
   if (!t.closest) return;
-  var alvo = t.closest('[data-dim],[data-kpi],[data-chip],[data-colfiltro],[data-pagina],[data-gran],[data-de],[data-rapido],[data-visao],[data-agrup],[data-itemord],[data-grupo],[data-itemlinha],[data-gruposall],[data-imprimir]');
+  var alvo = t.closest('[data-dim],[data-kpi],[data-chip],[data-colfiltro],[data-pagina],[data-gran],[data-de],[data-rapido],[data-visao],[data-agrup],[data-itemord],[data-grupo],[data-itemlinha],[data-gruposall],[data-imprimir],[data-sit]');
   if (!alvo || !logDados) return;
   logHoje = logHojeISO();
   var f = logFiltros;
-  if (alvo.hasAttribute('data-visao')) {
+  if (alvo.hasAttribute('data-sit')) {
+    var sit = alvo.getAttribute('data-sit');
+    if (sit === f.situacao) return;
+    f.situacao = sit;
+    logAvisoConc = '';
+    logPagina = 0;
+    /* o histórico só é baixado na primeira vez que alguém pede as concluídas */
+    if (sit !== 'abertas' && !logConcRows) { logCarregarConcluidas(); return; }
+  } else if (alvo.hasAttribute('data-visao')) {
     logVisao = alvo.getAttribute('data-visao') === 'itens' ? 'itens' : 'ops';
   } else if (alvo.hasAttribute('data-agrup')) {
     logAgrup = alvo.getAttribute('data-agrup');
@@ -1906,7 +2022,7 @@ function logClique(e) {
     logPagina = 0;
   } else if (alvo.hasAttribute('data-chip')) {
     var chip = alvo.getAttribute('data-chip');
-    if (chip === 'todos') logFiltros = logFiltrosPadrao(f.campoData);
+    if (chip === 'todos') { var sitAtual = f.situacao; logFiltros = logFiltrosPadrao(f.campoData); logFiltros.situacao = sitAtual; }
     else if (chip === 'data') { f.de = ''; f.ate = ''; }
     else if (chip === 'vencidas' || chip === 'semLocal' || chip === 'semEmbarque' || chip === 'comNf') f[chip] = false;
     else if (chip.indexOf('col:') === 0) delete f.cols[chip.slice(4)];
@@ -1942,7 +2058,7 @@ function logExportarCsv() {
   var rows = logOrdenar(logFiltrar(''));
   var linhas = [LOG_COLUNAS.map(function (c) { return c.r; }).join(';')];
   rows.forEach(function (r) {
-    linhas.push([r.pedido, r.linha, r.cliente, r.item, String(r.qtd).replace('.', ','), r.tipo, r.etapa, logFmtData(r.embarque).replace('—', ''), logFmtData(r.entrega).replace('—', ''), r.local, r.endereco, r.cidade, r.uf, r.vendedor, r.nf, logFmtData(r.faturamento).replace('—', '')].map(logCsvCel).join(';'));
+    linhas.push([r.pedido, r.linha, r.cliente, r.item, String(r.qtd).replace('.', ','), r.tipo, r.etapa, logFmtData(r.embarque).replace('—', ''), logFmtData(r.entrega).replace('—', ''), r.local, r.endereco, r.cidade, r.uf, r.vendedor, r.nf, logFmtData(r.faturamento).replace('—', ''), logFmtData(r.conclusao).replace('—', '')].map(logCsvCel).join(';'));
   });
   var blob = new Blob(['﻿' + linhas.join('\r\n')], { type: 'text/csv;charset=utf-8' });
   var a = document.createElement('a');
@@ -1978,7 +2094,7 @@ function logAccSomar(a, r) {
   var g = logGrupoUnidade(r.un);
   a.qtd[g] = (a.qtd[g] || 0) + r.qtd;
   a.qtdNum += r.qtd;
-  if (r.embarque && r.embarque < logHoje) a.venc[g] = (a.venc[g] || 0) + r.qtd;
+  if (!r.conc && r.embarque && r.embarque < logHoje) a.venc[g] = (a.venc[g] || 0) + r.qtd;
   a.nOps++;
   a.peds[r.pedido] = 1;
   if (r.embarque) {
@@ -2032,10 +2148,22 @@ function logItensOrdenar(lista) {
 function logGrupoAberto(chave, n) {
   return logGruposAbertos[chave] !== undefined ? logGruposAbertos[chave] : n <= 3;
 }
+var LOG_SITUACOES = [['abertas', 'Abertas'], ['todas', 'Abertas + concluídas'], ['concluidas', 'Só concluídas']];
 function logVisoesHTML() {
   return '<div class="log-visoes">' +
     '<button type="button" class="btn btn-sm ' + (logVisao === 'ops' ? 'btn-primario' : 'btn-contorno') + '" data-visao="ops">OPs</button>' +
-    '<button type="button" class="btn btn-sm ' + (logVisao === 'itens' ? 'btn-primario' : 'btn-contorno') + '" data-visao="itens">Itens</button></div>';
+    '<button type="button" class="btn btn-sm ' + (logVisao === 'itens' ? 'btn-primario' : 'btn-contorno') + '" data-visao="itens">Itens</button>' +
+    '<span class="rotulo" style="margin:0 4px 0 14px;align-self:center;">Mostrar</span>' +
+    LOG_SITUACOES.map(function (s) {
+      return '<button type="button" class="btn btn-sm ' + (logFiltros.situacao === s[0] ? 'btn-primario' : 'btn-contorno') + '" data-sit="' + s[0] + '">' + s[1] + '</button>';
+    }).join('') + '</div>';
+}
+/* texto curto da situação escolhida, para rótulos, KPIs e impressão */
+function logSitTexto(plural) {
+  var s = logFiltros.situacao;
+  if (s === 'concluidas') return plural ? 'OPs concluídas' : 'concluídas';
+  if (s === 'todas') return plural ? 'OPs abertas e concluídas' : 'abertas e concluídas';
+  return plural ? 'OPs abertas' : 'abertas';
 }
 function logThItem(k, rotulo, cls) {
   var at = logOrdemItens.k === k;
@@ -2066,7 +2194,7 @@ function logItemLinhaHTML(g, l) {
     ops.forEach(function (o) {
       h += '<tr><td>' + escaparHTML(o.pedido) + '</td><td><code>' + escaparHTML(o.linha) + '</code></td><td>' + escaparHTML(o.cliente) + '</td>' +
         '<td>' + escaparHTML(String(o.qtd).replace('.', ',')) + ' ' + escaparHTML(o.un) + '</td><td>' + escaparHTML(o.etapa) + '</td>' +
-        '<td>' + (o.embarque ? logFmtData(o.embarque) + (o.embarque < logHoje ? ' <span class="log-venc">vencido</span>' : '') : '—') + '</td>' +
+        '<td>' + (o.embarque ? logFmtData(o.embarque) + (!o.conc && o.embarque < logHoje ? ' <span class="log-venc">vencido</span>' : '') : '—') + '</td>' +
         '<td>' + (o.entrega ? logFmtData(o.entrega) : '—') + '</td><td>' + (o.nf ? escaparHTML(o.nf) : '—') + '</td></tr>';
     });
     h += '</tbody></table></td></tr>';
@@ -2092,7 +2220,7 @@ function logItensHTML(rows) {
   h += '<div class="log-kpis">' +
     logKpiHTML('', 'Itens diferentes', logNum(res.nItens), '') +
     logKpiHTML('', 'Quantidade total', logUnTexto(tot.qtd), 'só peças (PC e UN)') +
-    logKpiHTML('', 'OPs abertas', logNum(tot.nPeds), '') +
+    logKpiHTML('', logSitTexto(true), logNum(tot.nPeds), '') +
     logKpiHTML('', 'Linhas de OP', logNum(tot.nOps), '') +
     logKpiHTML('', 'Qtd. com embarque vencido', logUnTexto(tot.venc), 'OP aberta, embarque antes de hoje') +
     '</div>';
@@ -2117,7 +2245,7 @@ function logItensHTML(rows) {
     '<td class="num">' + logNum(tot.nPeds) + '</td><td class="num">' + logNum(tot.nOps) + '</td>' +
     '<td colspan="2"></td><td class="num">' + escaparHTML(logUnTexto(tot.venc)) + '</td></tr>';
   return h + '</tbody></table></div>' +
-    '<p class="dica">Soma a quantidade de cada OP aberta. Os totais somam só peças (PC e UN); itens em m² ou em outra unidade aparecem na lista, com a unidade, mas não entram na soma. Os filtros do topo valem aqui: escolha o cliente e o tipo de produto e o total sai pronto.</p>';
+    '<p class="dica">Soma a quantidade de cada OP ' + logSitTexto(false) + '. Os totais somam só peças (PC e UN); itens em m² ou em outra unidade aparecem na lista, com a unidade, mas não entram na soma. Os filtros do topo valem aqui: escolha o cliente e o tipo de produto e o total sai pronto.</p>';
 }
 function logAgrupRotulo() {
   var r = 'Item';
@@ -2151,7 +2279,7 @@ function logImprimirItens() {
   var temGrupos = logAgrup !== 'item';
   var agora = new Date().toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
   var arquivo = logMeta.atualizadoEm ? new Date(logMeta.atualizadoEm).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
-  var filtros = logChipsLista().map(function (c) { return '<span>' + escaparHTML(c[1]) + '</span>'; }).join('') || '<span>Sem filtros: todas as OPs abertas</span>';
+  var filtros = logChipsLista().map(function (c) { return '<span>' + escaparHTML(c[1]) + '</span>'; }).join('') || '<span>Sem filtros: todas as ' + escaparHTML(logSitTexto(true)) + '</span>';
   var colgrupo = '<colgroup><col style="width:9%"><col><col style="width:5%"><col style="width:9%"><col style="width:6%"><col style="width:7%"><col style="width:9%"><col style="width:9%"><col style="width:9%"></colgroup>';
   var thead = '<thead><tr><th>Cód.</th><th>Item</th><th>Un.</th><th class="n">Qtd. total</th><th class="n">OPs</th><th class="n">Linhas</th><th>1º embarque</th><th>Últ. embarque</th><th class="n">Qtd. vencida</th></tr></thead>';
   function linhaItem(l) {
@@ -2201,12 +2329,12 @@ function logImprimirItens() {
     '@media print{.toolbar{display:none;}body{padding:0;}}' +
     '</style></head><body>' +
     '<div class="toolbar"><button class="btn-print" onclick="window.print()">Imprimir</button></div>' +
-    '<div class="cab"><div><div class="marca">' + logoImpressao() + 'RODRIAÇO</div><h1>Análise de itens — OPs abertas</h1></div>' +
+    '<div class="cab"><div><div class="marca">' + logoImpressao() + 'RODRIAÇO</div><h1>Análise de itens — ' + escaparHTML(logSitTexto(true)) + '</h1></div>' +
     '<div class="meta">Agrupado por: <b>' + escaparHTML(logAgrupRotulo()) + '</b><br>Impresso em ' + escaparHTML(agora) +
     (arquivo ? '<br>Arquivo do Cosmos de ' + escaparHTML(arquivo) : '') + '<br>Totais somam só peças (PC e UN)<br>Embarque vencido = antes de ' + escaparHTML(logFmtData(logHoje)) + '</div></div>' +
     '<div class="filtros"><b>Filtros:</b>' + filtros + '</div>' +
     '<div class="resumo"><div>Itens diferentes<b>' + logNum(res.nItens) + '</b></div><div>Quantidade total<b>' + escaparHTML(logUnTexto(tot.qtd)) + '</b></div>' +
-    '<div>OPs abertas<b>' + logNum(tot.nPeds) + '</b></div><div>Linhas de OP<b>' + logNum(tot.nOps) + '</b></div></div>' +
+    '<div>' + escaparHTML(logSitTexto(true)) + '<b>' + logNum(tot.nPeds) + '</b></div><div>Linhas de OP<b>' + logNum(tot.nOps) + '</b></div></div>' +
     corpo + '</body></html>'
   );
   win.document.close();
