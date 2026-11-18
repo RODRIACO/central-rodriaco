@@ -397,6 +397,8 @@
   /* ===== PORTA DE ENTRADA (login do ERP) ===== */
   .tela-acesso { position: fixed; inset: 0; z-index: 6000; background: var(--bg); display: flex; align-items: center; justify-content: center; padding: 1rem; overflow-y: auto; }
   .perm-travada { opacity: .6; cursor: not-allowed; }
+  .perm-titulo-grupo { font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 12px 0 6px; }
+  .perm-agrupado { margin-left: 10px; }
   .perm-travada input { cursor: not-allowed; }
   .acesso-card { width: 100%; max-width: 380px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 28px 26px; box-shadow: var(--shadow); }
   .acesso-marca { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
@@ -7952,7 +7954,7 @@ function montarHTML(estadoAtual) {
 
 /* ===== ACESSO AO ERP (login do Supabase; so conta ATIVA entra) ===== */
 var appIniciado = false;
-var ACESSO = { admin: false, modulos: {}, canalDenuncia: false, empLiberado: false };
+var ACESSO = { admin: false, modulos: {}, canalDenuncia: false, libs: { emp: false, prem: false } };
 /* Subareas que NAO aparecem na janela Permissoes de Contas e que nenhuma caixinha libera.
    Canal de Denuncia: o atalho so aparece para o admin e para quem o BANCO diz que esta
    liberado (tabela denuncia_acesso, mexida so pelo SQL Editor). Evita marcacao por engano
@@ -7961,18 +7963,33 @@ var SUBS_TRAVADAS = { 'apps.canal_denuncia': true };
 /* Subareas com caixinha TRAVADA na janela Permissoes: aparecem, mas so da para marcar para quem o BANCO
    autorizou (tabela emp_acesso, mexida so pelo SQL Editor; admin sempre tem). O modulo inteiro ('apps')
    tambem NAO libera: o banco exige a chave exata. Nenhum e-mail fica escrito neste arquivo, que e publico. */
-var SUBS_RESTRITAS = { 'apps.emprestimos': true };
+var SUBS_RESTRITAS = { 'apps.emprestimos': 'emp' };
+/* RH > Premiação: o módulo inteiro tem as caixinhas travadas do mesmo jeito (lista premiacao_acesso, banco_premiacao_acesso.sql) */
+(function () {
+  var l = SUBMENUS.premiacao || [];
+  for (var i = 0; i < l.length; i++) { SUBS_RESTRITAS['premiacao.' + l[i][0]] = 'prem'; }
+})();
+/* nome da lista de autorizados que trava a subárea ('' = não é restrita) */
+function listaRestrita(modulo, sub) { return SUBS_RESTRITAS[modulo + '.' + sub] || ''; }
+/* todas as subáreas do módulo são restritas? (então a chave do módulo inteiro nunca libera nada) */
+function moduloTodoRestrito(modulo) {
+  var l = SUBMENUS[modulo];
+  if (!l || !l.length) return false;
+  for (var i = 0; i < l.length; i++) { if (!listaRestrita(modulo, l[i][0])) return false; }
+  return true;
+}
 /* chaves: 'modulo' (inteiro; contas antigas e modulos sem subareas) ou 'modulo.sub' */
 function podeSub(modulo, sub) {
   if (ACESSO.admin) return true;
   if (SUBS_TRAVADAS[modulo + '.' + sub]) return modulo === 'apps' && sub === 'canal_denuncia' && !!ACESSO.canalDenuncia;
-  if (SUBS_RESTRITAS[modulo + '.' + sub]) return !!ACESSO.empLiberado;
+  var lr = listaRestrita(modulo, sub);
+  if (lr) return !!ACESSO.libs[lr];
   return !!(ACESSO.modulos[modulo] || ACESSO.modulos[modulo + '.' + sub]);
 }
 function podeModulo(chave) {
   if (chave === 'inicio') return true;
   if (chave === 'contas') return !!ACESSO.admin;
-  if (ACESSO.admin || ACESSO.modulos[chave]) return true;
+  if (ACESSO.admin || (ACESSO.modulos[chave] && !moduloTodoRestrito(chave))) return true;
   var subs = SUBMENUS[chave];
   if (!subs) return false;
   for (var i = 0; i < subs.length; i++) { if (podeSub(chave, subs[i][0])) return true; }
@@ -8079,12 +8096,19 @@ function contaEmprestimos() {
     .then(function (v) { return v === true; })
     .catch(function () { return false; });
 }
+/* pergunta ao banco se este login pode abrir a Premiação (admin ou conta autorizada em premiacao_acesso); falha = não */
+function contaPremiacao() {
+  return logFetchAut('/rest/v1/rpc/premiacao_eu', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' })
+    .then(function (r) { return r.ok ? r.json() : false; })
+    .then(function (v) { return v === true; })
+    .catch(function () { return false; });
+}
 function conferirAcesso(aoLiberar) {
   return contaAcessos().then(function (a) {
     if (!a || a.status !== 'ativo') { telaAcessoPendente(aoLiberar); return; }
-    return Promise.all([contaCanalDenuncia(), contaEmprestimos()]).then(function (extra) {
+    return Promise.all([contaCanalDenuncia(), contaEmprestimos(), contaPremiacao()]).then(function (extra) {
       var canal = extra[0];
-      ACESSO = { admin: !!a.admin, modulos: a.modulos || {}, canalDenuncia: canal, empLiberado: !!extra[1] };
+      ACESSO = { admin: !!a.admin, modulos: a.modulos || {}, canalDenuncia: canal, libs: { emp: !!extra[1], prem: !!extra[2] } };
       if (!ACESSO.admin && !temAlgumModulo() && !canal) { telaAcessoSemModulo(aoLiberar); return; }
       liberarApp(aoLiberar);
     });
@@ -8312,18 +8336,19 @@ var CONTAS_PRESETS = [
 ];
 var contasLista = null;
 var contasBusca = '';
-var contasLiberaveis = [];   /* e-mails autorizados no banco a receber permissões restritas (só o admin consegue ler) */
+var contasLiberaveis = { emp: [], prem: [] };   /* e-mails autorizados no banco a receber permissões restritas, por lista (só o admin consegue ler) */
 /* a caixinha restrita só vale para admin e para contas autorizadas no banco */
 function contaLiberada(conta, chave) {
-  if (!SUBS_RESTRITAS[chave]) return true;
+  var lr = SUBS_RESTRITAS[chave];
+  if (!lr) return true;
   if (!conta) return false;
-  return conta.papel === 'admin' || contasLiberaveis.indexOf(String(conta.email || '').toLowerCase()) !== -1;
+  return conta.papel === 'admin' || (contasLiberaveis[lr] || []).indexOf(String(conta.email || '').toLowerCase()) !== -1;
 }
 /* [{chave, nome, subs: [[chave, nome], ...] | null}] — o que da para liberar */
 function contasGrade() {
   var l = [];
   MODULOS.forEach(function (m) {
-    if (m.disponivel && !m.somenteAdmin) l.push({ chave: m.chave, nome: m.nome,
+    if (m.disponivel && !m.somenteAdmin) l.push({ chave: m.chave, nome: m.nome, grupo: (grupoDoModulo(m.chave) || {}).nome || '',
       subs: SUBMENUS[m.chave] ? SUBMENUS[m.chave].filter(function (s) { return !SUBS_TRAVADAS[m.chave + '.' + s[0]]; }) : null });
   });
   l.push({ chave: 'operador', nome: 'Área do Operador', subs: null });
@@ -8382,9 +8407,13 @@ function contasCarregar() {
     contasApi('/rest/v1/perfis?select=id,email,nome,papel,status&order=email.asc'),
     contasApi('/rest/v1/acessos_erp?select=user_id,modulos'),
     /* quem o banco autorizou para as caixinhas restritas; sem resposta = ninguém (fica tudo travado) */
-    contasApi('/rest/v1/rpc/emp_liberaveis', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).catch(function () { return []; })
+    contasApi('/rest/v1/rpc/emp_liberaveis', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).catch(function () { return []; }),
+    contasApi('/rest/v1/rpc/premiacao_liberaveis', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }).catch(function () { return []; })
   ]).then(function (r) {
-    contasLiberaveis = (r[2] || []).map(function (e) { return String(e).toLowerCase(); });
+    contasLiberaveis = {
+      emp: (r[2] || []).map(function (e) { return String(e).toLowerCase(); }),
+      prem: (r[3] || []).map(function (e) { return String(e).toLowerCase(); })
+    };
     var mods = {};
     (r[1] || []).forEach(function (a) { mods[a.user_id] = a.modulos || {}; });
     contasLista = (r[0] || []).map(function (p) {
@@ -8486,8 +8515,13 @@ function contasMudou(e) {
 function contasAbrirPermissoes(conta) {
   var set = contasConjunto(conta.modulos, conta);
   var corpo = '<p class="dica">Marque o módulo para liberar todas as subáreas e desmarque as que <strong>' + escaparHTML(conta.email) + '</strong> não deve ver.</p><div id="permLista">';
+  var grupoAtual = '';
   contasGrade().forEach(function (g) {
-    corpo += '<div class="perm-grupo" data-pg="' + g.chave + '"><label class="perm-mod"><input type="checkbox" data-pm="' + g.chave + '"' + (!g.subs && set[g.chave] ? ' checked' : '') + '> <strong>' + escaparHTML(g.nome) + '</strong></label>';
+    if (g.grupo !== grupoAtual) {   /* módulos agrupados no menu (ex.: RH) ganham um título na janela */
+      grupoAtual = g.grupo;
+      if (grupoAtual) corpo += '<div class="perm-titulo-grupo">' + escaparHTML(grupoAtual) + '</div>';
+    }
+    corpo += '<div class="perm-grupo' + (g.grupo ? ' perm-agrupado' : '') + '" data-pg="' + g.chave + '"><label class="perm-mod"><input type="checkbox" data-pm="' + g.chave + '"' + (!g.subs && set[g.chave] ? ' checked' : '') + '> <strong>' + escaparHTML(g.nome) + '</strong></label>';
     if (g.subs) {
       corpo += '<div class="perm-subs">';
       g.subs.forEach(function (s) {
@@ -8504,7 +8538,14 @@ function contasAbrirPermissoes(conta) {
   function sincronizar() {
     document.querySelectorAll('#permLista .perm-grupo').forEach(function (grupo) {
       var subs = grupo.querySelectorAll('[data-ps]:not(:disabled)');   /* as travadas não entram na conta */
-      if (!subs.length) return;
+      if (!subs.length) {
+        if (grupo.querySelector('[data-ps]')) {   /* tudo travado: a caixinha do módulo também */
+          var pt = grupo.querySelector('[data-pm]');
+          pt.checked = false; pt.indeterminate = false; pt.disabled = true;
+          pt.closest('label').classList.add('perm-travada');
+        }
+        return;
+      }
       var marcadas = grupo.querySelectorAll('[data-ps]:checked:not(:disabled)').length;
       var pm = grupo.querySelector('[data-pm]');
       pm.checked = marcadas === subs.length;
