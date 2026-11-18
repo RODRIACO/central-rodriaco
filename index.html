@@ -1321,7 +1321,7 @@ function logRotuloCampo(c) { return c === 'entrega' ? 'Entrega' : (c === 'abertu
 
 /* ---------- filtros ---------- */
 function logFiltrosPadrao(campo) {
-  return { campoData: campo || 'embarque', situacao: 'abertas', de: '', ate: '', uf: '', cidade: '', local: '', cliente: '', vendedor: '', tipo: '', etapa: '', busca: '', vencidas: false, semLocal: false, semEmbarque: false, comNf: false, cols: {} };
+  return { campoData: campo || 'embarque', situacao: 'abertas', de: '', ate: '', uf: '', cidade: '', local: '', clientes: [], vendedor: '', tipo: '', etapa: '', busca: '', vencidas: false, semLocal: false, semEmbarque: false, comNf: false, cols: {} };
 }
 function logPassa(r, f, ign) {
   /* situacao: 'abertas' (padrão), 'todas' (abertas + concluídas) ou 'concluidas' */
@@ -1338,7 +1338,7 @@ function logPassa(r, f, ign) {
   }
   if (ign !== 'cidade' && f.cidade && r.cidade !== f.cidade) return false;
   if (ign !== 'local' && f.local && r.local !== f.local) return false;
-  if (ign !== 'cliente' && f.cliente && r.cliente !== f.cliente) return false;
+  if (ign !== 'cliente' && f.clientes.length && f.clientes.indexOf(r.cliente) === -1) return false;
   if (ign !== 'vendedor' && f.vendedor && r.vendedor !== f.vendedor) return false;
   if (ign !== 'tipo' && f.tipo && r.tipo !== f.tipo) return false;
   if (ign !== 'etapa' && f.etapa && r.etapa !== f.etapa) return false;
@@ -1620,6 +1620,18 @@ function logOpcoesBusca(dim) {
   };
 }
 function logLigarBusca(id, dim) {
+  if (dim === 'cliente') {
+    /* cliente aceita vários: cada escolha entra na lista (aparece como etiqueta abaixo) e o campo fica livre para buscar o próximo */
+    var base = logOpcoesBusca(dim);
+    wireCampoBusca(id, function (t) { return base(t).filter(function (o) { return logFiltros.clientes.indexOf(o.id) === -1; }); }, function (v) {
+      if (v && logFiltros.clientes.indexOf(v) === -1) logFiltros.clientes.push(v);
+      var vis0 = document.querySelector('.in-busca-visual[data-alvo="' + id + '"]');
+      if (vis0) { vis0.value = ''; vis0.blur(); }
+      logPagina = 0;
+      logAtualizar(false);
+    });
+    return;
+  }
   wireCampoBusca(id, logOpcoesBusca(dim), function (v) { logFiltros[dim] = v; logPagina = 0; logAtualizar(false); });
   var vis = document.querySelector('.in-busca-visual[data-alvo="' + id + '"]');
   if (vis) vis.addEventListener('input', function () {
@@ -1665,7 +1677,7 @@ function logMontarDashboard() {
         '<div class="campo"><label>UF</label><select id="logUf">' + optUf + '</select></div>' +
         '<div class="campo"><label>Cidade</label>' + campoBuscaHTML('logFCidade', '', '', 'Buscar cidade...') + '</div>' +
         '<div class="campo"><label>Local de entrega</label>' + campoBuscaHTML('logFLocal', '', '', 'Buscar local...') + '</div>' +
-        '<div class="campo"><label>Cliente</label>' + campoBuscaHTML('logFCliente', '', '', 'Buscar cliente...') + '</div>' +
+        '<div class="campo"><label>Cliente</label>' + campoBuscaHTML('logFCliente', '', '', 'Buscar e adicionar clientes...') + '</div>' +
         '<div class="campo"><label>Vendedor</label><select id="logVendedor">' + optVend + '</select></div>' +
         '<div class="campo"><label>Tipo de produto</label>' + campoBuscaHTML('logFTipo', '', '', 'Buscar tipo...') + '</div>' +
         '<div class="campo"><label>Etapa atual</label><select id="logEtapa">' + optEtapa + '</select></div>' +
@@ -1703,7 +1715,7 @@ function logSincronizarEntradas() {
   def('logVendedor', f.vendedor);
   def('logEtapa', f.etapa);
   def('logBusca', f.busca ? document.getElementById('logBusca').value : '');
-  [['logFCidade', 'cidade'], ['logFLocal', 'local'], ['logFCliente', 'cliente'], ['logFTipo', 'tipo']].forEach(function (p) {
+  [['logFCidade', 'cidade'], ['logFLocal', 'local'], ['logFTipo', 'tipo']].forEach(function (p) {
     def(p[0], f[p[1]]);
     var vis = document.querySelector('.in-busca-visual[data-alvo="' + p[0] + '"]');
     if (vis) vis.value = f[p[1]];
@@ -1769,7 +1781,7 @@ function logChipsLista() {
   if (f.uf) c.push(['uf', 'UF: ' + (f.uf === '__sem' ? 'não informada' : f.uf)]);
   if (f.cidade) c.push(['cidade', 'Cidade: ' + f.cidade]);
   if (f.local) c.push(['local', 'Local: ' + f.local]);
-  if (f.cliente) c.push(['cliente', 'Cliente: ' + f.cliente]);
+  f.clientes.forEach(function (n, i) { c.push(['cli:' + i, 'Cliente: ' + n]); });
   if (f.vendedor) c.push(['vendedor', 'Vendedor: ' + f.vendedor]);
   if (f.tipo) c.push(['tipo', 'Tipo: ' + f.tipo]);
   if (f.etapa) c.push(['etapa', 'Etapa: ' + f.etapa]);
@@ -1837,18 +1849,20 @@ function logKpisHTML(rows) {
 /* porOp: as barras contam OPs (dado da OP: UF, cidade, vendedor, local, cliente); sem porOp contam linhas (etapa e tipo variam de item para item) */
 function logBarrasHTML(titulo, dim, rows, max, porOp) {
   var itens = logContar(rows, dim, porOp);
-  var sel = logFiltros[dim];
+  var sels = dim === 'cliente' ? logFiltros.clientes : (logFiltros[dim] ? [logFiltros[dim]] : []);
   var topo = itens.slice(0, max);
-  if (sel && !topo.some(function (x) { return x.chave === sel; })) {
-    for (var i = 0; i < itens.length; i++) { if (itens[i].chave === sel) { topo.push(itens[i]); break; } }
-  }
+  sels.forEach(function (sel) {
+    if (!topo.some(function (x) { return x.chave === sel; })) {
+      for (var i = 0; i < itens.length; i++) { if (itens[i].chave === sel) { topo.push(itens[i]); break; } }
+    }
+  });
   var html = '<h4>' + escaparHTML(titulo) + ' <span class="muted" style="text-transform:none;font-weight:400;">(' + (porOp ? 'OPs' : 'linhas') + ')</span></h4>';
   if (!topo.length) return html + '<div class="lista-vazia-mini">Sem dados.</div>';
   var maior = topo[0].n;
   html += '<div class="barras">';
   topo.forEach(function (x) {
     var rot = x.chave === '__sem' ? 'Não informada' : x.chave;
-    html += '<div class="barra-linha' + (sel === x.chave ? ' sel' : '') + '" data-dim="' + dim + '" data-val="' + escaparHTML(x.chave) + '" title="' + escaparHTML(rot) + ' — ' + x.n + (porOp ? ' OPs' : ' linhas') + '">' +
+    html += '<div class="barra-linha' + (sels.indexOf(x.chave) !== -1 ? ' sel' : '') + '" data-dim="' + dim + '" data-val="' + escaparHTML(x.chave) + '" title="' + escaparHTML(rot) + ' — ' + x.n + (porOp ? ' OPs' : ' linhas') + '">' +
       '<span class="barra-rotulo">' + escaparHTML(rot) + '</span>' +
       '<span class="barra-trilho"><span class="barra-preenche" style="width:' + Math.max(2, Math.round(x.n / maior * 100)) + '%"></span></span>' +
       '<span class="barra-n">' + logNum(x.n) + '</span></div>';
@@ -2005,7 +2019,10 @@ function logClique(e) {
     return;
   } else if (alvo.hasAttribute('data-dim')) {
     var dim = alvo.getAttribute('data-dim'), val = alvo.getAttribute('data-val');
-    f[dim] = f[dim] === val ? '' : val;
+    if (dim === 'cliente') {
+      var pc = f.clientes.indexOf(val);
+      if (pc === -1) f.clientes.push(val); else f.clientes.splice(pc, 1);
+    } else f[dim] = f[dim] === val ? '' : val;
     if (dim === 'uf') f.cidade = '';
     logPagina = 0;
   } else if (alvo.hasAttribute('data-kpi')) {
@@ -2026,6 +2043,7 @@ function logClique(e) {
     else if (chip === 'data') { f.de = ''; f.ate = ''; }
     else if (chip === 'vencidas' || chip === 'semLocal' || chip === 'semEmbarque' || chip === 'comNf') f[chip] = false;
     else if (chip.indexOf('col:') === 0) delete f.cols[chip.slice(4)];
+    else if (chip.indexOf('cli:') === 0) f.clientes.splice(+chip.slice(4), 1);
     else f[chip] = '';
     if (chip === 'busca') { var b = document.getElementById('logBusca'); if (b) b.value = ''; }
     logPagina = 0;
