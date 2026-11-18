@@ -1453,6 +1453,24 @@ function logUnirClientes(rows) {
     nome[k] = melhor;
   });
   rows.forEach(function (r) { r.cliente = nome[r._ck]; delete r._ck; });
+  return nome;
+}
+/* o nome "oficial" de um cliente muda quando entram dados novos (ex.: as concluídas trazem mais linhas sem acento).
+   Os filtros guardam o nome, então depois de cada junção eles são traduzidos pelo nome atual do mesmo cliente. */
+function logRemapearClientesFiltro(nome) {
+  var f = logFiltros;
+  if (!f || !nome) return;
+  function atual(n) { var k = logChaveCliente(n) || n; return nome[k] || n; }
+  if (f.clientes && f.clientes.length) {
+    var novos = [];
+    f.clientes.forEach(function (n) { var a = atual(n); if (novos.indexOf(a) === -1) novos.push(a); });
+    f.clientes = novos;
+  }
+  if (f.cols && f.cols.cliente) {
+    var nc = [];
+    f.cols.cliente.forEach(function (n) { var a = n === '' ? n : atual(n); if (nc.indexOf(a) === -1) nc.push(a); });
+    f.cols.cliente = nc;
+  }
 }
 /* junta as OPs abertas com as concluídas já carregadas (se houver); uma OP aberta nunca é duplicada pela concluída */
 function logReunir(abertas) {
@@ -1460,7 +1478,7 @@ function logReunir(abertas) {
   abertas.forEach(function (o) { ops[o.op] = 1; });
   if (logConcRows) logConcRows.forEach(function (c) { if (!ops[c.op]) abertas.push(c); });
   logDados = abertas;
-  logUnirClientes(logDados);
+  logRemapearClientesFiltro(logUnirClientes(logDados));
   var cont = {};
   ['local', 'cliente', 'tipo', 'cidade', 'vendedor'].forEach(function (dim) {
     cont[dim] = logContar(logDados, dim).map(function (x) { return x.chave; });
