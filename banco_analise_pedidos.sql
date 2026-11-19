@@ -24,7 +24,8 @@ create policy "cosmos ler" on storage.objects
   for select to authenticated
   using (bucket_id = 'dados-cosmos'
          and (public.tem_acesso('logistica.csv', 'ver')
-              or public.tem_acesso('comercial.analisePedidos', 'ver')));
+              or public.tem_acesso('comercial.analisePedidos', 'ver')
+              or public.tem_acesso('apps.compra_cubas', 'ver')));
 
 
 -- ------------------------------------------------------------

@@ -119,6 +119,17 @@ Cloudflare (dados no mesmo Supabase), e **Controle de Empréstimos**
   `banco_ferramentas_admin.sql` no SQL Editor do Supabase. Depois dele, quem não é
   administrador recebe "Somente o administrador altera as ferramentas." ao tentar gravar.
 
+- **Compra de Cubas** (`apps/compra-cubas/`, permissão `apps.compra_cubas`): análise do PCP.
+  Lê do bucket `dados-cosmos` (mesma sessão da Central) o `DADOS COSMOS.csv` (OPs abertas =
+  necessidade) e o `OPs concluidas.csv` (média mensal) e mostra, por modelo de cuba da planilha
+  NECESSIDADE CUBAS, necessidade, média e sugestão de compra. **Não grava nada** (nem no banco
+  nem no navegador): estoque, cobertura, filtros e marcações só valem na tela aberta. As regras
+  de leitura das medidas ficam fixas no `index.html` do app. Para quem não é administrador,
+  rodar **uma vez** o `banco_compra_cubas.sql` (libera a leitura do bucket para
+  `apps.compra_cubas`); ele e o `banco_acessos.sql`/`banco_analise_pedidos.sql` têm a mesma regra
+  "cosmos ler", então a ordem de execução entre eles não importa. Depois, marcar Apps de suporte ›
+  Compra de Cubas na conta.
+
 - **Controle de Empréstimos** (`apps/emprestimos/`, permissão `apps.emprestimos`):
   empréstimos e adiantamentos de funcionários (parcelas, juros, baixas e descontos
   parciais, dashboard, impressão, log). É o `controle de emprestimos.html` que usava

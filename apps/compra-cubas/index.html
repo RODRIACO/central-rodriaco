@@ -1,0 +1,876 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Compra de Cubas</title>
+<style>
+:root{
+  --bg:#f3f5f8; --card:#ffffff; --ink:#1b2430; --muted:#657083; --line:#dfe5ee;
+  --accent:#1f4e8c; --accent-ink:#ffffff; --accent-soft:#e7effa;
+  --buy:#0b6b3a; --buy-bg:#e4f4ea; --warn:#8a5200; --warn-bg:#fff3dc; --danger:#b3261e;
+  --bar:#7aa2d6; --bar-last:#1f4e8c; --shadow:0 1px 2px rgba(20,30,50,.06),0 4px 14px rgba(20,30,50,.05);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#10151c; --card:#18202a; --ink:#e7ecf3; --muted:#93a0b3; --line:#283240;
+    --accent:#6ea3ec; --accent-ink:#0c1522; --accent-soft:#1c2a3d;
+    --buy:#58d08a; --buy-bg:#14301f; --warn:#f0b35a; --warn-bg:#33270f; --danger:#ff8d85;
+    --bar:#456a9f; --bar-last:#6ea3ec; --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+header.top{background:var(--card);border-bottom:1px solid var(--line)}
+header.top .wrap{padding-top:18px;padding-bottom:16px;display:flex;gap:16px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap}
+h1{margin:0;font-size:22px;letter-spacing:-.01em}
+header p{margin:2px 0 0;color:var(--muted)}
+.who{text-align:right;font-size:12.5px;color:var(--muted)}
+.who a{color:var(--accent);text-decoration:none}
+main.wrap{padding-top:16px;padding-bottom:40px;display:grid;gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow);padding:16px}
+.card h2{margin:0 0 10px;font-size:15px}
+.hint{color:var(--muted);font-size:12.5px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.chip{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);border-radius:999px;padding:4px 10px;font-size:12.5px;background:var(--bg)}
+.chip.ok{border-color:var(--buy);color:var(--buy)}
+.chip.no{color:var(--muted)}
+.chip.err{border-color:var(--danger);color:var(--danger)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+@media (max-width:900px){.grid3{grid-template-columns:1fr}}
+fieldset{border:0;margin:0;padding:0;min-width:0}
+legend{font-weight:600;font-size:13px;padding:0;margin-bottom:8px}
+label.f{display:grid;gap:3px;font-size:12px;color:var(--muted);margin-bottom:8px}
+input[type=date],input[type=number],select,textarea,input[type=text]{
+  font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:6px 8px;width:100%}
+input[type=number]{text-align:right}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:13px;margin:6px 0}
+.check input{margin-top:3px}
+button,.btn{font:inherit;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:var(--accent)}
+button:disabled{opacity:.55;cursor:default}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.sm{padding:3px 9px;font-size:12.5px}
+button.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
+.qchips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+@media (max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}}
+.kpi{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.kpi small{display:block;color:var(--muted);font-size:12px}
+.kpi b{font-size:22px;letter-spacing:-.01em}
+.kpi.buy{background:var(--buy-bg);border-color:transparent}
+.kpi.buy b{color:var(--buy)}
+.notice{background:var(--warn-bg);color:var(--warn);border-radius:8px;padding:8px 12px;margin:0 0 12px;font-size:13px}
+.notice.err{color:var(--danger)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th,td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-size:12px;color:var(--muted);font-weight:600;white-space:nowrap}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td small{display:block;color:var(--muted);font-size:11.5px}
+tr.main:hover{background:var(--accent-soft)}
+td.cuba b{font-size:15px}
+td.cuba a{color:var(--accent);cursor:pointer;text-decoration:none}
+td.buy{background:var(--buy-bg);font-weight:700;color:var(--buy);font-size:16px}
+th.buy{color:var(--buy)}
+tfoot td{font-weight:700;border-bottom:0}
+td input[type=number]{width:84px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.spacer{flex:1}
+svg.spark{display:block}
+/* modal */
+#modal{position:fixed;inset:0;background:rgba(10,16,24,.55);display:none;align-items:flex-start;justify-content:center;padding:4vh 12px;z-index:50;overflow:auto}
+#modal.open{display:flex}
+.panel{background:var(--card);border-radius:14px;width:min(1040px,100%);padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.panel header{display:flex;gap:10px;align-items:center;justify-content:space-between;margin-bottom:8px}
+.panel h3{margin:0;font-size:18px}
+.tabs{display:flex;gap:6px;margin:8px 0 12px}
+.bars{display:flex;align-items:flex-end;gap:6px;height:130px;margin:6px 0 14px;border-bottom:1px solid var(--line);padding-bottom:2px;overflow-x:auto}
+.bar{flex:0 0 36px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;font-size:11px;color:var(--muted)}
+.bar i{display:block;width:22px;background:var(--bar);border-radius:4px 4px 0 0;min-height:1px}
+.bar.last i{background:var(--bar-last)}
+.bar span{margin-top:3px;white-space:nowrap}
+.bar em{font-style:normal;color:var(--ink);font-size:11.5px}
+.scroll{max-height:46vh;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.scroll table th{position:sticky;top:0;background:var(--card);z-index:1}
+.dim{opacity:.45}
+.tag{display:inline-block;border-radius:6px;padding:1px 6px;font-size:11.5px;background:var(--accent-soft);color:var(--accent)}
+.tag.warn{background:var(--warn-bg);color:var(--warn)}
+details.card summary{cursor:pointer;font-weight:600}
+textarea{min-height:120px;font:12.5px/1.4 ui-monospace,Consolas,monospace;resize:vertical}
+textarea[readonly]{background:var(--bg)}
+.rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:12px}
+#print-area{display:none}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 14px;border-radius:9px;display:none;z-index:80;max-width:90vw}
+/* tela de "sem sessão" */
+#bloqueio{position:fixed;inset:0;background:var(--bg);display:none;align-items:center;justify-content:center;padding:20px;z-index:100}
+#bloqueio.open{display:flex}
+#bloqueio .box{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:24px;max-width:460px}
+#bloqueio h2{margin:0 0 8px;font-size:18px}
+@media print{
+  body>*:not(#print-area){display:none!important}
+  #print-area{display:block;color:#000;background:#fff;padding:10mm}
+  #print-area table{width:100%;border-collapse:collapse}
+  #print-area th,#print-area td{border:1px solid #888;padding:6px 8px;color:#000}
+  #print-area h2{margin:0 0 4px}
+}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div>
+    <h1>Compra de Cubas</h1>
+    <p>Necessidade das OPs abertas + consumo médio mensal das OPs concluídas, por modelo de cuba.</p>
+  </div>
+  <div class="who"><span id="quem"></span><br><a href="../../">&larr; Voltar à Central</a></div>
+</div></header>
+
+<main class="wrap">
+
+  <section class="card" id="carga">
+    <h2>1. Dados do Cosmos (lidos do Supabase)</h2>
+    <div class="actions" style="margin-top:0">
+      <button class="primary" id="btnAtualizar">Atualizar dados</button>
+      <span class="hint" id="cargaInfo">Os arquivos são gravados pelo robô; esta tela confere sozinha a cada 5 minutos se há versão nova.</span>
+    </div>
+    <div class="chips" id="status"></div>
+  </section>
+
+  <section class="card" id="filtros">
+    <div class="grid3">
+      <fieldset>
+        <legend>2. Necessidade atual — OPs abertas</legend>
+        <label class="f">Período pela data de
+          <select id="dateBase">
+            <option value="emb">Embarque do pedido</option>
+            <option value="prev">Previsão da OP</option>
+          </select>
+        </label>
+        <div class="qchips" id="qchips">
+          <button class="sm on" data-q="all">Todas</button>
+          <button class="sm" data-q="late">Atrasadas</button>
+          <button class="sm" data-q="15">Próx. 15 dias</button>
+          <button class="sm" data-q="30">Próx. 30 dias</button>
+          <button class="sm" data-q="month">Este mês</button>
+          <button class="sm" data-q="next">Mês que vem</button>
+        </div>
+        <div class="row2">
+          <label class="f">De<input type="date" id="from"></label>
+          <label class="f">Até<input type="date" id="to"></label>
+        </div>
+        <label class="check"><input type="checkbox" id="incNoDate" checked><span>Incluir OPs sem data (quando há filtro de período)</span></label>
+      </fieldset>
+      <fieldset>
+        <legend>3. Consumo médio — OPs concluídas</legend>
+        <label class="f">Janela da média
+          <select id="janela">
+            <option value="3">Últimos 3 meses</option>
+            <option value="6">Últimos 6 meses</option>
+            <option value="12">Últimos 12 meses</option>
+            <option value="18">Últimos 18 meses</option>
+            <option value="24">Últimos 24 meses</option>
+            <option value="0">Todo o histórico</option>
+          </select>
+        </label>
+        <label class="check"><input type="checkbox" id="incPartial"><span>Incluir o mês em andamento (parcial puxa a média para baixo)</span></label>
+        <p class="hint" id="janelaInfo"></p>
+      </fieldset>
+      <fieldset>
+        <legend>4. Compra</legend>
+        <label class="f">Meses de consumo a cobrir além da necessidade
+          <input type="number" id="cob" min="0" step="0.5">
+        </label>
+        <p class="hint">Compra sugerida = necessidade + (meses × média mensal) − estoque − já em compra, arredondada para cima. Sem folga percentual. Use 0 para comprar só a necessidade.</p>
+      </fieldset>
+    </div>
+  </section>
+
+  <section class="card" id="resultado">
+    <h2>Resultado por cuba</h2>
+    <div id="notices"></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="tablewrap">
+      <table id="tabela">
+        <thead>
+          <tr>
+            <th>Cuba</th>
+            <th class="num">Necessidade atual</th>
+            <th class="num">Média mensal</th>
+            <th>Consumo por mês</th>
+            <th class="num">Estoque</th>
+            <th class="num">Já em compra</th>
+            <th class="num">Cobertura</th>
+            <th class="num buy">Comprar</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+        <tfoot></tfoot>
+      </table>
+    </div>
+    <p class="hint" style="margin:10px 0 0">Estoque, "Já em compra", meses de cobertura, filtros e marcações são só para simular nesta tela: <b>nada é salvo</b>. Ao recarregar, tudo volta ao padrão.</p>
+    <div class="actions">
+      <button class="primary" id="btnCsv">Baixar pedido de compra (CSV)</button>
+      <button id="btnPrint">Imprimir pedido</button>
+      <button id="btnConf">Baixar conferência das OPs (CSV)</button>
+      <span class="spacer"></span>
+      <span class="hint">Clique no nome da cuba para ver as OPs e o consumo mês a mês.</span>
+    </div>
+  </section>
+
+  <details class="card" id="regras">
+    <summary>Regras de leitura (consulta)</summary>
+    <p class="hint">Cada linha é um texto procurado no nome do item ou na OBS da OP. A busca ignora maiúsculas, acentos e espaços ao redor do "X" ("700 X 500 X 400" = "700X500X400"), e só vale quando o texto não está colado a outros números. As variações vêm da planilha NECESSIDADE CUBAS e ficam fixas nesta tela.</p>
+    <label class="check"><input type="checkbox" id="guard" checked disabled><span>Só aceita a medida quando a palavra CUBA, CB ou TANQUE aparece perto dela (evita contar prateleira ou bandeja com a mesma medida)</span></label>
+    <div class="rules" id="rulesBox"></div>
+  </details>
+
+</main>
+
+<div id="modal"><div class="panel" id="panel"></div></div>
+<div id="print-area"></div>
+<div id="toast"></div>
+
+<div id="bloqueio"><div class="box">
+  <h2 id="bloqTitulo">Entre na Central</h2>
+  <p class="hint" id="bloqTexto"></p>
+  <div class="actions">
+    <a class="btn primary" href="../../" style="text-decoration:none">Abrir a Central</a>
+    <button id="bloqTentar">Já entrei, tentar de novo</button>
+  </div>
+</div></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ===== Supabase: sessão compartilhada com a Central (mesmo localStorage) ===== */
+const SB = {
+  url: 'https://vgcwzfeucfkaawwwhvjo.supabase.co',
+  anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnY3d6ZmV1Y2ZrYWF3d3dodmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMDMyNzEsImV4cCI6MjEwNDY3OTI3MX0.ej6C2X0If1wLBRa4DoX_P2Z8-32IwZoN-AlcWKpM6RY',
+  bucket: 'dados-cosmos',
+  chave: 'central_rodriaco_sb_v1',
+  atividade: 'central_rodriaco_atividade_v1',
+  checarMs: 300000
+};
+const ARQ_ABERTAS = 'DADOS COSMOS.csv', ARQ_CONC = 'OPs concluidas.csv';
+const INATIV_MS = 3600000;
+
+function agoraS(){ return Math.floor(Date.now()/1000); }
+function semSessao(){ const e = new Error('sem sessão'); e.semSessao = true; return e; }
+function sessaoLer(){ try{ const r = localStorage.getItem(SB.chave); return r ? JSON.parse(r) : null; }catch(e){ return null; } }
+function sessaoGuardar(g){ try{ if(g) localStorage.setItem(SB.chave, JSON.stringify(g)); else localStorage.removeItem(SB.chave); }catch(e){} }
+async function renovar(){
+  const trabalho = async () => {
+    const s = sessaoLer();
+    if(!s || !s.refresh_token) throw semSessao();
+    if(s.expira - 300 > agoraS()) return;            // outra aba já renovou
+    const r = await fetch(SB.url+'/auth/v1/token?grant_type=refresh_token', {
+      method:'POST', headers:{apikey:SB.anon, 'Content-Type':'application/json'}, body:JSON.stringify({refresh_token:s.refresh_token})
+    });
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok){
+      if(r.status>=500 || r.status===429) throw new Error('Supabase indisponível (erro '+r.status+').');
+      sessaoGuardar(null); throw semSessao();
+    }
+    sessaoGuardar({access_token:j.access_token, refresh_token:j.refresh_token, expira:agoraS()+(j.expires_in||3600), email:(j.user&&j.user.email)||s.email||''});
+  };
+  if(navigator.locks && navigator.locks.request) return navigator.locks.request('central_rodriaco_sessao', trabalho);
+  return trabalho();
+}
+async function tokenAtual(){
+  const s = sessaoLer(); if(!s) return null;
+  if(s.expira - 60 < agoraS()){ await renovar(); const n = sessaoLer(); return n ? n.access_token : null; }
+  return s.access_token;
+}
+async function sbFetch(caminho, op, jaRenovou){
+  const tk = await tokenAtual(); if(!tk) throw semSessao();
+  op = op || {};
+  op.headers = Object.assign({apikey:SB.anon, Authorization:'Bearer '+tk}, op.headers || {});
+  const r = await fetch(SB.url + caminho, op);
+  if(r.status===401 && !jaRenovou){ await renovar(); return sbFetch(caminho, op, true); }
+  return r;
+}
+async function baixar(nome){
+  const r = await sbFetch('/storage/v1/object/authenticated/'+SB.bucket+'/'+encodeURIComponent(nome));
+  if(!r.ok){ const e = new Error('arquivo'); e.status = r.status; e.arquivo = nome; throw e; }
+  return r.arrayBuffer();
+}
+async function listar(){
+  const r = await sbFetch('/storage/v1/object/list/'+SB.bucket, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prefix:'', limit:100, search:''})});
+  if(!r.ok) return {};
+  const lista = await r.json(), m = {};
+  for(const o of lista) m[o.name] = o.updated_at || (o.metadata && o.metadata.lastModified) || '';
+  return m;
+}
+
+/* ===== inatividade: mesma regra da Central (1 h sem uso encerra a sessão) ===== */
+let inativUltima = 0;
+function inativLer(){ try{ return parseInt(localStorage.getItem(SB.atividade),10) || 0; }catch(e){ return 0; } }
+function inativMarcar(forca){ const t = Date.now(); if(!forca && t-inativUltima<15000) return; inativUltima = t; try{ localStorage.setItem(SB.atividade, String(t)); }catch(e){} }
+function inativVencida(){ if(!sessaoLer()) return false; const u = inativLer(); if(!u){ inativMarcar(true); return false; } return Date.now()-u > INATIV_MS; }
+function inativEncerrar(){
+  const g = sessaoLer();
+  if(g && g.access_token){ try{ fetch(SB.url+'/auth/v1/logout?scope=local', {method:'POST', keepalive:true, headers:{apikey:SB.anon, Authorization:'Bearer '+g.access_token}}).catch(()=>{}); }catch(e){} }
+  sessaoGuardar(null);
+  try{ localStorage.removeItem(SB.atividade); sessionStorage.setItem('rodriaco_motivo','inatividade'); }catch(e){}
+  mostrarBloqueio('Sessão encerrada', 'Mais de 1 hora sem uso. Entre de novo na Central e volte aqui.');
+}
+function mostrarBloqueio(titulo, texto){
+  $('#bloqTitulo').textContent = titulo; $('#bloqTexto').textContent = texto;
+  $('#bloqueio').classList.add('open');
+}
+function esconderBloqueio(){ $('#bloqueio').classList.remove('open'); }
+
+/* ===== regras padrão: copiadas da aba CUBAS de NECESSIDADE CUBAS.xlsx ===== */
+const DEFAULT_RULES = {"ordem": ["40X34X14", "50X40X20", "50X40X25", "Ø250", "Ø300", "60X50X30", "70X50X30"], "codigos": {"40X34X14": 110729, "50X40X20": 110731, "50X40X25": 110732, "Ø250": 110743, "Ø300": 110744, "60X50X30": 110737, "70X50X30": 110740}, "variacoes": {"40X34X14": ["40X34X14", "34X40X14", "34X40X15", "40X34X15", "400X340X150", "340X400X150", "344014", "400x340x180", "400x340x140", "340X400X130", "34x40x13", "40x34x12", "40X34X17"], "50X40X20": ["50X40X20", "500X400X200", "5420", "50/40/20", "500 X 400 X 200"], "50X40X25": ["50X40X25", "5425", "50/40/30", "50/40/29", "500X400X250", "500 X 400 X 250", "504025", "504020", "504030", "500X400X300", "50x40x35", "50X40X30", "500 X 400 X 300", "400X500X300", "40x50x25", "50X40X40"], "Ø250": ["diam 250", "diametro 250", "250 diametro", "250 diam", "Ø250", "Ø250mm", "250MM"], "Ø300": [], "60X50X30": ["60X50X30", "60X50X40", "60X50X35", "600X500X400", "625X505X300", "625X505X350", "625X505X400", "600x500x300", "600x500x350", "62,5/50/30", "62,5X50,5X35", "62,5X50,5X30", "605030", "625035", "625X50X35", "625 X 505 X 300", "60x50x25", "600x500x500"], "70X50X30": ["70X50X30", "70X50X35", "70X50X40", "700X500X400", "700x500x300", "700x500x350", "705040", "700 X 500 X 400", "70x50x50"]}};
+DEFAULT_RULES.pias = [
+  {modelo:'Ø300',     texto:'ASSEPSIA 40X40'},
+  {modelo:'Ø300',     texto:'ASSEP 40X40'},
+  {modelo:'40X34X14', texto:'ASSEPSIA 50X50'},
+  {modelo:'40X34X14', texto:'ASSEP 50X50'},
+  {modelo:'40X34X14', texto:'ASSEPSIA MODELO CAIXA 50X50'}
+];
+DEFAULT_RULES.naoCuba = '^(BANDEJA|TAMPA|PENEIRA)';
+
+/* ===== utilidades ===== */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const fmt = (n,d=0) => (n==null||isNaN(n)) ? '—' : n.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+const mk = d => d.getFullYear()*12 + d.getMonth();
+const mlabel = k => MES[k%12] + '/' + String(Math.floor(k/12)).slice(2);
+const dstr = d => d ? d.toLocaleDateString('pt-BR') : 'sem data';
+const dhstr = iso => { if(!iso) return ''; const d = new Date(iso); return isNaN(d) ? '' : d.toLocaleString('pt-BR',{dateStyle:'short', timeStyle:'short'}); };
+const esc = s => String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\\/]/g,'\\$&');
+function toast(msg){ const t=$('#toast'); t.textContent=msg; t.style.display='block'; clearTimeout(toast._t); toast._t=setTimeout(()=>t.style.display='none',4200); }
+function clone(o){ return JSON.parse(JSON.stringify(o)); }
+
+/* ===== estado (só em memória: nada é gravado) ===== */
+const state = {
+  rules: clone(DEFAULT_RULES),
+  guard: true,
+  open: null, closed: null,
+  meta: {open:'', closed:''},
+  erro: '', avisoConc: '',
+  dateBase: 'emb',
+  from: null, to: null, quick: 'all',
+  incNoDate: true,
+  janela: 12,
+  incPartial: false,
+  cob: 1,
+  stock: {},
+  buying: {},
+  ov: {}
+};
+const C = {models:[], pias:[], nao:null};
+
+/* ===== leitura do CSV do Cosmos ===== */
+function decodeBuf(buf){
+  try{ return new TextDecoder('utf-8',{fatal:true}).decode(buf); }
+  catch(e){ return new TextDecoder('windows-1252').decode(buf); }
+}
+function parseCosmos(text){
+  const lines = text.split(/\r?\n/);
+  const header = lines[0].replace(/^﻿/,'').trim().split(';').map(h=>h.trim());
+  const idx = {}; header.forEach((h,i)=>idx[h]=i);
+  for(const need of ['MPPOPId','ItemNome','OPQtd','OPObs','Cliente']) if(idx[need]==null) return null;
+  const ncols = header.length, obsI = idx['OPObs'];
+  const starts = /^\d+;\d{8};\d+;/;
+  const glue = /(?<=[^\d;])(?=\d;\d{8};\d+;)/;
+  const chunks = []; let cur = null;
+  for(let i=1;i<lines.length;i++){
+    const line = lines[i]; if(!line.trim()) continue;
+    for(const part of line.split(glue)){
+      if(starts.test(part)){ if(cur!==null) chunks.push(cur); cur = part; }
+      else if(cur!==null){ cur += ' ' + part; }
+    }
+  }
+  if(cur!==null) chunks.push(cur);
+  const recs = []; let bad = 0;
+  for(const ch of chunks){
+    const f = ch.split(';');
+    if(f.length <= obsI){ bad++; continue; }
+    while(f.length < ncols) f.push('');
+    const extra = f.length - ncols;
+    const obs = f.slice(obsI, obsI+1+extra).join(';');
+    const row = f.slice(0,obsI).concat([obs], f.slice(obsI+1+extra));
+    const o = {};
+    for(const h in idx) o[h] = row[idx[h]] == null ? '' : row[idx[h]];
+    recs.push(o);
+  }
+  const kind = (idx['PedidoEndTipo']!=null || ncols>22) ? 'abertas' : 'concluidas';
+  return {recs, bad, kind};
+}
+function pd(s){
+  if(!s) return null; s = String(s).trim();
+  let m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(s);
+  let y,mo,d;
+  if(m){ d=+m[1]; mo=+m[2]; y=+m[3]; }
+  else if((m=/^(\d{4})-(\d{2})-(\d{2})/.exec(s))){ y=+m[1]; mo=+m[2]; d=+m[3]; }
+  else return null;
+  if(y<2001) return null;
+  return new Date(y, mo-1, d);
+}
+
+/* ===== normalização e regras ===== */
+function norm(s){
+  s = (s==null?'':String(s)).normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
+  s = s.replace(/(\d)\s*[X×]\s*(?=\d)/g,'$1X');
+  s = s.replace(/(\d)(CUBAS?|CB)(?![A-Z])/g,'$1 $2');
+  s = s.replace(/(?<![A-Z])(CUBAS?|CB)(?=\d)/g,'$1 ');
+  return s.replace(/\s+/g,' ').trim();
+}
+function compile(){
+  const R = state.rules;
+  C.models = R.ordem.map(name=>{
+    const vs = Array.from(new Set((R.variacoes[name]||[]).map(norm).filter(Boolean))).sort((a,b)=>b.length-a.length);
+    // não vale quando a medida faz parte de uma sequência maior (ex.: "250MM" dentro de "500X400X250MM")
+    const re = vs.length ? new RegExp('(?<![0-9])(?<![0-9]X)(?:'+vs.map(reEsc).join('|')+')(?![0-9])','g') : null;
+    return {name, code:(R.codigos||{})[name]||'', re, vs};
+  });
+  C.pias = (R.pias||[]).map(p=>({modelo:p.modelo, texto:norm(p.texto)})).filter(p=>p.texto);
+  try{ C.nao = R.naoCuba ? new RegExp(R.naoCuba,'i') : null; }catch(e){ C.nao = null; }
+}
+const GUARD = /CUBA|CB\b|TANQUE|PIA\b|DEPOSITO|(?<![0-9A-Z])\dC\b/;
+function firstMatch(m, t){
+  if(!m.re || !t) return null;
+  m.re.lastIndex = 0;
+  let x;
+  while((x = m.re.exec(t))){
+    if(!state.guard || GUARD.test(t.slice(Math.max(0,x.index-45), x.index+x[0].length+25)))
+      return {pos:x.index, variant:x[0]};
+    if(x[0].length===0) m.re.lastIndex++;
+  }
+  return null;
+}
+const NUMW = {UMA:1,UM:1,DUAS:2,DOIS:2,TRES:3};
+function cubasPorEquip(text, pos, single){
+  const pre = text.slice(Math.max(0,pos-30), pos);
+  // o número só vale se não for o fim de uma medida (ex.: "205X70X90 CUBA DE 70X50X40" não é "90 cubas")
+  const m = /(?<![0-9]X)(?<![0-9,.\/])(\d{1,2}|UMA|UM|DUAS|DOIS|TRES)\s*-?\s*(?:CUBAS?|CB)\b[^0-9]{0,15}$/.exec(pre);
+  if(m){ const v=m[1], n = /^\d/.test(v) ? (+v||1) : NUMW[v]; return (n>=1 && n<=6) ? n : 1; }
+  const c = /(?<![0-9A-Z])(\d)C\b[^0-9]{0,15}$/.exec(pre);   // "1C" / "2C" = 1 / 2 cubas (escrita da Sodexo)
+  if(c) return +c[1] || 1;
+  if(single && /(?<![0-9])(2|DUAS|DOIS)\s*(?:CUBAS|CB)\b/.test(text)) return 2;
+  return 1;
+}
+function buildRec(raw){
+  const id = (raw.MPPOPId||'').trim();
+  const itemN = norm(raw.ItemNome), obsN = norm(raw.OPObs);
+  const rec = {
+    id, pedido:id.slice(0,5), cliente:(raw.Cliente||'').trim(), item:(raw.ItemNome||'').trim(), obs:(raw.OPObs||'').trim(),
+    qtd: parseFloat(String(raw.OPQtd||'0').replace(',','.')) || 0,
+    emb: pd(raw.PedidoDataEmbarque), prev: pd(raw.OPDataPrevisao), conc: pd(raw.OPDataConclusao),
+    etapa: (raw.ProxEtapa||'').trim(), hits: [], naoCuba: !!(C.nao && C.nao.test(itemN))
+  };
+  const found = [];
+  for(const m of C.models){
+    let f = null;
+    for(const [src,t] of [['Item',itemN],['OBS',obsN]]){
+      const x = firstMatch(m,t);
+      if(x){ f = {model:m.name, src, text:t, pos:x.pos, variant:x.variant}; break; }
+    }
+    if(!f){
+      for(const p of C.pias){
+        if(p.modelo===m.name && itemN.includes(p.texto)){ f = {model:m.name, src:'Pia', text:itemN, pos:itemN.indexOf(p.texto), variant:p.texto, pia:true}; break; }
+      }
+    }
+    if(f) found.push(f);
+  }
+  for(const f of found){
+    const n = f.pia ? 1 : cubasPorEquip(f.text, f.pos, found.length===1);
+    rec.hits.push({model:f.model, n, cubas:n*rec.qtd, via:f.src, variant:f.variant});
+  }
+  return rec;
+}
+function buildAll(side){
+  const s = state[side]; if(!s) return;
+  s.recs = s.raw.map(buildRec);
+}
+
+/* ===== carga dos arquivos (Supabase) ===== */
+/* devolve '' se aplicou, ou o motivo de não ter aplicado */
+function aplicarTexto(side, name, text){
+  const p = parseCosmos(text);
+  if(!p) return 'Arquivo '+name+' não reconhecido (faltam colunas do Cosmos).';
+  if(!p.recs.length) return 'O arquivo '+name+' está só com o cabeçalho, sem nenhuma OP (o robô pode estar gravando). Os dados da tela foram mantidos.';
+  let raw = p.recs;
+  if(side==='closed'){
+    const seen = new Set(); raw = raw.filter(r=>{ const k=(r.MPPEmpID||'')+'|'+r.MPPOPId+'|'+(r.MPPOPSeq||''); if(seen.has(k)) return false; seen.add(k); return true; });
+  }
+  state[side] = {name, raw, bad:p.bad, recs:[]};
+  buildAll(side);
+  return '';
+}
+let carregando = false;
+function msgErro(e){
+  if(e && e.status) return 'O Supabase respondeu erro '+e.status+(e.arquivo?' ao baixar "'+e.arquivo+'"':'')+'. Confira: (1) o banco_compra_cubas.sql foi rodado no Supabase; (2) sua conta tem Apps de suporte › Compra de Cubas; (3) o robô já enviou os arquivos ao bucket '+SB.bucket+'.';
+  return (e && e.message && e.message!=='Failed to fetch') ? e.message : 'Não consegui falar com o Supabase. Confira a internet e tente de novo.';
+}
+async function carregar(silencioso){
+  if(carregando) return;
+  if(!sessaoLer()){ mostrarBloqueio('Entre na Central', 'Esta tela usa o mesmo login da Central. Abra a Central, entre com a sua conta e volte aqui.'); return; }
+  if(inativVencida()){ inativEncerrar(); return; }
+  carregando = true;
+  const btn = $('#btnAtualizar'); btn.disabled = true; if(!silencioso) btn.textContent = 'Carregando...';
+  try{
+    let avisoConc = '';
+    const [a, c, meta] = await Promise.all([
+      baixar(ARQ_ABERTAS),
+      baixar(ARQ_CONC).catch(e=>{ if(e && e.semSessao) throw e; avisoConc = e && e.status ? 'erro '+e.status : 'sem conexão'; return null; }),
+      listar().catch(()=>({}))
+    ]);
+    state.erro = '';
+    const na = aplicarTexto('open', ARQ_ABERTAS, decodeBuf(a));
+    if(na) state.erro = na;
+    state.avisoConc = '';
+    if(c){ const nc = aplicarTexto('closed', ARQ_CONC, decodeBuf(c)); if(nc) state.avisoConc = nc; }
+    else state.avisoConc = 'Não consegui baixar o histórico de OPs concluídas ('+avisoConc+'): sem ele não há média mensal.';
+    state.meta = {open: meta[ARQ_ABERTAS]||'', closed: meta[ARQ_CONC]||''};
+    esconderBloqueio();
+    renderAll();
+  }catch(e){
+    if(e && e.semSessao){ mostrarBloqueio('Entre na Central', 'Sua sessão expirou ou você ainda não entrou. Abra a Central, entre e volte aqui.'); }
+    else { state.erro = msgErro(e); renderAll(); }
+  }finally{
+    carregando = false; btn.disabled = false; btn.textContent = 'Atualizar dados';
+  }
+}
+async function conferirNovidade(){
+  if(document.hidden || carregando || !sessaoLer()) return;
+  if(inativVencida()){ inativEncerrar(); return; }
+  if($('#modal').classList.contains('open')) return;
+  const ae = document.activeElement;
+  if(ae && ae.matches && ae.matches('input,select,textarea')) return;      // não derruba o que a pessoa está digitando
+  try{
+    const m = await listar();
+    if((m[ARQ_ABERTAS] && m[ARQ_ABERTAS]!==state.meta.open) || (m[ARQ_CONC] && m[ARQ_CONC]!==state.meta.closed)) carregar(true);
+  }catch(e){}
+}
+
+/* ===== cálculo ===== */
+function inclDefault(rec){ return !rec.naoCuba; }
+function incl(rec){ const o = state.ov[rec.id]; return o==='in' ? true : o==='out' ? false : inclDefault(rec); }
+function recDate(rec){ return state.dateBase==='emb' ? rec.emb : rec.prev; }
+function filtroAtivo(){ return !!(state.from || state.to); }
+function inPeriod(rec){
+  if(!filtroAtivo()) return true;
+  const d = recDate(rec);
+  if(!d) return state.incNoDate;
+  if(state.from && d < state.from) return false;
+  if(state.to && d > state.to) return false;
+  return true;
+}
+function monthWindow(){
+  if(!state.closed) return null;
+  let min=null, max=null;
+  for(const r of state.closed.recs){ if(!r.conc) continue; if(!min||r.conc<min) min=r.conc; if(!max||r.conc>max) max=r.conc; }
+  if(!min) return null;
+  let last = mk(max);
+  const lastDay = new Date(max.getFullYear(), max.getMonth()+1, 0).getDate();
+  const parcial = max.getDate() < lastDay;
+  if(!state.incPartial && parcial) last -= 1;
+  let first = mk(min);
+  if(state.janela>0) first = Math.max(first, last-state.janela+1);
+  if(last < first) return null;
+  return {first, last, min, max, parcial};
+}
+function compute(){
+  const win = monthWindow();
+  const out = C.models.map(m=>({name:m.name, code:m.code, need:0, needOps:0, needAll:0, needAllOps:0, series:null, total:0, avg:null}));
+  const byName = {}; out.forEach(o=>byName[o.name]=o);
+  if(state.open){
+    for(const r of state.open.recs){
+      if(!r.hits.length || !incl(r)) continue;
+      const ok = inPeriod(r);
+      for(const h of r.hits){
+        const o = byName[h.model]; if(!o) continue;
+        o.needAll += h.cubas; o.needAllOps++;
+        if(ok){ o.need += h.cubas; o.needOps++; }
+      }
+    }
+  }
+  if(win){
+    const len = win.last - win.first + 1;
+    out.forEach(o=>o.series = new Array(len).fill(0));
+    out.forEach(o=>o.ops = new Array(len).fill(0));
+    for(const r of state.closed.recs){
+      if(!r.conc || !r.hits.length || !incl(r)) continue;
+      const k = mk(r.conc) - win.first;
+      if(k<0 || k>=len) continue;
+      for(const h of r.hits){ const o = byName[h.model]; if(o){ o.series[k]+=h.cubas; o.ops[k]++; } }
+    }
+    out.forEach(o=>{ o.total = o.series.reduce((a,b)=>a+b,0); o.avg = o.total/len; });
+  }
+  for(const o of out){
+    const est = +state.stock[o.name]||0, buy = +state.buying[o.name]||0;
+    o.est = est; o.buy = buy;
+    const alvo = o.need + (+state.cob||0) * (o.avg||0);
+    o.comprar = Math.max(0, Math.ceil(alvo - est - buy - 1e-9));
+    o.cobMeses = (o.avg && o.avg>0) ? (est+buy)/o.avg : null;
+  }
+  return {rows:out, win};
+}
+
+/* ===== tela ===== */
+function spark(series, w=96, h=24){
+  if(!series || !series.length) return '';
+  const s = series.slice(-12), mx = Math.max(1, ...s), bw = w/s.length;
+  let g = '';
+  s.forEach((v,i)=>{ const bh = Math.max(v>0?2:0, v/mx*(h-2)); g += `<rect x="${(i*bw+1).toFixed(1)}" y="${(h-bh).toFixed(1)}" width="${(bw-2).toFixed(1)}" height="${bh.toFixed(1)}" rx="1.5" fill="${i===s.length-1?'var(--bar-last)':'var(--bar)'}"><title>${v}</title></rect>`; });
+  return `<svg class="spark" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${g}</svg>`;
+}
+function renderStatus(){
+  const chip = (lab, s, extra, quando) => s
+    ? `<span class="chip ok">✔ ${lab}: ${fmt(s.recs.length)} OPs${extra?' · '+esc(extra):''}${quando?' · robô gravou em '+esc(quando):''}${s.bad?` · <span style="color:var(--danger)">${s.bad} linhas ilegíveis</span>`:''}</span>`
+    : `<span class="chip ${state.erro&&lab==='Abertas'?'err':'no'}">○ ${lab}: não carregado</span>`;
+  let eo='', ec='';
+  if(state.open){ const ds=state.open.recs.map(r=>r.emb).filter(Boolean).sort((a,b)=>a-b); if(ds.length) eo = 'embarques de '+dstr(ds[0])+' a '+dstr(ds[ds.length-1]); }
+  if(state.closed){ const ds=state.closed.recs.map(r=>r.conc).filter(Boolean).sort((a,b)=>a-b); if(ds.length) ec = 'conclusões de '+dstr(ds[0])+' a '+dstr(ds[ds.length-1]); }
+  $('#status').innerHTML = chip('Abertas', state.open, eo, dhstr(state.meta.open)) + chip('Concluídas', state.closed, ec, dhstr(state.meta.closed));
+}
+function renderAll(){
+  renderStatus();
+  const {rows, win} = compute();
+  // avisos
+  const nt = [];
+  if(state.erro) nt.push({t:state.erro, err:true});
+  if(!state.open && !state.erro) nt.push({t:'Ainda não há dados das OPs abertas. Clique em "Atualizar dados".'});
+  if(state.avisoConc) nt.push({t:state.avisoConc});
+  if(state.closed && !win) nt.push({t:'Não há meses completos de conclusão no arquivo para calcular a média.'});
+  if(state.meta.open){
+    const h = (Date.now() - new Date(state.meta.open).getTime())/3600000;
+    if(h > 36) nt.push({t:'O arquivo das OPs abertas foi gravado pelo robô há mais de 36 horas ('+dhstr(state.meta.open)+'). Os números podem estar defasados.'});
+  }
+  if(filtroAtivo() && state.open){
+    const tot = rows.reduce((a,r)=>a+r.needAll,0), per = rows.reduce((a,r)=>a+r.need,0);
+    nt.push({t:`Filtro de período ativo: mostrando ${fmt(per)} de ${fmt(tot)} cubas abertas no total.`});
+  }
+  $('#notices').innerHTML = nt.map(n=>`<p class="notice${n.err?' err':''}">${esc(n.t)}</p>`).join('');
+  if(win){
+    $('#janelaInfo').textContent = `Média sobre ${win.last-win.first+1} mês(es): ${mlabel(win.first)} a ${mlabel(win.last)}. Última conclusão no arquivo: ${dstr(win.max)}${(win.parcial && !state.incPartial)?' (mês parcial fora da média)':''}.`;
+  } else $('#janelaInfo').textContent = '';
+  const sum = k => rows.reduce((a,r)=>a+(r[k]||0),0);
+  const tbody = $('#tabela tbody');
+  tbody.innerHTML = rows.map(r=>`
+    <tr class="main" data-m="${esc(r.name)}">
+      <td class="cuba"><b><a data-detail="${esc(r.name)}">${esc(r.name)}</a></b><small>cód. ${esc(r.code)}</small></td>
+      <td class="num"><b>${fmt(r.need)}</b><small>${fmt(r.needOps)} OPs${filtroAtivo()?` · total aberto ${fmt(r.needAll)}`:''}</small></td>
+      <td class="num">${r.avg==null?'—':'<b>'+fmt(r.avg,1)+'</b>'}<small>${r.avg==null?'sem concluídas':fmt(r.total)+' em '+r.series.length+' meses'}</small></td>
+      <td>${spark(r.series)}</td>
+      <td class="num"><input type="number" min="0" step="1" data-stock="${esc(r.name)}" value="${state.stock[r.name]??''}" placeholder="0"></td>
+      <td class="num"><input type="number" min="0" step="1" data-buying="${esc(r.name)}" value="${state.buying[r.name]??''}" placeholder="0"></td>
+      <td class="num">${r.cobMeses==null?'—':fmt(r.cobMeses,1)+' m'}</td>
+      <td class="num buy">${fmt(r.comprar)}</td>
+    </tr>`).join('');
+  $('#tabela tfoot').innerHTML = `<tr><td>Total</td><td class="num">${fmt(sum('need'))}</td><td class="num">${state.closed&&win?fmt(sum('avg'),1):'—'}</td><td></td><td class="num">${fmt(sum('est'))}</td><td class="num">${fmt(sum('buy'))}</td><td></td><td class="num buy">${fmt(sum('comprar'))}</td></tr>`;
+  $('#kpis').innerHTML = `
+    <div class="kpi"><small>Necessidade atual (cubas)</small><b>${state.open?fmt(sum('need')):'—'}</b></div>
+    <div class="kpi"><small>Consumo médio mensal (cubas)</small><b>${state.closed&&win?fmt(sum('avg'),1):'—'}</b></div>
+    <div class="kpi"><small>Estoque + já em compra</small><b>${fmt(sum('est')+sum('buy'))}</b></div>
+    <div class="kpi buy"><small>Sugestão de compra (cubas)</small><b>${fmt(sum('comprar'))}</b></div>`;
+  if($('#modal').classList.contains('open') && state.detail) renderDetail(state.detail);
+  return {rows, win};
+}
+
+/* ===== detalhe da cuba ===== */
+function renderDetail(name){
+  state.detail = name;
+  const {rows, win} = compute();
+  const row = rows.find(r=>r.name===name); if(!row) return;
+  const tab = state.tab || 'need';
+  let html = `<header><h3>Cuba ${esc(name)} <span class="hint">cód. ${esc(row.code)}</span></h3><button id="closeModal">Fechar ✕</button></header>
+    <div class="tabs"><button data-tab="need" class="${tab==='need'?'on':''}">Necessidade (OPs abertas)</button><button data-tab="cons" class="${tab==='cons'?'on':''}">Consumo mensal (concluídas)</button></div>`;
+  if(tab==='need'){
+    const recs = (state.open?state.open.recs:[]).filter(r=>r.hits.some(h=>h.model===name));
+    recs.sort((a,b)=>{ const da=recDate(a), db=recDate(b); if(!da&&!db) return a.id.localeCompare(b.id); if(!da) return 1; if(!db) return -1; return da-db || a.id.localeCompare(b.id); });
+    const showOut = state.showOut !== false;
+    const lista = recs.filter(r=>showOut || inPeriod(r));
+    html += `<p class="hint">Marque ou desmarque o quadrado para contar ou não a OP (vale só enquanto esta tela estiver aberta: nada é salvo). Itens como bandeja e tampa vêm desmarcados porque não são cubas.</p>
+      <label class="check"><input type="checkbox" id="showOut" ${showOut?'checked':''}><span>Mostrar também as OPs fora do período</span></label>
+      <div class="scroll"><table><thead><tr><th></th><th>OP</th><th>Cliente</th><th>Item</th><th class="num">Qtd</th><th class="num">Cubas</th><th>Achei em</th><th>${state.dateBase==='emb'?'Embarque':'Previsão'}</th></tr></thead><tbody>`;
+    for(const r of lista){
+      const h = r.hits.find(x=>x.model===name), on = incl(r), per = inPeriod(r);
+      html += `<tr class="${(!on||!per)?'dim':''}"><td><input type="checkbox" data-ov="${esc(r.id)}" ${on?'checked':''}></td>
+        <td>${esc(r.id)}<small>CRM ${esc(r.pedido)}</small></td><td>${esc(r.cliente)}</td>
+        <td title="${esc(r.obs)}">${esc(r.item)}${r.naoCuba?' <span class="tag warn">não é cuba</span>':''}<small>${esc(r.obs.slice(0,110))}</small></td>
+        <td class="num">${fmt(r.qtd)}</td><td class="num"><b>${fmt(h.cubas)}</b>${h.n>1?`<small>${h.n} por equip.</small>`:''}</td>
+        <td><span class="tag">${esc(h.via)}</span><small>${esc(h.variant)}</small></td>
+        <td>${esc(dstr(recDate(r)))}${per?'':'<small>fora do período</small>'}</td></tr>`;
+    }
+    if(!lista.length) html += `<tr><td colspan="8" class="hint">Nenhuma OP aberta com esta cuba.</td></tr>`;
+    html += `</tbody></table></div>`;
+  } else {
+    if(!win || !row.series){ html += `<p class="notice">Sem histórico de OPs concluídas carregado para calcular o consumo.</p>`; }
+    else {
+      const mx = Math.max(1, ...row.series);
+      html += `<p class="hint">Média de <b>${fmt(row.avg,1)}</b> cubas por mês em ${row.series.length} meses (${mlabel(win.first)} a ${mlabel(win.last)}). Contado pelo mês da conclusão da OP.</p><div class="bars">`;
+      row.series.forEach((v,i)=>{ html += `<div class="bar ${i===row.series.length-1?'last':''}"><em>${v?fmt(v):''}</em><i style="height:${(v/mx*92).toFixed(0)}px"></i><span>${mlabel(win.first+i)}</span></div>`; });
+      html += `</div>`;
+      const lista = state.closed.recs.filter(r=>r.conc && r.hits.some(h=>h.model===name) && mk(r.conc)>=win.first && mk(r.conc)<=win.last).sort((a,b)=>b.conc-a.conc);
+      html += `<details><summary>OPs concluídas que compõem a média (${fmt(lista.length)})</summary><div class="scroll"><table><thead><tr><th></th><th>Concluída</th><th>OP</th><th>Cliente</th><th>Item</th><th class="num">Qtd</th><th class="num">Cubas</th><th>Achei em</th></tr></thead><tbody>`;
+      for(const r of lista.slice(0,600)){
+        const h = r.hits.find(x=>x.model===name), on = incl(r);
+        html += `<tr class="${on?'':'dim'}"><td><input type="checkbox" data-ov="${esc(r.id)}" ${on?'checked':''}></td><td>${esc(dstr(r.conc))}</td><td>${esc(r.id)}</td><td>${esc(r.cliente)}</td><td title="${esc(r.obs)}">${esc(r.item)}${r.naoCuba?' <span class="tag warn">não é cuba</span>':''}</td><td class="num">${fmt(r.qtd)}</td><td class="num"><b>${fmt(h.cubas)}</b></td><td><span class="tag">${esc(h.via)}</span><small>${esc(h.variant)}</small></td></tr>`;
+      }
+      html += `</tbody></table></div>${lista.length>600?'<p class="hint">Mostrando as 600 mais recentes.</p>':''}</details>`;
+    }
+  }
+  $('#panel').innerHTML = html;
+  $('#modal').classList.add('open');
+}
+function closeDetail(){ $('#modal').classList.remove('open'); state.detail=null; }
+
+/* ===== exportações (baixam um arquivo; a tela continua sem salvar nada) ===== */
+function download(name, text){
+  const b = new Blob(['﻿'+text], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); },500);
+}
+const csvCell = v => { v = v==null?'':String(v); return /[;"\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
+const csvLine = a => a.map(csvCell).join(';');
+function periodoTexto(){
+  if(!filtroAtivo()) return 'todas as OPs abertas';
+  const b = state.dateBase==='emb'?'embarque':'previsão';
+  return `${b} ${state.from?'de '+dstr(state.from):''} ${state.to?'até '+dstr(state.to):''}`.replace(/\s+/g,' ').trim() + (state.incNoDate?' (com OPs sem data)':' (sem as OPs sem data)');
+}
+function exportPedido(){
+  const {rows} = compute();
+  const L = [csvLine(['Codigo','Cuba','Quantidade a comprar','Necessidade atual','Media mensal','Estoque','Ja em compra'])];
+  rows.filter(r=>r.comprar>0).forEach(r=>L.push(csvLine([r.code,r.name,r.comprar,r.need,r.avg==null?'':r.avg.toFixed(1).replace('.',','),r.est,r.buy])));
+  if(L.length===1){ toast('Nada a comprar com os dados atuais.'); return; }
+  download('pedido_compra_cubas_'+new Date().toISOString().slice(0,10)+'.csv', L.join('\r\n'));
+}
+function exportConf(){
+  const L = [csvLine(['Origem','CRM','OP','Cliente','Item','Qtd OP','Cuba','Cubas por equip.','Total de cubas','Achei em','Texto achado','Embarque','Previsao','Conclusao','Conta?','Dentro do periodo','OBS'])];
+  for(const [lab,s] of [['ABERTA',state.open],['CONCLUIDA',state.closed]]){
+    if(!s) continue;
+    for(const r of s.recs) for(const h of r.hits)
+      L.push(csvLine([lab,r.pedido,r.id,r.cliente,r.item,r.qtd,h.model,h.n,h.cubas,h.via,h.variant,r.emb?dstr(r.emb):'',r.prev?dstr(r.prev):'',r.conc?dstr(r.conc):'',incl(r)?'SIM':'NAO',lab==='ABERTA'?(inPeriod(r)?'SIM':'NAO'):'',r.obs]));
+  }
+  if(L.length===1){ toast('Carregue os dados primeiro.'); return; }
+  download('conferencia_cubas_'+new Date().toISOString().slice(0,10)+'.csv', L.join('\r\n'));
+}
+function printPedido(){
+  const {rows} = compute();
+  const itens = rows.filter(r=>r.comprar>0);
+  if(!itens.length){ toast('Nada a comprar com os dados atuais.'); return; }
+  $('#print-area').innerHTML = `<h2>Pedido de compra de cubas</h2>
+    <p>Data: ${new Date().toLocaleDateString('pt-BR')} · Necessidade: ${esc(periodoTexto())} · Cobertura adicional: ${fmt(+state.cob||0,1)} mês(es) de consumo médio</p>
+    <table><thead><tr><th>Código</th><th>Cuba</th><th style="text-align:right">Quantidade</th><th style="text-align:right">Necessidade</th><th style="text-align:right">Média/mês</th><th style="text-align:right">Estoque</th></tr></thead><tbody>
+    ${itens.map(r=>`<tr><td>${esc(r.code)}</td><td>${esc(r.name)}</td><td style="text-align:right"><b>${fmt(r.comprar)}</b></td><td style="text-align:right">${fmt(r.need)}</td><td style="text-align:right">${r.avg==null?'—':fmt(r.avg,1)}</td><td style="text-align:right">${fmt(r.est+r.buy)}</td></tr>`).join('')}
+    </tbody></table>`;
+  window.print();
+}
+
+/* ===== regras (somente consulta) ===== */
+function renderRules(){
+  const R = state.rules;
+  let h = '';
+  for(const name of R.ordem){
+    h += `<label class="f"><b>${esc(name)}</b> <span class="hint">cód. ${esc((R.codigos||{})[name]||'')}</span><textarea readonly spellcheck="false">${esc((R.variacoes[name]||[]).join('\n'))}</textarea></label>`;
+  }
+  h += `<label class="f"><b>Pias de assepsia</b> <span class="hint">MODELO | texto no nome do item</span><textarea readonly spellcheck="false">${esc((R.pias||[]).map(p=>p.modelo+' | '+p.texto).join('\n'))}</textarea></label>`;
+  h += `<label class="f"><b>Itens que não são cuba</b> <span class="hint">expressão no início do nome</span><input type="text" readonly value="${esc(R.naoCuba||'')}"></label>`;
+  $('#rulesBox').innerHTML = h;
+}
+
+/* ===== filtros de período ===== */
+function ymd(d){ const z=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+z(d.getMonth()+1)+'-'+z(d.getDate()); }
+function setQuick(q){
+  state.quick = q;
+  const t = new Date(); t.setHours(0,0,0,0);
+  const add = n => { const d=new Date(t); d.setDate(d.getDate()+n); return d; };
+  let f=null, to=null;
+  if(q==='late'){ to = add(-1); }
+  else if(q==='15'){ f = t; to = add(15); }
+  else if(q==='30'){ f = t; to = add(30); }
+  else if(q==='month'){ f = new Date(t.getFullYear(), t.getMonth(), 1); to = new Date(t.getFullYear(), t.getMonth()+1, 0); }
+  else if(q==='next'){ f = new Date(t.getFullYear(), t.getMonth()+1, 1); to = new Date(t.getFullYear(), t.getMonth()+2, 0); }
+  state.from = f; state.to = to;
+  $('#from').value = f?ymd(f):''; $('#to').value = to?ymd(to):'';
+  $$('#qchips button').forEach(b=>b.classList.toggle('on', b.dataset.q===q));
+  renderAll();
+}
+function readDates(){
+  const f=$('#from').value, t=$('#to').value;
+  state.from = f ? new Date(f+'T00:00:00') : null;
+  state.to = t ? new Date(t+'T00:00:00') : null;
+  state.quick = 'custom';
+  $$('#qchips button').forEach(b=>b.classList.toggle('on', b.dataset.q==='all' && !state.from && !state.to));
+  renderAll();
+}
+function findRec(id){
+  for(const s of [state.open,state.closed]) if(s){ const r = s.recs.find(x=>x.id===id); if(r) return r; }
+  return null;
+}
+
+/* ===== eventos ===== */
+function init(){
+  compile();
+  const s = sessaoLer();
+  $('#quem').textContent = s && s.email ? s.email : '';
+  $('#dateBase').value = state.dateBase;
+  $('#janela').value = String(state.janela);
+  $('#cob').value = state.cob;
+  renderRules();
+  renderAll();
+
+  $('#btnAtualizar').addEventListener('click', ()=>carregar(false));
+  $('#bloqTentar').addEventListener('click', ()=>carregar(false));
+  $('#dateBase').addEventListener('change', e=>{ state.dateBase=e.target.value; renderAll(); });
+  $('#qchips').addEventListener('click', e=>{ const b=e.target.closest('button'); if(b) setQuick(b.dataset.q); });
+  $('#from').addEventListener('change', readDates); $('#to').addEventListener('change', readDates);
+  $('#incNoDate').addEventListener('change', e=>{ state.incNoDate=e.target.checked; renderAll(); });
+  $('#janela').addEventListener('change', e=>{ state.janela=+e.target.value; renderAll(); });
+  $('#incPartial').addEventListener('change', e=>{ state.incPartial=e.target.checked; renderAll(); });
+  $('#cob').addEventListener('input', e=>{ state.cob=+e.target.value||0; renderAll(); });
+
+  $('#tabela').addEventListener('change', e=>{
+    const t=e.target;
+    if(t.dataset.stock!=null){ state.stock[t.dataset.stock]=t.value===''?'':+t.value; renderAll(); }
+    if(t.dataset.buying!=null){ state.buying[t.dataset.buying]=t.value===''?'':+t.value; renderAll(); }
+  });
+  $('#tabela').addEventListener('click', e=>{ const a=e.target.closest('[data-detail]'); if(a){ state.tab='need'; renderDetail(a.dataset.detail); } });
+
+  const modal = $('#modal');
+  modal.addEventListener('click', e=>{
+    if(e.target===modal || e.target.id==='closeModal') return closeDetail();
+    const tb = e.target.closest('[data-tab]'); if(tb){ state.tab=tb.dataset.tab; renderDetail(state.detail); }
+  });
+  modal.addEventListener('change', e=>{
+    const t = e.target;
+    if(t.id==='showOut'){ state.showOut=t.checked; renderDetail(state.detail); return; }
+    if(t.dataset.ov){
+      const id=t.dataset.ov, rec = findRec(id);
+      const def = rec ? inclDefault(rec) : true;
+      if(t.checked===def) delete state.ov[id]; else state.ov[id] = t.checked?'in':'out';
+      renderAll();
+    }
+  });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeDetail(); });
+
+  $('#btnCsv').addEventListener('click', exportPedido);
+  $('#btnPrint').addEventListener('click', printPedido);
+  $('#btnConf').addEventListener('click', exportConf);
+
+  // sessão e inatividade (mesmo relógio e mesma regra da Central e dos outros apps)
+  ['pointerdown','keydown','wheel','touchstart','scroll'].forEach(ev=>document.addEventListener(ev, ()=>inativMarcar(false), {passive:true, capture:true}));
+  setInterval(()=>{ if(inativVencida()) inativEncerrar(); }, 30000);
+  document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && inativVencida()) inativEncerrar(); });
+  window.addEventListener('storage', ev=>{ if((ev.key===SB.chave || ev.key===null) && !sessaoLer()) mostrarBloqueio('Sessão encerrada', 'Você saiu da Central. Entre de novo e volte aqui.'); });
+  setInterval(conferirNovidade, SB.checarMs);
+
+  carregar(false);
+}
+window.__cubas = {state, compute, norm, buildRec, parseCosmos, carregar};
+init();
+})();
+</script>
+</body>
+</html>

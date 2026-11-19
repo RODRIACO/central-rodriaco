@@ -730,7 +730,7 @@ var SUBMENUS = {
   pcp: [['ordens', 'Ordens'], ['mapa', 'Mapa de Produção'], ['configPcp', 'Configurações']],
   logistica: [['csv', 'Análise CSV']],
   premiacao: [['dashboard', 'Dashboard'], ['resultado', 'Resultado do mês'], ['lancar', 'Lançar mês'], ['notas', 'Notas dos setores'], ['funcionarios', 'Funcionários'], ['historico', 'Histórico'], ['log', 'Log']],
-  apps: [['estoque_livre', 'Estoque Livre'], ['ferramentas', 'Controle de Ferramentas'], ['emprestimos', 'Controle de Empréstimos'], ['canal_denuncia', 'Canal de Denúncia']]
+  apps: [['estoque_livre', 'Estoque Livre'], ['ferramentas', 'Controle de Ferramentas'], ['emprestimos', 'Controle de Empréstimos'], ['compra_cubas', 'Compra de Cubas'], ['canal_denuncia', 'Canal de Denúncia']]
 };
 var NAVEGAR_SUB = {
   cadastros: function (s) { mudarAba(s); },
@@ -1077,6 +1077,7 @@ var APPS_SUPORTE = {
   estoque_livre: { nome: 'Estoque Livre', url: 'apps/estoque-livre/', descricao: 'Sobras e peças livres: foto, reserva e etiqueta com QR.' },
   ferramentas: { nome: 'Controle de Ferramentas', url: 'apps/ferramentas/', descricao: 'Quem está com cada ferramenta, conserto, troca e baixa. Só o administrador altera.' },
   emprestimos: { nome: 'Controle de Empréstimos', url: 'apps/emprestimos/', descricao: 'Empréstimos e adiantamentos dos funcionários: parcelas, juros, descontos, dashboard e impressão. Dados pessoais: só quem for liberado.' },
+  compra_cubas: { nome: 'Compra de Cubas', url: 'apps/compra-cubas/', descricao: 'PCP: necessidade das OPs abertas e consumo médio das concluídas por modelo de cuba, com sugestão de compra. Só análise: não salva nada.' },
   /* login proprio (nao usa a sessao da Central); atalho travado: ver SUBS_TRAVADAS */
   canal_denuncia: { nome: 'Canal de Denúncia', url: 'apps/canal-denuncia/#rh', descricao: 'Painel do RH e da Direção para as denúncias (NR-1). Pede login próprio. Este atalho só aparece para quem está liberado no banco.' }
 };
