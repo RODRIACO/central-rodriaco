@@ -256,6 +256,13 @@ tr:last-child td{border-bottom:0}
 .modal{background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-lg);width:min(440px,100%);max-height:88vh;overflow-y:auto;padding:18px}
 .modal h3{margin:0 0 4px;font-size:16.5px}
 .modal .lead{margin-bottom:14px}
+.modal.rel{width:min(620px,100%)}
+.rel-t{font:600 11.5px/1 var(--sans);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);margin:14px 0 7px}
+.rel-t .muted{text-transform:none;letter-spacing:0;font-weight:400}
+.rel-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.ck{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:6px 10px;border:1px solid var(--line);border-radius:99px;cursor:pointer;margin:0 6px 6px 0;user-select:none}
+.ck input{accent-color:var(--accent);width:15px;height:15px;margin:0}
+@media (max-width:520px){.rel-grid{grid-template-columns:1fr}}
 
 .photorow{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .photorow .pv{position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}
@@ -328,6 +335,7 @@ tr:last-child td{border-bottom:0}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 <script>
 "use strict";
 /* ============================================================
@@ -498,7 +506,7 @@ function preenchendoAlgo() {
 const ehAdmin = () => S.user && S.user.papel === "admin";
 
 /* ---------------- banco (Supabase) ---------------- */
-const VERSAO = "20261109-100131";   /* carimbado por versao.py a cada publicacao */
+const VERSAO = "20261123-103443";   /* carimbado por versao.py a cada publicacao */
 /* Nome da funcao que troca senha, no Supabase. ATENCAO: o painel publicou
    com o nome automatico "clever-worker" e o endereco nao pode ser renomeado.
    No painel ela aparece como "admin-senha"; e a mesma coisa. Se um dia for
@@ -1188,6 +1196,7 @@ function telaBusca() {
   </div>
   <section class="sec"><div class="sec-head"><h2>Resultado</h2><span class="count">${r.length}</span><span class="spacer"></span>
     ${r.length && podeEditar() ? `<button class="btn sm" data-act="etiquetas-zebra">Etiquetas Zebra</button><button class="btn sm" data-act="etiquetas-a4">Folha A4</button>` : ""}
+    <button class="btn sm" data-act="relatorio">Relatório PDF</button>
     ${r.length ? `<button class="btn sm" data-act="exportar">Exportar CSV</button>` : ""}
   </div>
   ${r.length ? `<div class="items">${r.map(cardItem).join("")}</div>`
@@ -1622,6 +1631,7 @@ document.addEventListener("click", async (ev) => {
     case "lembrete": lembrete(it); break;
     case "copiar-vencendo": copiarVencendo(); break;
     case "exportar": exportarCSV(); break;
+    case "relatorio": abrirModalRelatorio(); break;
     case "etiquetas-zebra": await etiquetaZebra(S.view === "vitrine" ? filtrados().filter(i => estado(i) === "disp") : filtrados()); break;
     case "etiquetas-a4": await etiquetasA4(filtrados()); break;
     case "etiqueta-uma": await etiquetaZebra([it]); break;
@@ -1654,6 +1664,12 @@ document.addEventListener("input", (ev) => {
   if (t.id === "q") { S.q = t.value; if (S.view !== "busca") { S.view = "busca"; render(); el("q").focus(); } else render(); return; }
   if (t.dataset.filtro) { S.filtro[t.dataset.filtro] = t.value; const p = t.selectionStart; render(); const n = document.querySelector(`[data-filtro="${t.dataset.filtro}"]`); if (n && n.setSelectionRange) { n.focus(); try { n.setSelectionRange(p, p); } catch (e) {} } else if (n) n.focus(); }
 });
+
+/* relatório em PDF: a contagem de peças acompanha cada mudança nos filtros */
+["input", "change"].forEach(tipo => document.addEventListener(tipo, (ev) => {
+  const form = ev.target && ev.target.closest && ev.target.closest('form[data-form="relatorio"]');
+  if (form) atualizarContagemRel(form);
+}));
 
 document.addEventListener("change", async (ev) => {
   const t = ev.target;
@@ -1702,6 +1718,7 @@ document.addEventListener("submit", async (ev) => {
     };
     return salvarConfig(patch, "Listas e prazos salvos.");
   }
+  if (f.dataset.form === "relatorio") return gerarRelatorioPDF(new FormData(f));
   if (f.dataset.form === "reserva") return confirmarReserva(d);
   if (f.dataset.form === "baixa") return confirmarBaixa(d);
 });
@@ -2101,6 +2118,223 @@ async function exportarCSV() {
   const nome = "estoque-livre-" + new Date().toISOString().slice(0, 10) + ".csv";
   baixar(nome, csv, "text/csv;charset=utf-8");
   toast("CSV baixado.");
+}
+
+/* ---------- relatório em PDF (relação de peças, com filtros e colunas à escolha) ---------- */
+const relSituacao = (i) => {
+  const st = estado(i);
+  return st === "out" ? "Baixado" : st === "disp" ? "Disponível" : "Reservado até " + fmtData(i.reserva.expira);
+};
+const REL_COLUNAS = [
+  { k: "codigo", r: "Código", padrao: true, largura: "wrap", fonte: "courier", v: i => i.code },
+  { k: "item", r: "Item", padrao: true, v: i => i.item || "(sem descrição)" },
+  { k: "familia", r: "Família", padrao: true, v: i => i.familia || "" },
+  { k: "liga", r: "Inox", padrao: true, largura: "wrap", v: i => i.liga || "" },
+  { k: "medidas", r: "Medidas", padrao: true, largura: "wrap", v: i => medidas(i) },
+  { k: "condicao", r: "Estado", padrao: true, largura: "wrap", v: i => i.condicao || "" },
+  { k: "local", r: "Local", padrao: true, v: i => i.local || "" },
+  { k: "situacao", r: "Situação", padrao: true, largura: "wrap", v: relSituacao },
+  { k: "reserva", r: "Reserva (quem / cliente / pedido)", v: i => i.reserva ? [i.reserva.nome, i.reserva.cliente, i.reserva.pedido ? "Ped. " + i.reserva.pedido : ""].filter(Boolean).join(" / ") : "" },
+  { k: "dias", r: "Dias em estoque", largura: "wrap", dir: true, v: i => String(dias(i.createdAt)) },
+  { k: "cadastro", r: "Cadastro", largura: "wrap", v: i => fmtData(i.createdAt) },
+  { k: "obs", r: "Observações", v: i => i.obs || "" },
+  { k: "custo", r: "Custo (R$)", largura: "wrap", dir: true, v: i => (i.custo == null || i.custo === "") ? "" : Number(i.custo).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }
+];
+const REL_SITUACOES = [["ativas", "Disponíveis e reservadas"], ["disp", "Somente disponíveis"], ["res", "Somente reservadas"], ["out", "Baixadas"], ["todas", "Todas (inclui baixadas)"]];
+const REL_ORDENS = [["item", "Item (A a Z)"], ["medida", "Maior medida primeiro"], ["novas", "Mais novas primeiro"], ["antigas", "Mais antigas primeiro"]];
+
+function relOpcoes(fd) {
+  return {
+    sit: fd.get("sit") || "ativas",
+    fam: fd.getAll("fam"), liga: fd.getAll("liga"),
+    cond: fd.get("cond") || "", item: fd.get("item") || "",
+    local: String(fd.get("local") || "").trim().toLowerCase(),
+    comp: num(fd.get("comp")), larg: num(fd.get("larg")), alt: num(fd.get("alt")),
+    parado: num(fd.get("parado")), q: semAcento(fd.get("q") || "").trim(),
+    ordem: fd.get("ordem") || "item", agrupar: fd.get("agrupar") === "1",
+    cols: fd.getAll("col")
+  };
+}
+function relFiltrar(o) {
+  return S.items.filter(it => {
+    if (it.archived) return false;
+    const st = estado(it);
+    if (o.sit === "ativas" && st === "out") return false;
+    if (o.sit === "disp" && st !== "disp") return false;
+    if (o.sit === "res" && !(st === "reservado" || st === "vencendo")) return false;
+    if (o.sit === "out" && st !== "out") return false;
+    if (o.fam.length && o.fam.indexOf(it.familia) === -1) return false;
+    if (o.liga.length && o.liga.indexOf(it.liga) === -1) return false;
+    if (o.cond && it.condicao !== o.cond) return false;
+    if (o.item && it.item !== o.item) return false;
+    if (o.local && !String(it.local || "").toLowerCase().includes(o.local)) return false;
+    for (const k of ["comp", "larg", "alt"]) {
+      if (o[k] != null && !(num(it[k]) != null && num(it[k]) >= o[k])) return false;
+    }
+    if (o.parado != null && !(dias(it.createdAt) > o.parado)) return false;
+    if (o.q) {
+      const alvo = semAcento([it.code, it.item, it.familia, it.liga, it.condicao, it.local, it.obs,
+        it.reserva && it.reserva.nome, it.reserva && it.reserva.cliente, it.reserva && it.reserva.pedido].filter(Boolean).join(" "));
+      if (!alvo.includes(o.q)) return false;
+    }
+    return true;
+  });
+}
+function relOrdenar(lista, o) {
+  const porItem = (a, b) => String(a.item || "").localeCompare(String(b.item || ""), "pt-BR") || (num(b.comp) || 0) - (num(a.comp) || 0);
+  const porMedida = (a, b) => (num(b.comp) || 0) - (num(a.comp) || 0) || (num(b.larg) || 0) - (num(a.larg) || 0) || (num(b.alt) || 0) - (num(a.alt) || 0) || porItem(a, b);
+  const cmp = o.ordem === "medida" ? porMedida
+    : o.ordem === "novas" ? (a, b) => (b.createdAt || 0) - (a.createdAt || 0)
+    : o.ordem === "antigas" ? (a, b) => (a.createdAt || 0) - (b.createdAt || 0)
+    : porItem;
+  return lista.slice().sort(cmp);
+}
+function relResumoFiltros(o) {
+  const r = [];
+  r.push("Situação: " + (REL_SITUACOES.find(s => s[0] === o.sit) || ["", ""])[1]);
+  if (o.fam.length) r.push("Família: " + o.fam.join(", "));
+  if (o.liga.length) r.push("Inox: " + o.liga.join(", "));
+  if (o.cond) r.push("Estado: " + o.cond);
+  if (o.item) r.push("Item: " + o.item);
+  if (o.local) r.push("Local contém: " + o.local);
+  if (o.comp != null) r.push("Comp. mín.: " + o.comp + " mm");
+  if (o.larg != null) r.push("Larg. mín.: " + o.larg + " mm");
+  if (o.alt != null) r.push("Alt. mín.: " + o.alt + " mm");
+  if (o.parado != null) r.push("Parados há mais de " + o.parado + " dias");
+  if (o.q) r.push("Busca: " + o.q);
+  return r;
+}
+
+function abrirModalRelatorio() {
+  const f = S.filtro;
+  const sitIni = f.status === "disp" ? "disp" : f.status === "res" ? "res" : f.status === "out" ? "out" : "ativas";
+  const unicos = (a, b) => [...new Set([...(a || []), ...b.filter(Boolean)])];
+  const fams = unicos(S.cfg.familias, S.items.filter(i => !i.archived).map(i => i.familia));
+  const ligas = unicos(S.cfg.ligas, S.items.filter(i => !i.archived).map(i => i.liga));
+  const sel = (nome, opcoes, atual) => `<select class="inp" name="${nome}">${opcoes.map(([v, t]) => `<option value="${esc(v)}" ${atual === v ? "selected" : ""}>${esc(t)}</option>`).join("")}</select>`;
+  const ck = (nome, valor, texto, marcado) => `<label class="ck"><input type="checkbox" name="${nome}" value="${esc(valor)}" ${marcado ? "checked" : ""}> ${esc(texto)}</label>`;
+  el("overlay").insertAdjacentHTML("beforeend", `<div class="mscrim"><form class="modal rel" data-form="relatorio">
+    <h3>Relatório em PDF</h3>
+    <p class="lead">Escolha o que entra na relação. <b data-rel-n></b></p>
+    <div class="rel-t">Situação</div>
+    ${sel("sit", REL_SITUACOES, sitIni)}
+    <div class="rel-t">Família <span class="muted">(nenhuma marcada = todas)</span></div>
+    <div>${fams.map(x => ck("fam", x, x, f.familia === x)).join("")}</div>
+    <div class="rel-t">Inox <span class="muted">(nenhum marcado = todos)</span></div>
+    <div>${ligas.map(x => ck("liga", x, x, f.liga === x)).join("")}</div>
+    <div class="rel-grid" style="margin-top:12px">
+      <label class="f"><span>Estado</span>${sel("cond", [["", "Todos"], ["Novo", "Novo"], ["Usado", "Usado"]], f.condicao)}</label>
+      <label class="f"><span>Item</span>${sel("item", [["", "Todos"]].concat(itensDistintos().map(x => [x, x])), f.item)}</label>
+      <label class="f"><span>Local contém</span><input class="inp" name="local" value="${esc(f.local)}" placeholder="onde está"></label>
+      <label class="f"><span>Busca livre</span><input class="inp" name="q" value="${esc(S.q)}" placeholder="código, item, obs..."></label>
+      <label class="f"><span>Comp. mín. (mm)</span><input class="inp mono" name="comp" inputmode="decimal" value="${esc(f.comp)}"></label>
+      <label class="f"><span>Larg. mín. (mm)</span><input class="inp mono" name="larg" inputmode="decimal" value="${esc(f.larg)}"></label>
+      <label class="f"><span>Alt. mín. (mm)</span><input class="inp mono" name="alt" inputmode="decimal" value="${esc(f.alt)}"></label>
+      <label class="f"><span>Parados há mais de (dias)</span><input class="inp mono" name="parado" inputmode="numeric" placeholder="opcional"></label>
+    </div>
+    <div class="rel-t">Colunas no PDF</div>
+    <div>${REL_COLUNAS.map(c => ck("col", c.k, c.r, c.padrao)).join("")}</div>
+    <div class="rel-grid" style="margin-top:12px">
+      <label class="f"><span>Ordenar por</span>${sel("ordem", REL_ORDENS, "item")}</label>
+      <div class="f"><span>&nbsp;</span><label class="ck" style="margin:0"><input type="checkbox" name="agrupar" value="1" checked> Agrupar por família</label></div>
+    </div>
+    <div class="btnrow" style="margin-top:14px"><button class="btn pri" type="submit">Gerar PDF</button><button class="btn" type="button" data-act="fechar-modal">Cancelar</button></div>
+  </form></div>`);
+  atualizarContagemRel(document.querySelector('form[data-form="relatorio"]'));
+}
+function atualizarContagemRel(form) {
+  if (!form) return;
+  const n = relFiltrar(relOpcoes(new FormData(form))).length;
+  const b = form.querySelector("[data-rel-n]");
+  if (b) b.textContent = n + (n === 1 ? " peça" : " peças") + " no relatório.";
+}
+
+async function gerarRelatorioPDF(fd) {
+  if (typeof jspdf === "undefined" || !jspdf.jsPDF.API || !jspdf.jsPDF.API.autoTable) { toast("O gerador de PDF não carregou. Recarregue a página.", true); return; }
+  const o = relOpcoes(fd);
+  const lista = relOrdenar(relFiltrar(o), o);
+  if (!lista.length) { toast("Nenhuma peça com esses filtros.", true); return; }
+  let cols = REL_COLUNAS.filter(c => o.cols.indexOf(c.k) !== -1);
+  if (o.agrupar) cols = cols.filter(c => c.k !== "familia");   /* a família já está no título do grupo */
+  if (!cols.length) { toast("Marque ao menos uma coluna.", true); return; }
+
+  const { jsPDF } = jspdf;
+  const doc = new jsPDF({ unit: "mm", format: "a4", orientation: "landscape" });
+  const PW = 297, PH = 210, M = 10;
+  const agora_ = new Date();
+  const quando = agora_.toLocaleDateString("pt-BR") + " " + agora_.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+  /* cabeçalho da primeira página */
+  doc.setFont("helvetica", "bold"); doc.setFontSize(16); doc.setTextColor(242, 106, 33);
+  doc.text("RODRIAÇO", M, 14);
+  doc.setTextColor(20); doc.setFontSize(12);
+  doc.text("Relação de peças - Estoque livre", M + 36, 14);
+  doc.setFont("helvetica", "normal"); doc.setFontSize(8.5); doc.setTextColor(90);
+  doc.text("Gerado em " + quando + (S.user ? " por " + S.user.nome : ""), PW - M, 14, { align: "right" });
+  const filtros = doc.splitTextToSize("Filtros: " + relResumoFiltros(o).join("  |  "), PW - 2 * M);
+  doc.text(filtros, M, 20);
+  const yIni = 20 + filtros.length * 4 + 2;
+
+  /* linhas: com agrupamento, uma faixa por família */
+  const n = cols.length;
+  const linha = (it) => cols.map(c => c.v(it));
+  const body = [];
+  if (o.agrupar) {
+    const ordFam = (f) => { const i = (S.cfg.familias || []).indexOf(f); return i === -1 ? 999 : i; };
+    const mapa = new Map();
+    lista.forEach(it => { const g = it.familia || "(sem família)"; if (!mapa.has(g)) mapa.set(g, []); mapa.get(g).push(it); });
+    Array.from(mapa.keys()).sort((a, b) => ordFam(a) - ordFam(b) || a.localeCompare(b, "pt-BR")).forEach(g => {
+      const its = mapa.get(g);
+      body.push([{ content: g.toUpperCase() + "  -  " + its.length + (its.length === 1 ? " peça" : " peças"), colSpan: n, styles: { font: "helvetica", fillColor: [255, 237, 213], textColor: 20, fontStyle: "bold" } }]);
+      its.forEach(it => body.push(linha(it)));
+    });
+  } else {
+    lista.forEach(it => body.push(linha(it)));
+  }
+  const custoTotal = lista.reduce((s, i) => s + (num(i.custo) || 0), 0);
+  const temCusto = cols.some(c => c.k === "custo");
+  body.push([{ content: "TOTAL: " + lista.length + (lista.length === 1 ? " peça" : " peças") + (temCusto && custoTotal ? "  -  custo informado: " + custoTotal.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : ""),
+    colSpan: n, styles: { font: "helvetica", fillColor: [235, 235, 235], textColor: 20, fontStyle: "bold" } }]);
+
+  const colStyles = {};
+  cols.forEach((c, i) => {
+    const s = {};
+    if (c.largura) s.cellWidth = c.largura;
+    if (c.fonte) { s.font = c.fonte; s.fontStyle = "bold"; }
+    if (c.dir) s.halign = "right";
+    colStyles[i] = s;
+  });
+
+  doc.autoTable({
+    head: [cols.map(c => c.r)],
+    body,
+    startY: yIni,
+    margin: { top: 18, left: M, right: M, bottom: 14 },
+    theme: "grid",
+    styles: { font: "helvetica", fontSize: 8.5, cellPadding: 1.8, lineColor: [205, 205, 205], lineWidth: 0.1, textColor: 20, valign: "middle", overflow: "linebreak" },
+    headStyles: { fillColor: [11, 10, 9], textColor: 255, fontStyle: "bold", halign: "left" },
+    columnStyles: colStyles,
+    didDrawPage: (d) => {
+      if (d.pageNumber > 1) {
+        doc.setFont("helvetica", "bold"); doc.setFontSize(9); doc.setTextColor(242, 106, 33);
+        doc.text("RODRIAÇO", M, 11);
+        doc.setTextColor(90); doc.setFont("helvetica", "normal");
+        doc.text("Relação de peças - Estoque livre", M + 24, 11);
+      }
+    }
+  });
+
+  const total = doc.getNumberOfPages();
+  for (let p = 1; p <= total; p++) {
+    doc.setPage(p);
+    doc.setFont("helvetica", "normal"); doc.setFontSize(8); doc.setTextColor(120);
+    doc.text("RODRIAÇO · Estoque Livre", M, PH - 6);
+    doc.text("Página " + p + " de " + total, PW - M, PH - 6, { align: "right" });
+  }
+
+  baixar("estoque-livre-relacao-" + agora_.toISOString().slice(0, 10) + ".pdf", doc.output("blob"));
+  renderOverlay();
+  toast("PDF pronto: " + lista.length + (lista.length === 1 ? " peça." : " peças."));
 }
 
 /* ---------- etiquetas ---------- */
