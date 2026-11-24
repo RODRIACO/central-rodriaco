@@ -100,6 +100,20 @@ textarea.inp{min-height:64px;resize:vertical;font-family:var(--sans)}
 .hint{font-size:11.5px;color:var(--ink-3);margin-top:4px}
 @media(max-width:640px){.grid2,.grid3{grid-template-columns:1fr}}
 
+/* ---------- sugestões enquanto digita ---------- */
+/* Lista própria em vez do <datalist> do navegador: no iPhone o nativo vira
+   uma barrinha acima do teclado, quando aparece. */
+label.f.sugwrap{position:relative}
+.sugbox{position:absolute;left:0;right:0;top:100%;z-index:6;margin-top:3px;
+  background:var(--surface-2);border:1px solid var(--line-2);border-radius:8px;
+  box-shadow:var(--shadow-lg);max-height:198px;overflow:auto;overscroll-behavior:contain}
+.sugit{display:block;width:100%;text-align:left;padding:9px 11px;background:transparent;
+  border:0;border-bottom:1px solid var(--line);color:var(--ink);font-size:13.5px;cursor:pointer}
+.sugit:last-child{border-bottom:0}
+.sugit:hover,.sugit.on{background:var(--accent-soft);color:var(--accent)}
+.sugit b{color:var(--accent);font-weight:700}
+.sugit .qtd{float:right;color:var(--ink-3);font:600 11px/1.5 var(--mono)}
+
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:11px}
 .kpi{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--line-2);border-radius:var(--r);padding:12px 13px;box-shadow:var(--shadow)}
 .kpi .k-lab{font:600 10px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
@@ -235,7 +249,7 @@ td.dim{color:var(--ink-3)}
    banco (RLS), não esta tela.
    ============================================================ */
 
-const VERSAO = "20261109-100131";
+const VERSAO = "20261124-133742";
 const SUPABASE_URL  = "https://vgcwzfeucfkaawwwhvjo.supabase.co";
 const SUPABASE_ANON  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZnY3d6ZmV1Y2ZrYWF3d3dodmpvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODkxMDMyNzEsImV4cCI6MjEwNDY3OTI3MX0.ej6C2X0If1wLBRa4DoX_P2Z8-32IwZoN-AlcWKpM6RY";
 
@@ -860,37 +874,201 @@ function abreFicha(id){
 }
 
 /* ---------- cadastro ---------- */
+/* Mesmo formulário da versão anterior (valor, compra, NF, fornecedor, colaborador, situação,
+   inventário, preço sugerido e sugestões ao digitar). Por baixo, grava no Supabase:
+   o patrimônio novo vem da função do banco, o histórico de cadastro/edição é registrado
+   pelo gatilho do banco, e o valor vai para a tabela separada (só administrador). */
 function formFerramenta(f){
   const novo=!f;
-  f=f||{id:'',codigo:'',descricao:'',patrimonio:'',qtd:1,status:'DISP',setor:'',colaborador:'',local:'',obs:'',dataInventario:hoje()};
+  f=f||{id:'',codigo:'',descricao:'',patrimonio:'',qtd:1,valor:0,dataCompra:'',nf:'',fornecedor:'',
+        status:'DISP',setor:'',colaborador:'',local:'',obs:'',dataInventario:hoje(),dataRetirada:''};
+  const ve=VE();
   modal(novo?'<h2>Nova ferramenta</h2>':'<h2>Editar cadastro</h2>',
   `<div class="grid2">
     <label class="f"><span>Patrimônio / nº série</span><input class="inp" id="eP" value="${esc(f.patrimonio)}" placeholder="carregando…"></label>
     <label class="f"><span>Código</span><input class="inp" id="eC" value="${esc(f.codigo)}" placeholder="150035"></label>
   </div>
-  <label class="f"><span>Descrição</span><input class="inp" id="eD" value="${esc(f.descricao)}" placeholder="ESMERILHADEIRA ANG. 220V 4 1/2"></label>
-  <div class="grid3">
+  <label class="f"><span>Descrição</span><input class="inp" data-sug="item" id="eD" value="${esc(f.descricao)}" placeholder="ESMERILHADEIRA ANG. 220V 4 1/2"></label>
+  <div class="${ve?'grid3':'grid2'}">
     <label class="f"><span>Quantidade</span><input class="inp" id="eQ" type="number" min="1" step="1" value="${f.qtd}"></label>
-    <label class="f"><span>Centro de custo</span><input class="inp" id="eS" list="lSet" value="${esc(f.setor)}"></label>
-    <label class="f"><span>Local / destino</span><input class="inp" id="eL" value="${esc(f.local)}" placeholder="BANCADA 3, OBRA X…"></label>
+    ${ve?`<label class="f"><span>Valor unitário R$</span><input class="inp" id="eV" value="${Number(f.valor)>0?String(f.valor).replace('.',','):''}" placeholder="0,00" inputmode="decimal"></label>
+    <label class="f"><span>Data da compra</span><input class="inp" id="eDC" type="date" value="${esc(f.dataCompra)}"></label>`:''}
+  </div>
+  ${ve?`<div class="grid2">
+    <label class="f"><span>Nota fiscal</span><input class="inp" id="eNF" value="${esc(f.nf)}"></label>
+    <label class="f"><span>Fornecedor</span><input class="inp" id="eFO" value="${esc(f.fornecedor)}"></label>
+  </div>`:''}
+  <div class="grid3">
+    <label class="f"><span>Centro de custo (setor)</span><input class="inp" id="eS" data-sug="setor" value="${esc(f.setor)}"></label>
+    <label class="f"><span>Colaborador</span><input class="inp" id="eCO" data-sug="colab" value="${esc(f.colaborador)}"></label>
+    <label class="f"><span>Situação</span><select class="inp" id="eST">${Object.keys(STATUS).map(s=>
+      '<option value="'+s+'"'+(f.status===s?' selected':'')+'>'+STATUS[s].rot+'</option>').join('')}</select></label>
+  </div>
+  <div class="grid2">
+    <label class="f"><span>Local / destino</span><input class="inp" id="eL" value="${esc(f.local)}" placeholder="BANCADA 3, OBRA X, OFICINA…"></label>
+    <label class="f"><span>Data do inventário</span><input class="inp" id="eDI" type="date" value="${esc(f.dataInventario)}"></label>
   </div>
   <label class="f"><span>Observações</span><textarea class="inp" id="eO">${esc(f.obs)}</textarea></label>
-  <datalist id="lSet">${setores().map(s=>'<option>'+esc(s)+'</option>').join('')}</datalist>
-  <p class="hint">A situação e o colaborador vêm das movimentações — não se digita aqui.${VE()?' O valor fica em "Lançar valor".':''}</p>`,
+  <p class="hint">Situação é normalmente definida pelas movimentações — mexa aqui só para corrigir um cadastro.</p>`,
   [{rot:'Cancelar',fn:fecha},{rot:novo?'Cadastrar':'Salvar',cls:'pri',fn:async()=>{
     const d=up($('#eD').value); if(!d)return toast('Informe a descrição','err');
     const pat=up($('#eP').value); if(!pat)return toast('Informe o patrimônio','err');
+    if(S.ferr.some(x=>x.id!==f.id&&x.patrimonio===pat))return toast('Patrimônio já existe','err');
+    const status=$('#eST').value;
     const dados={patrimonio:pat,codigo:$('#eC').value.trim(),descricao:d,
       qtd:Math.max(1,Number($('#eQ').value)||1),setor:up($('#eS').value),
-      local:up($('#eL').value),obs:$('#eO').value.trim()};
+      colaborador:up($('#eCO').value),status:status,local:up($('#eL').value),
+      data_inventario:$('#eDI').value||null,obs:$('#eO').value.trim(),
+      /* em uso sem data de retirada: começa hoje; o resto mantém o que já havia */
+      data_retirada:f.dataRetirada||(status==='USO'?hoje():null)};
+    const btns=$$('#modalFoot .btn'); btns.forEach(b=>b.disabled=true);
+    let id=f.id;
     try{
-      if(novo){ dados.data_inventario=hoje(); dados.criado_por=S.perfil.nome||S.perfil.email;
-        const {error}=await sb.from('ferramentas').insert(dados); if(error)throw error; }
+      if(novo){ dados.criado_por=S.perfil.nome||S.perfil.email;
+        const {data,error}=await sb.from('ferramentas').insert(dados).select('id').single();
+        if(error)throw error; id=data.id; }
       else { const {error}=await sb.from('ferramentas').update(dados).eq('id',f.id); if(error)throw error; }
-      fecha(); await recarregar(); toast(novo?'Ferramenta cadastrada':'Cadastro salvo','ok');
-    }catch(e){ toast(erroMsg(e),'err'); }
+    }catch(e){ btns.forEach(b=>b.disabled=false); return toast(erroMsg(e),'err'); }
+
+    /* valor, compra, NF e fornecedor: tabela separada, só administrador */
+    if(ve){
+      const val=numBR($('#eV').value), dc=$('#eDC').value||null, nf=$('#eNF').value.trim(), fo=up($('#eFO').value);
+      const tinha=Number(f.valor)>0||f.dataCompra||f.nf||f.fornecedor;
+      if(val>0||dc||nf||fo||tinha){
+        try{
+          const {error}=await sb.from('ferramentas_valor').upsert({
+            ferramenta_id:id, valor:val, data_compra:dc, nf:nf, fornecedor:fo,
+            atualizado_em:new Date().toISOString(), atualizado_por:S.perfil.nome||S.perfil.email
+          },{onConflict:'ferramenta_id'});
+          if(error)throw error;
+        }catch(e){
+          fecha(); await recarregar();
+          return toast((novo?'Ferramenta cadastrada':'Cadastro salvo')+', mas o valor NÃO foi gravado: '+erroMsg(e)+'. Use "Lançar valor".','err');
+        }
+      }
+    }
+    fecha(); await recarregar(); toast(novo?'Ferramenta cadastrada':'Cadastro salvo','ok');
   }}],'wide');
+
   if(novo) sb.rpc('ferr_proximo_patrimonio').then(r=>{ const el=$('#eP'); if(el&&!el.value&&r.data)el.value=r.data; });
+
+  /* Descrição de um item que já tem preço único: o valor vem junto.
+     Só preenche campo vazio — nunca troca um valor que a pessoa digitou. */
+  const eD=$('#eD'), eV=$('#eV');
+  if(eD&&eV){
+    const puxaPreco=()=>{
+      if(eV.value.trim()) return;
+      const p=precoUnicoDe(eD.value, f.id);
+      if(p){ eV.value=String(p).replace('.',','); toast('Preço de '+chaveItem(eD.value)+' preenchido: '+brl(p)); }
+    };
+    eD.addEventListener('change',puxaPreco);   // escolheu na lista de sugestões
+    eD.addEventListener('blur',puxaPreco);     // ou digitou e saiu do campo
+  }
+}
+
+/* ============================================================
+   PREÇO POR ITENS IGUAIS
+   Ferramenta sem valor recebe o preço de outra com a MESMA descrição
+   que já tem valor. Só copia quando o preço é único: item repetido com
+   preços diferentes fica para a pessoa decidir.
+   Comparação exata (só espaços e maiúsculas normalizados) — de propósito:
+   "REBITADEIRA" x "RIBITADEIRA" podem até ser a mesma coisa, mas preço
+   errado é pior que preço em branco.
+   ============================================================ */
+const chaveItem = s=>String(s||'').replace(/\s+/g,' ').trim().toUpperCase();
+function precoUnicoDe(desc, exceto){
+  const k=chaveItem(desc); if(!k) return null;
+  const precos=[...new Set(S.ferr
+    .filter(x=>x.id!==exceto && chaveItem(x.descricao)===k && Number(x.valor)>0)
+    .map(x=>Math.round(Number(x.valor)*100)/100))];
+  return precos.length===1 ? precos[0] : null;
+}
+
+/* ============================================================
+   SUGESTÕES ENQUANTO DIGITA
+   Campos marcados com data-sug="item|setor|colab".
+   Serve para não digitar de novo e, principalmente, para não nascer
+   "BOMBA VACUO" e "BOMBA A VACUO" como se fossem coisas diferentes —
+   o painel agrupa por essa descrição.
+   ============================================================ */
+const semAcento = s=>String(s==null?'':s).normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
+
+/* descrições já cadastradas, as mais usadas primeiro */
+function listaItens(){
+  const m=new Map();
+  S.ferr.forEach(f=>{const d=(f.descricao||'').trim(); if(d)m.set(d,(m.get(d)||0)+1);});
+  return [...m].sort((a,b)=>b[1]-a[1]||a[0].localeCompare(b[0],'pt-BR')).map(x=>({v:x[0],n:x[1]}));
+}
+const FONTES={
+  item : listaItens,
+  setor: ()=>setores().map(v=>({v:v,n:0})),
+  colab: ()=>colabs().map(v=>({v:v,n:0}))
+};
+function realce(txt,q){
+  const t=semAcento(txt);
+  if(!q || t.length!==txt.length) return esc(txt);   // acento raro mexeu no tamanho: não arrisca o corte
+  const i=t.indexOf(q);
+  if(i<0) return esc(txt);
+  return esc(txt.slice(0,i))+'<b>'+esc(txt.slice(i,i+q.length))+'</b>'+esc(txt.slice(i+q.length));
+}
+function ligaSugestoes(raiz){
+  $$('[data-sug]',raiz||document).forEach(inp=>{
+    if(inp._sug)return; inp._sug=true;
+    const fonte=FONTES[inp.dataset.sug]; if(!fonte)return;
+    const lab=inp.closest('label')||inp.parentElement;
+    lab.classList.add('sugwrap');
+    const cx=document.createElement('div'); cx.className='sugbox'; cx.hidden=true;
+    lab.appendChild(cx);
+    let itens=[], idx=-1;
+
+    const fechar=()=>{cx.hidden=true; idx=-1;};
+    function abrir(){
+      const q=semAcento(inp.value);
+      let r=fonte();
+      if(q) r=r.filter(x=>semAcento(x.v).indexOf(q)>=0);
+      // já digitou exatamente o que existe: não tem o que sugerir
+      if(r.length===1 && semAcento(r[0].v)===q) return fechar();
+      r=r.slice(0,8);
+      if(!r.length) return fechar();
+      itens=r; idx=-1;
+      cx.innerHTML=r.map((x,i)=>'<button type="button" class="sugit" data-i="'+i+'">'+
+        realce(x.v,q)+(x.n>1?'<span class="qtd">'+x.n+'</span>':'')+'</button>').join('');
+      cx.hidden=false;
+    }
+    function escolhe(i){
+      if(i<0||i>=itens.length)return;
+      inp.value=itens[i].v; fechar();
+      inp.dispatchEvent(new Event('change',{bubbles:true}));
+    }
+    const marca=()=>$$('.sugit',cx).forEach((b,i)=>{
+      b.classList.toggle('on',i===idx);
+      if(i===idx && b.scrollIntoView) b.scrollIntoView({block:'nearest'});
+    });
+
+    inp.setAttribute('autocomplete','off');
+    inp.addEventListener('input',abrir);
+    inp.addEventListener('focus',abrir);
+    /* o clique na sugestão chega depois do blur: espera um pouco antes de sumir */
+    inp.addEventListener('blur',()=>setTimeout(fechar,150));
+    inp.addEventListener('keydown',e=>{
+      if(cx.hidden){ if(e.key==='ArrowDown')abrir(); return; }
+      if(e.key==='ArrowDown'){e.preventDefault(); idx=Math.min(idx+1,itens.length-1); marca();}
+      else if(e.key==='ArrowUp'){e.preventDefault(); idx=Math.max(idx-1,0); marca();}
+      else if(e.key==='Enter'&&idx>=0){e.preventDefault(); escolhe(idx);}
+      else if(e.key==='Escape'){e.stopPropagation(); fechar();}   // Esc fecha a lista, não o formulário
+    });
+    /* No mouse, mousedown chega antes do blur do campo. No toque do iPhone nem
+       sempre chega, então o click fica de reserva — ele acontece dentro dos
+       150ms que o blur espera, com a lista ainda de pé. Não uso preventDefault
+       no touch para não matar a rolagem de dentro da lista. */
+    const pegar=e=>{
+      const b=e.target.closest('.sugit'); if(!b)return;
+      if(e.type==='mousedown') e.preventDefault();
+      escolhe(Number(b.dataset.i));
+    };
+    cx.addEventListener('mousedown',pegar);
+    cx.addEventListener('click',pegar);
+  });
 }
 
 function formValor(f){
@@ -931,20 +1109,20 @@ function formMov(f,tipo){
 
   let campos=`<label class="f"><span>Data</span><input class="inp" id="mD" type="date" value="${hoje()}"></label>`;
   if(tipo==='ENT')campos+=`<div class="grid2">
-      <label class="f"><span>Colaborador *</span><input class="inp" id="mCO" list="lCol" value="${esc(f.colaborador)}" placeholder="NOME"></label>
-      <label class="f"><span>Centro de custo</span><input class="inp" id="mS" list="lSet" value="${esc(f.setor)}"></label></div>
+      <label class="f"><span>Colaborador *</span><input class="inp" id="mCO" data-sug="colab" value="${esc(f.colaborador)}" placeholder="NOME"></label>
+      <label class="f"><span>Centro de custo</span><input class="inp" id="mS" data-sug="setor" value="${esc(f.setor)}"></label></div>
     <label class="f"><span>Local de uso</span><input class="inp" id="mL" value="${esc(f.local)}" placeholder="BANCADA, OBRA, VEÍCULO…"></label>`;
   if(tipo==='DEV')campos+=`<label class="f"><span>Condição na devolução</span><input class="inp" id="mMO" placeholder="OK / COM DEFEITO"></label>`;
   if(tipo==='TRF')campos+=`<div class="grid2">
-      <label class="f"><span>Novo centro de custo *</span><input class="inp" id="mS" list="lSet" placeholder="MONTAGEM"></label>
-      <label class="f"><span>Colaborador</span><input class="inp" id="mCO" list="lCol" value="${esc(f.colaborador)}"></label></div>`;
+      <label class="f"><span>Novo centro de custo *</span><input class="inp" id="mS" data-sug="setor" placeholder="MONTAGEM"></label>
+      <label class="f"><span>Colaborador</span><input class="inp" id="mCO" data-sug="colab" value="${esc(f.colaborador)}"></label></div>`;
   if(tipo==='CEN')campos+=`<div class="grid2">
       <label class="f"><span>Oficina / fornecedor *</span><input class="inp" id="mL" placeholder="OFICINA X"></label>
       <label class="f"><span>Previsão de retorno</span><input class="inp" id="mPR" type="date"></label></div>
     <label class="f"><span>Defeito</span><input class="inp" id="mMO" placeholder="NÃO LIGA, ESCOVA GASTA…"></label>`;
   if(tipo==='CRE')campos+=`<div class="grid2">
       ${VE()?'<label class="f"><span>Custo do conserto R$</span><input class="inp" id="mCU" inputmode="decimal" placeholder="0,00"></label>':''}
-      <label class="f"><span>Volta para</span><input class="inp" id="mCO" list="lCol" value="${esc(f.colaborador)}" placeholder="vazio = almoxarifado"></label></div>
+      <label class="f"><span>Volta para</span><input class="inp" id="mCO" data-sug="colab" value="${esc(f.colaborador)}" placeholder="vazio = almoxarifado"></label></div>
     <label class="f"><span>Serviço executado</span><input class="inp" id="mMO" placeholder="TROCA DE ESCOVAS"></label>`;
   if(tipo==='TRO'){
     const cand=S.ferr.filter(x=>x.id!==f.id&&x.status==='DISP');
@@ -964,7 +1142,7 @@ function formMov(f,tipo){
       </div>`;
   }
   if(tipo==='PER'||tipo==='SUC')campos+=`<div class="grid2">
-      <label class="f"><span>Responsável na ocorrência</span><input class="inp" id="mCO" list="lCol" value="${esc(f.colaborador)}"></label>
+      <label class="f"><span>Responsável na ocorrência</span><input class="inp" id="mCO" data-sug="colab" value="${esc(f.colaborador)}"></label>
       <label class="f"><span>Motivo *</span><input class="inp" id="mMO" placeholder="${tipo==='PER'?'EXTRAVIADA NA OBRA…':'MOTOR QUEIMADO…'}"></label></div>
     <div class="alertbox"><span>⚠</span><div>A ferramenta sai do parque${VE()?' e o valor de <b>'+brl(valorDe(f))+'</b> passa a contar como '+(tipo==='PER'?'perda':'sucata'):''}. O histórico é mantido.</div></div>`;
   campos+=`<label class="f"><span>Observações</span><textarea class="inp" id="mOB"></textarea></label>
@@ -1031,6 +1209,7 @@ function modal(tituloHTML,corpoHTML,botoes,classe){
     el.className='btn '+(b.cls||''); el.textContent=b.rot; el.onclick=b.fn; ft.appendChild(el);});
   $('#mX').onclick=fecha;
   sc.addEventListener('mousedown',e=>{if(e.target===sc)fecha();});
+  ligaSugestoes(sc);
   const foco=sc.querySelector('input,select,textarea'); if(foco)setTimeout(()=>foco.focus(),40);
 }
 function fecha(){const s=$('#scrim'); if(s)s.remove();}
